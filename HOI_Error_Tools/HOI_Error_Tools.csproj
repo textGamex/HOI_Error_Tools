@@ -11,4 +11,9 @@
     <Folder Include="HOIParser\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="CWTools" Version="0.4.0-alpha4" />
+    <PackageReference Include="HandyControl" Version="3.4.0" />
+  </ItemGroup>
+
 </Project>
