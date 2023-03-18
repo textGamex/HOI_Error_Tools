@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers.Error;
@@ -12,14 +14,14 @@ public class StateFileAnalyzer : AnalyzerBase
     /// <summary>
     /// 在文件中注册的省份ID
     /// </summary>
-    public readonly HashSet<uint> _registeredProvince;
-    private static readonly List<Province> _existingProvinces = new();
-    private static readonly Dictionary<uint, List<string>> _repeatedProvinceFilePathMap = new();
+    private readonly IReadOnlySet<uint> _registeredProvince;
+    private static readonly ConcurrentBag<Province> existingProvinces = new();
+    private static readonly ConcurrentDictionary<uint, List<string>> repeatedProvinceFilePathMap = new();
 
     public StateFileAnalyzer(string filePath, StateResources resources)
     {
         _filePath = filePath;
-        _registeredProvince = new HashSet<uint>(resources.RegisteredProvinceSet);
+        _registeredProvince = resources.RegisteredProvinceSet;
     }
 
     public override IEnumerable<ErrorMessage> GetErrorMessages()
@@ -127,12 +129,12 @@ public class StateFileAnalyzer : AnalyzerBase
 
         foreach (var u in provincesSet)
         {
-            if (_repeatedProvinceFilePathMap.TryGetValue(u, out var filePathList))
+            if (repeatedProvinceFilePathMap.TryGetValue(u, out var filePathList))
             {
                 filePathList.Add(_filePath);
                 continue;
             }
-            foreach (var existingProvince in _existingProvinces)
+            foreach (var existingProvince in existingProvinces)
             {
                 if (existingProvince.IsExists(u))
                 {
@@ -142,7 +144,7 @@ public class StateFileAnalyzer : AnalyzerBase
             }
         }
 
-        _existingProvinces.Add(new Province(_filePath, position.Line, provincesSet));
+        existingProvinces.Add(new Province(_filePath, position.Line, provincesSet));
         return errorList;
     }
 
@@ -154,7 +156,7 @@ public class StateFileAnalyzer : AnalyzerBase
     /// <returns></returns>
     private static IEnumerable<string> GetRepeatProvinceFilePaths(uint province, string filePath)
     {
-        if (_repeatedProvinceFilePathMap.TryGetValue(province, out var filePathList))
+        if (repeatedProvinceFilePathMap.TryGetValue(province, out var filePathList))
         {
             filePathList.Add(filePath);
             return filePathList;
@@ -166,7 +168,10 @@ public class StateFileAnalyzer : AnalyzerBase
     private static IEnumerable<string> RegisterToRepeatedProvinceFilePathMap(uint province, string filePath)
     {
         var list = new List<string> { filePath };
-        _repeatedProvinceFilePathMap.Add(province, list);
+        if (!repeatedProvinceFilePathMap.TryAdd(province, list))
+        {
+            throw new ArgumentException("数据添加失败");
+        }
         return list;
     }
 
