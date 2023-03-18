@@ -5,11 +5,20 @@
     xmlns:local="clr-namespace:HOI_Error_Tools"
     StartupUri="MainWindow.xaml">
     <Application.Resources>
+
         <ResourceDictionary>
+
             <ResourceDictionary.MergedDictionaries>
+
                 <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinDefault.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml" />
+
+                <ResourceDictionary Source="/Resources/StringDictionary.xaml" />
+
             </ResourceDictionary.MergedDictionaries>
+
         </ResourceDictionary>
+
     </Application.Resources>
+
 </Application>

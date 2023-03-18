@@ -2,18 +2,34 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows10.0.18362.0</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+    <UseWindowsForms>True</UseWindowsForms>
+    <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="HOIParser\" />
+    <Folder Include="Logic\HOIParser\" />
+    <Folder Include="Logic\CustomException\" />
+    <Folder Include="View\" />
+    <Folder Include="ViewModels\" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.1.0" />
+    <PackageReference Include="CsvHelper" Version="30.0.1" />
     <PackageReference Include="CWTools" Version="0.4.0-alpha4" />
+    <PackageReference Include="FParsec" Version="1.1.1" />
+    <PackageReference Include="FSharp.Core" Version="7.0.200" />
     <PackageReference Include="HandyControl" Version="3.4.0" />
+    <PackageReference Include="NLog" Version="5.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
