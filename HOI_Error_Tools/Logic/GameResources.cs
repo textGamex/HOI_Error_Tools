@@ -1,22 +1,32 @@
 ﻿using CsvHelper;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using HOI_Error_Tools.Logic.Analyzers.Common;
 
-namespace HOI_Error_Tools.Logic.Analyzers.State;
+namespace HOI_Error_Tools.Logic;
 
-/// <summary>
-/// 保存着分析 State 文件所需要的资源
-/// </summary>
-public class StateResources
+public class GameResources
 {
     public IReadOnlySet<uint> RegisteredProvinceSet => _registeredProvinces;
-    private readonly HashSet<uint> _registeredProvinces;
+    public IReadOnlyDictionary<string, BuildingInfo> BuildingInfoMap => _buildingInfos;
 
-    public StateResources(GameResourcesPath gameResourcesPath)
+    private readonly ImmutableDictionary<string, BuildingInfo> _buildingInfos;
+    private readonly ImmutableHashSet<uint> _registeredProvinces;
+
+    public GameResources(GameResourcesPath paths)
     {
-        _registeredProvinces = GetRegisteredProvinceSet(gameResourcesPath.ProvincesDefinitionFilePath);
+        _registeredProvinces = ImmutableHashSet.CreateRange(
+            GetRegisteredProvinceSet(paths.ProvincesDefinitionFilePath));
+        _buildingInfos = ImmutableDictionary.CreateRange(
+            GetRegisteredBuildings(paths.BuildingsFilePathList));
+    }
+
+    private static Dictionary<string, BuildingInfo> GetRegisteredBuildings(IEnumerable<string> filePath)
+    {
+        return null;
     }
 
     /// <summary>
@@ -27,7 +37,7 @@ public class StateResources
     /// </remarks>
     /// <param name="filePath">definition.csv 文件的绝对路径</param>
     /// <returns></returns>
-    private static HashSet<uint> GetRegisteredProvinceSet(string filePath)
+    private static IEnumerable<uint> GetRegisteredProvinceSet(string filePath)
     {
         var set = new HashSet<uint>(13257);
         using var reader = new StreamReader(filePath, Encoding.UTF8);

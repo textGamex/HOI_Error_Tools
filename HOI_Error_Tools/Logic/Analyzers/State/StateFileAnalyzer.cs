@@ -11,6 +11,7 @@ namespace HOI_Error_Tools.Logic.Analyzers.State;
 public class StateFileAnalyzer : AnalyzerBase
 {
     private readonly string _filePath;
+
     /// <summary>
     /// 在文件中注册的省份ID
     /// </summary>
@@ -18,7 +19,7 @@ public class StateFileAnalyzer : AnalyzerBase
     private static readonly ConcurrentBag<Province> existingProvinces = new();
     private static readonly ConcurrentDictionary<uint, List<string>> repeatedProvinceFilePathMap = new();
 
-    public StateFileAnalyzer(string filePath, StateResources resources)
+    public StateFileAnalyzer(string filePath, GameResources resources)
     {
         _filePath = filePath;
         _registeredProvince = resources.RegisteredProvinceSet;
@@ -138,8 +139,11 @@ public class StateFileAnalyzer : AnalyzerBase
             {
                 if (existingProvince.IsExists(u))
                 {
-                    errorList.Add(
-                        new ErrorMessage(GetRepeatProvinceFilePaths(u, _filePath), position, "Province 重复分配", ErrorType.DuplicateValue));
+                    errorList.Add(new ErrorMessage(
+                            GetRepeatProvinceFilePaths(u, _filePath),
+                            position,
+                            $"Province {u} 重复分配",
+                            ErrorType.DuplicateValue));
                 }
             }
         }

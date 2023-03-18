@@ -7,9 +7,13 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>True</UseWindowsForms>
     <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
+    <AnalysisLevel>6.0-recommended</AnalysisLevel>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
+
   <ItemGroup>
+    <Folder Include="Logic\Analyzers\Common\" />
     <Folder Include="Logic\HOIParser\" />
     <Folder Include="Logic\CustomException\" />
     <Folder Include="View\" />
@@ -23,7 +27,12 @@
     <PackageReference Include="FParsec" Version="1.1.1" />
     <PackageReference Include="FSharp.Core" Version="7.0.200" />
     <PackageReference Include="HandyControl" Version="3.4.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="NLog" Version="5.1.2" />
+    <PackageReference Include="System.Collections.Immutable" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using HOI_Error_Tools.Logic.HOIParser;
 using HOI_Error_Tools.Logic.CustomException;
@@ -21,8 +22,11 @@ public class Descriptor
 
     public string PictureName { get; } = string.Empty;
 
-    public IEnumerable<string> ReplacePaths => _replacePaths;
-    private readonly List<string> _replacePaths;
+    /// <summary>
+    /// 保存着替换的文件夹相对路径的只读集合
+    /// </summary>
+    public IReadOnlySet<string> ReplacePaths => _replacePaths;
+    private readonly ImmutableHashSet<string> _replacePaths;
 
     /// <summary>
     /// 按文件绝对路径构建
@@ -39,7 +43,8 @@ public class Descriptor
             throw new ParseException($"解析失败 => {path}");
         }
 
-        _replacePaths = new List<string>();
+        var replacePathsBuilder = ImmutableHashSet.CreateBuilder<string>();
+        
         var root = parser.GetResult();
         var result = root.Leaves;
 
@@ -60,18 +65,17 @@ public class Descriptor
                     Version = item.ValueText;
                     break;
                 case ScriptKeyWords.ReplacePath:
-                    _replacePaths.Add(item.ValueText);
+                    var parts = item.ValueText.Split('/');
+                    replacePathsBuilder.Add(Path.Combine(parts));
                     break;
             }
         }
-        _replacePaths.TrimExcess();
+        _replacePaths = replacePathsBuilder.ToImmutable();
 
         if (root.Has(ScriptKeyWords.Tags))
         {
             var tags = root.Child(ScriptKeyWords.Tags).Value;
-            var list = tags.LeafValues.Select(x => x.Key).ToList();
-            list.TrimExcess();
-            Tags = list;
+            Tags = ImmutableList.CreateRange(tags.LeafValues.Select(x => x.Key));
         }
         else
         {

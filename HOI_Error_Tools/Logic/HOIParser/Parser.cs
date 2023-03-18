@@ -44,11 +44,11 @@ public class Parser
 
     public Node GetResult()
     {
-        return _node ?? throw new ArgumentNullException($"文件解析失败, 无法返回解析结果, 文件路径: {FilePath}.");
+        return _node ?? throw new InvalidOperationException($"文件解析失败, 无法返回解析结果, 文件路径: {FilePath}.");
     }
 
     public ParserError GetError()
     {
-        return _error ?? throw new ArgumentNullException();
+        return _error ?? throw new InvalidOperationException();
     }
 }

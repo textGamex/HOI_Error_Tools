@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
+using System.Diagnostics;
 using System.Linq;
 using HOI_Error_Tools.Logic.Analyzers;
 
@@ -15,8 +17,11 @@ public sealed class GameResourcesPath
     public string GameLocPath { get; }
     public string ModLocPath { get; }
     public string ProvincesDefinitionFilePath { get; }
-    public IReadOnlyList<string> StatesPathList => _statesPathList.AsReadOnly();
-    private readonly List<string> _statesPathList;
+    public IReadOnlyCollection<string> BuildingsFilePathList => _buildingsFilePathList;
+    public IReadOnlyCollection<string> StatesPathList => _statesPathList;
+
+    private readonly ImmutableList<string> _statesPathList;
+    private readonly ImmutableList<string> _buildingsFilePathList;
     private readonly Descriptor _descriptor;
 
     public GameResourcesPath(string gameRootPath, string modRootPath)
@@ -34,10 +39,13 @@ public sealed class GameResourcesPath
         ModRootPath = modRootPath;
         GameLocPath = GetLocPath(GameRootPath);
         ModLocPath = GetLocPath(ModRootPath);
-        ProvincesDefinitionFilePath = GetFilePathPriorModByRelativePath(Path.Combine("map", "definition.csv"));
+        ProvincesDefinitionFilePath = GetFilePathPriorModByRelativePath(Path.Combine(Key.Map, "definition.csv"));
 
         _descriptor = new Descriptor(modRootPath);
-        _statesPathList = GetStatesFilePathList().ToList();
+        _buildingsFilePathList = ImmutableList.CreateRange(
+            GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, Key.Buildings)));
+        _statesPathList = ImmutableList.CreateRange(
+            GetAllFilePriorModByRelativePathForFolder(Path.Combine(ScriptKeyWords.History, Key.States)));
     }
 
     private static string GetLocPath(string rootPath)
@@ -48,43 +56,69 @@ public sealed class GameResourcesPath
     /// <summary>
     /// 根据相对路径获得游戏或者Mod文件的绝对路径, 优先Mod
     /// </summary>
-    /// <param name="relativePath">根目录下的相对路径</param>
+    /// <remarks>
+    /// 注意: 此方法会忽略mod描述文件中的 replace_path 指令
+    /// </remarks>
+    /// <param name="fileRelativePath">根目录下的相对路径</param>
     /// <exception cref="FileNotFoundException">游戏和mod中均不存在</exception>
     /// <returns></returns>
-    private string GetFilePathPriorModByRelativePath(string relativePath)
+    private string GetFilePathPriorModByRelativePath(string fileRelativePath)
     {
-        var modFilePath = Path.Combine(ModRootPath, relativePath);
+        var modFilePath = Path.Combine(ModRootPath, fileRelativePath);
         if (File.Exists(modFilePath))
         {
             return modFilePath;
         }
 
-        var gameFilePath = Path.Combine(GameRootPath, relativePath);
+        var gameFilePath = Path.Combine(GameRootPath, fileRelativePath);
         if (File.Exists(gameFilePath))
         {
             return gameFilePath;
         }
         
-        throw new FileNotFoundException($"在Mod和游戏中均找不到目标文件 '{relativePath}'");
+        throw new FileNotFoundException($"在Mod和游戏中均找不到目标文件 '{fileRelativePath}'");
     }
 
-    private IEnumerable<string> GetStatesFilePathList()
+    /// <summary>
+    /// 获得所有应该加载的文件绝对路径, Mod优先, 遵循 replace_path 指令
+    /// </summary>
+    /// <param name="folderRelativePath"></param>
+    /// <returns></returns>
+    /// <exception cref="DirectoryNotFoundException"></exception>
+    private IEnumerable<string> GetAllFilePriorModByRelativePathForFolder(string folderRelativePath)
     {
-        var gameFolder = Path.Combine(GameRootPath, ScriptKeyWords.History, Key.States);
-        var modFolder = Path.Combine(ModRootPath, ScriptKeyWords.History, Key.States);
+        var modFolder = Path.Combine(ModRootPath, folderRelativePath);
+        var gameFolder = Path.Combine(GameRootPath, folderRelativePath);
 
-        if (_descriptor.ReplacePaths.Contains("history/states"))
+        if (!Directory.Exists(gameFolder))
+        {
+            throw new DirectoryNotFoundException($"找不到文件夹 {gameFolder}");
+        }
+
+        if (!Directory.Exists(modFolder))
+        {
+            return GetAllFilePathForFolder(gameFolder);
+        }
+
+        if (_descriptor.ReplacePaths.Contains(folderRelativePath))
         {
             return GetAllFilePathForFolder(modFolder);
         }
 
-        var modFilePathList = GetAllFilePathForFolder(modFolder);
-        var gameFilePathList = GetAllFilePathForFolder(gameFolder);
-        return RemoveFileOfEqualName(gameFilePathList, modFilePathList);
+        var gameFilesPath = GetAllFilePathForFolder(gameFolder);
+        var modFilesPath = GetAllFilePathForFolder(modFolder);
+        return RemoveFileOfEqualName(gameFilesPath, modFilesPath);
     }
 
+    /// <summary>
+    /// 获得一个文件夹下的所有文件
+    /// </summary>
+    /// <param name="folderPath"></param>
+    /// <returns></returns>
     private static IEnumerable<string> GetAllFilePathForFolder(string folderPath)
     {
+        Debug.Assert(Directory.Exists(folderPath), $"文件夹不存在 {folderPath}");
+
         var dir = new DirectoryInfo(folderPath);
         var files = dir.GetFiles();
         return files.Select(f => f.FullName).ToList();
@@ -116,5 +150,8 @@ public sealed class GameResourcesPath
     private static class Key
     {
         public const string States = "states";
+        public const string Map = "map";
+        public const string Common = "common";
+        public const string Buildings = "buildings";
     }
 }

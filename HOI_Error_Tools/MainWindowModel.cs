@@ -59,19 +59,5 @@ public partial class MainWindowModel : ObservableObject
         {
             return;
         }
-
-        var paths = new GameResourcesPath(GameRootPath, ModRootPath);
-        var errorList = new List<ErrorMessage>();
-
-        foreach (var s in paths.StatesPathList)
-        {
-            errorList.AddRange(new StateFileAnalyzer(s, new StateResources(paths)).GetErrorMessages());
-        }
-
-        _logger.Info(errorList.Count);
-/*        foreach (var errorMessage in errorList)
-        {
-            _logger.Info(errorMessage.Message);
-        }*/
     }
 }
