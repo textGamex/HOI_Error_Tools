@@ -17,8 +17,8 @@ public sealed class GameResourcesPath
     public string GameLocPath { get; }
     public string ModLocPath { get; }
     public string ProvincesDefinitionFilePath { get; }
-    public IReadOnlyCollection<string> BuildingsFilePathList => _buildingsFilePathList;
-    public IReadOnlyCollection<string> StatesPathList => _statesPathList;
+    public IImmutableList<string> BuildingsFilePathList => _buildingsFilePathList;
+    public IImmutableList<string> StatesPathList => _statesPathList;
 
     private readonly ImmutableList<string> _statesPathList;
     private readonly ImmutableList<string> _buildingsFilePathList;
@@ -136,6 +136,7 @@ public sealed class GameResourcesPath
         var set = new HashSet<string>();
 
         // 优先读取Mod文件
+        // 使用 ChatGPT 生成
         foreach (var filePath in modFilePathList.Concat(gameFilePathList))
         {
             var fileName = Path.GetFileName(filePath) ?? throw new FileFormatException($"无法得到文件名 {filePath}");

@@ -6,7 +6,7 @@ using CWTools.Process;
 
 namespace HOI_Error_Tools.Logic.HOIParser;
 
-public class Parser
+public class CWToolsParser
 {
     public string FilePath { get; }
 
@@ -23,7 +23,7 @@ public class Parser
     /// </summary>
     /// <param name="filePath"></param>
     /// <exception cref="FileNotFoundException">如果文件不存在</exception>
-    public Parser(string filePath)
+    public CWToolsParser(string filePath)
     {
         FilePath = File.Exists(filePath) ? filePath : throw new FileNotFoundException($"找不到文件: {filePath}" , filePath);
         var fileName = Path.GetFileName(filePath);
@@ -37,7 +37,7 @@ public class Parser
         _node = Parsers.ProcessStatements(fileName, filePath, result.GetResult());
     }
 
-    static Parser()
+    static CWToolsParser()
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
     }

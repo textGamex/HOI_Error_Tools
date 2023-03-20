@@ -1,21 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
+using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
 using HOI_Error_Tools.Logic;
 using HOI_Error_Tools.Logic.Analyzers;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.State;
+using HOI_Error_Tools.View;
 using NLog;
 
 namespace HOI_Error_Tools
@@ -32,9 +39,26 @@ namespace HOI_Error_Tools
             InitializeComponent();
 
             this.DataContext = new MainWindowModel();
+
+            WeakReferenceMessenger.Default.Register<MainWindow, ValueChangedMessage<IImmutableList<ErrorMessage>>>(this, (_, list) =>
+            {
+                Dispatcher.InvokeAsync(() =>
+                {
+                    var win = new ErrorMessageWindowView(list.Value);
+                    win.Show();
+#if RELEASE
+                    this.Close();
+#endif
+                });
+            });
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Process.Start("Explorer.exe");
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
         {
         }
     }

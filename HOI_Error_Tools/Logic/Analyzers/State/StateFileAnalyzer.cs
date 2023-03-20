@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers.Error;
+using HOI_Error_Tools.Logic.Analyzers.Util;
 using HOI_Error_Tools.Logic.HOIParser;
 
 namespace HOI_Error_Tools.Logic.Analyzers.State;
@@ -27,7 +28,7 @@ public class StateFileAnalyzer : AnalyzerBase
 
     public override IEnumerable<ErrorMessage> GetErrorMessages()
     {
-        var parser = new Parser(_filePath);
+        var parser = new CWToolsParser(_filePath);
         var errorList = new List<ErrorMessage>();
 
         if (parser.IsFailure)
@@ -46,7 +47,9 @@ public class StateFileAnalyzer : AnalyzerBase
         }
 
         result = result.Child(ScriptKeyWords.State).Value;
-        errorList.AddRange(AssertKeywordExistsInCurrentNode(result,
+        var helper = new AnalyzeHelper(_filePath, result);
+
+        errorList.AddRange(helper.AssertKeywordExistsInCurrentNode(
             ScriptKeyWords.Id,
             ScriptKeyWords.StateCategory,
             ScriptKeyWords.Manpower,
@@ -54,48 +57,10 @@ public class StateFileAnalyzer : AnalyzerBase
             ScriptKeyWords.History,
             ScriptKeyWords.Provinces
             ));
-        errorList.AddRange(AssertKeywordExistsInChild(result, ScriptKeyWords.History, ScriptKeyWords.Owner));
+        errorList.AddRange(helper.AssertKeywordExistsInChild(ScriptKeyWords.History, ScriptKeyWords.Owner));
         errorList.AddRange(AssertProvinces(result));
 
         return errorList;
-    }
-
-    /// <summary>
-    /// 检查关键字在当前节点是否存在, 如果不存在, 返回 <see cref="ErrorMessage"/>
-    /// </summary>
-    /// <param name="node">检测的节点</param>
-    /// <param name="keys">关键字</param>
-    /// <returns><c>ErrorMessage</c></returns>
-    private IEnumerable<ErrorMessage> AssertKeywordExistsInCurrentNode(Node node, params string[] keys)
-    {
-        var errorMessageList = new List<ErrorMessage>(keys.Length);
-        foreach (var key in keys)
-        {
-            if (node.HasNot(key))
-            {
-                errorMessageList.Add(ErrorMessage.CreateSingleFileError(_filePath, $"'{key}' 不存在", ErrorType.MissingKeyword));
-            }
-        }
-        return errorMessageList;
-    }
-
-    /// <summary>
-    /// 检查关键字是否在传入节点的孩子中, 如果孩子不存在, 返回空集合
-    /// </summary>
-    /// <param name="result"></param>
-    /// <param name="childName">孩子名称</param>
-    /// <param name="keys">需要检查的关键字</param>
-    /// <returns></returns>
-    private IEnumerable<ErrorMessage> AssertKeywordExistsInChild(Node result, string childName, params string[] keys)
-    {
-        if (result.HasNot(childName))
-        {
-            return Enumerable.Empty<ErrorMessage>();
-        }
-
-        var childNode = result.Child(childName).Value;
-
-        return AssertKeywordExistsInCurrentNode(childNode, keys);
     }
 
     /// <summary>

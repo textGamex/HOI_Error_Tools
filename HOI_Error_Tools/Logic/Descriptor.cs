@@ -37,7 +37,7 @@ public class Descriptor
     public Descriptor(string modRootPath)
     {
         var path = Path.Combine(modRootPath, "descriptor.mod");
-        var parser = new Parser(path);
+        var parser = new CWToolsParser(path);
         if (parser.IsFailure)
         {
             throw new ParseException($"解析失败 => {path}");

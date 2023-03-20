@@ -6,7 +6,8 @@
     xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:local="clr-namespace:HOI_Error_Tools"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Title="{StaticResource AppName}"
+    xmlns:prop="clr-namespace:HOI_Error_Tools.Properties"
+    Title="{x:Static prop:Resources.AppName}"
     Width="800"
     Height="450"
     d:DataContext="{d:DesignInstance local:MainWindowModel}"
@@ -58,6 +59,12 @@
             Margin="275,340,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
-            Content="Button" Click="Button_Click" />
+            Click="Button_Click"
+            Content="显示" />
+        <Button
+            Margin="489,340,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Content="添加数据" Click="Button_Click_1" />
     </Grid>
 </Window>
