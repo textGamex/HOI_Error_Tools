@@ -55,7 +55,7 @@ namespace HOI_Error_Tools
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            System.Diagnostics.Process.Start("Explorer.exe");
+            
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)

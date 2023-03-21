@@ -27,8 +27,8 @@ public partial class ErrorMessageWindowView
     private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
     public ErrorMessageWindowView(IImmutableList<ErrorMessage> errors)
     {
-        _logger.Info($"创建线程ID: {Environment.CurrentManagedThreadId}");
         InitializeComponent();
+
         this.DataContext = new ViewModels.ErrorMessageWindowViewModel(errors);
     }
 }

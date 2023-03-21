@@ -6,19 +6,38 @@
     xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:local="clr-namespace:HOI_Error_Tools.View"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:prop="clr-namespace:HOI_Error_Tools.Properties"
     xmlns:vm="clr-namespace:HOI_Error_Tools.ViewModels"
-    Title="ErrorMessageWindowView"
+    Title="{x:Static prop:Resources.AppName}"
     Width="800"
     Height="450"
     d:DataContext="{d:DesignInstance vm:ErrorMessageWindowViewModel}"
     mc:Ignorable="d">
+
     <Grid>
         <DataGrid
+            x:Name="dataGrid"
             AutoGenerateColumns="False"
             IsReadOnly="True"
             ItemsSource="{Binding ErrorMessage, Mode=Default}">
 
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem />
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+
+            <hc:Interaction.Triggers>
+                <hc:EventTrigger EventName="MouseDoubleClick">
+                    <hc:InvokeCommandAction Command="{Binding OpenFolderCommand, Mode=Default}" CommandParameter="{Binding ElementName=dataGrid, Path=SelectedItems, Mode=Default}" />
+                </hc:EventTrigger>
+                <hc:EventTrigger EventName="SelectionChanged">
+                    <hc:InvokeCommandAction Command="{Binding SelectItemChangeCommand, Mode=Default}" CommandParameter="{Binding ElementName=dataGrid, Path=SelectedItem, Mode=Default}" />
+                </hc:EventTrigger>
+            </hc:Interaction.Triggers>
+
             <DataGrid.Columns>
+
                 <DataGridTextColumn
                     Binding="{Binding Message, Mode=Default}"
                     Header="错误信息"

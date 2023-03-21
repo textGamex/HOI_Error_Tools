@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using CWTools.Process;
+using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.Util;
 using HOI_Error_Tools.Logic.HOIParser;
@@ -17,13 +20,15 @@ public class StateFileAnalyzer : AnalyzerBase
     /// 在文件中注册的省份ID
     /// </summary>
     private readonly IReadOnlySet<uint> _registeredProvince;
+    private readonly IImmutableDictionary<string, BuildingInfo> _registeredBuildings;
     private static readonly ConcurrentBag<Province> existingProvinces = new();
-    private static readonly ConcurrentDictionary<uint, List<string>> repeatedProvinceFilePathMap = new();
+    private static readonly ConcurrentDictionary<uint, ConcurrentBag<string>> repeatedProvinceFilePathMap = new();
 
     public StateFileAnalyzer(string filePath, GameResources resources)
     {
         _filePath = filePath;
         _registeredProvince = resources.RegisteredProvinceSet;
+        _registeredBuildings = resources.BuildingInfoMap;
     }
 
     public override IEnumerable<ErrorMessage> GetErrorMessages()
@@ -59,6 +64,7 @@ public class StateFileAnalyzer : AnalyzerBase
             ));
         errorList.AddRange(helper.AssertKeywordExistsInChild(ScriptKeyWords.History, ScriptKeyWords.Owner));
         errorList.AddRange(AssertProvinces(result));
+        errorList.AddRange(AssertBuildings(result));
 
         return errorList;
     }
@@ -81,6 +87,23 @@ public class StateFileAnalyzer : AnalyzerBase
         var position = new Position(provincesNode.Position);
         errorList.AddRange(AssertProvincesIsRegistered(provincesSet, position));
         errorList.AddRange(AssertProvincesNotRepeat(provincesSet, position));
+
+        return errorList;
+    }
+
+    private IEnumerable<ErrorMessage> AssertProvincesIsRegistered(IEnumerable<uint> provinces, Position position)
+    {
+        var errorList = new List<ErrorMessage>(16);
+        foreach (var province in provinces)
+        {
+            if (_registeredProvince.Contains(province))
+            {
+                continue;
+            }
+
+            errorList.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
+                _filePath, position, $"Province {province} 未在文件中注册", ErrorType.UnexpectedValue));
+        }
 
         return errorList;
     }
@@ -136,7 +159,7 @@ public class StateFileAnalyzer : AnalyzerBase
 
     private static IEnumerable<string> RegisterToRepeatedProvinceFilePathMap(uint province, string filePath)
     {
-        var list = new List<string> { filePath };
+        var list = new ConcurrentBag<string> { filePath };
         if (!repeatedProvinceFilePathMap.TryAdd(province, list))
         {
             throw new ArgumentException("数据添加失败");
@@ -144,21 +167,54 @@ public class StateFileAnalyzer : AnalyzerBase
         return list;
     }
 
-    private IEnumerable<ErrorMessage> AssertProvincesIsRegistered(IEnumerable<uint> provinces, Position position)
+    private IEnumerable<ErrorMessage> AssertBuildings(Node result)
     {
-        var errorList = new List<ErrorMessage>(16);
-        foreach (var province in provinces)
+        if (result.HasNot(ScriptKeyWords.History))
         {
-            if (_registeredProvince.Contains(province))
-            {
-                continue;
-            }
-
-            errorList.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
-                _filePath, position, $"Province {province} 未在文件中注册", ErrorType.UnexpectedValue));
+            return Enumerable.Empty<ErrorMessage>();
         }
 
-        return errorList;
+        var historyNode = result.Child(ScriptKeyWords.History).Value;
+        if (historyNode.HasNot(ScriptKeyWords.Buildings))
+        {
+            return Enumerable.Empty<ErrorMessage>();
+        }
+
+        var buildingsNode = historyNode.Child(ScriptKeyWords.Buildings).Value;
+        
+        return AssertBuildingLevelWithinRange(buildingsNode);
+    }
+
+    private IEnumerable<ErrorMessage> AssertBuildingLevelWithinRange(Node buildingsNode)
+    {
+        var errorMessages = new List<ErrorMessage>();
+        foreach (var leaf in buildingsNode.Leaves)
+        {
+            if (_registeredBuildings.TryGetValue(leaf.Key, out var buildingInfo))
+            {
+                if (!ushort.TryParse(leaf.ValueText, out var level))
+                {
+                    errorMessages.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
+                        _filePath, new Position(leaf.Position), $"数值 '{leaf.ValueText}' 解析失败", ErrorType.UnexpectedValue));
+                }
+
+                if (level > buildingInfo.MaxLevel)
+                {
+                    errorMessages.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
+                        _filePath,
+                        new Position(leaf.Position),
+                        $"建筑物等级: {level} 超过最大值: {buildingInfo.MaxLevel}",
+                        ErrorType.UnexpectedValue));
+                }
+            }
+            else
+            {
+                errorMessages.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
+                    _filePath, new Position(leaf.Position), $"建筑物类型 '{leaf.Key}' 不存在", ErrorType.UnexpectedValue));
+            }
+        }
+
+        return errorMessages;
     }
 
     private sealed class Province

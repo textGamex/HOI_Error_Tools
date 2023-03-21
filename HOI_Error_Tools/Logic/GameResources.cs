@@ -68,26 +68,19 @@ public class GameResources
     private static IDictionary<string, BuildingInfo> ParseBuildingInfosToMap(string filePath, Node buildingsNode)
     {   
         var map = new Dictionary<string, BuildingInfo>();
-        foreach (var child in buildingsNode.AllChildren)
+        foreach (var buildingNode in buildingsNode.Nodes)
         {
-            if (!child.IsNodeC)
-            {
-                continue;
-            }
-            var buildingTypeName = child.node.Key;
-            var helper = new AnalyzeHelper(filePath, child.node);
+            var buildingTypeName = buildingNode.Key;
 
-            var errorMessages = helper.AssertKeywordExistsInCurrentNodeAndWithPosition(Key.MaxLevel).ToList();
-            if (errorMessages.Any())
+            // 排除特殊值 fuel_silo 类型没有最大等级
+            if (buildingNode.Has("fuel_silo") 
+                && buildingNode.Leafs("fuel_silo").First().ValueText == "yes")
             {
-                foreach (var errorMessage in errorMessages)
-                {
-                    errorMessageCache.Add(errorMessage);
-                }
+                map.Add(buildingTypeName, new BuildingInfo(buildingTypeName, 1));
                 continue;
             }
 
-            if (!TryParseMaxLevel(filePath, child.node, out var maxLevel))
+            if (!TryParseMaxLevel(filePath, buildingNode, out var maxLevel))
             {
                 continue;
             }
