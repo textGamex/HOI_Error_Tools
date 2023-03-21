@@ -72,7 +72,7 @@ public class GameResources
         {
             var buildingTypeName = buildingNode.Key;
 
-            // 排除特殊值 fuel_silo 类型没有最大等级
+            // 排除特殊值, fuel_silo 类型没有最大等级
             if (buildingNode.Has("fuel_silo") 
                 && buildingNode.Leafs("fuel_silo").First().ValueText == "yes")
             {

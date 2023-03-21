@@ -16,4 +16,5 @@ public static class ScriptKeyWords
     public const string Tags = "tags";
     public const string ReplacePath = "replace_path";
     public const string Buildings = "buildings";
+    public const string Resources = "resources";
 }

@@ -217,6 +217,26 @@ public class StateFileAnalyzer : AnalyzerBase
         return errorMessages;
     }
 
+    //private IEnumerable<ErrorMessage> AssertResourcesIsRegistered(Node rootNode)
+    //{
+    //    if (rootNode.HasNot(ScriptKeyWords.Resources))
+    //    {
+    //        return Enumerable.Empty<ErrorMessage>();
+    //    }
+
+    //    var errorMessages = new List<ErrorMessage>();
+
+    //    foreach (var leaf in rootNode.Child(ScriptKeyWords.Resources).Value.Leaves)
+    //    {
+    //        if ()
+    //        {
+                
+    //        }
+    //    }
+
+    //    return errorMessages;
+    //}
+
     private sealed class Province
     {
         public string FilePath { get; }

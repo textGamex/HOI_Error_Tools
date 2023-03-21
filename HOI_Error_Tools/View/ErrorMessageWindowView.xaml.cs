@@ -61,3 +61,40 @@ public class StringCollectionConverter : IValueConverter
         throw new ArgumentException($"转换失败, 类型不应该是 {value.GetType().FullName}", nameof(value));
     }
 }
+
+public class ErrorTypeToStringConverter : IValueConverter
+{
+    public static ErrorTypeToStringConverter Instance { get; } = new();
+    private const string Separator = ", ";
+
+    private ErrorTypeToStringConverter()
+    { }
+
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is ErrorType errorType)
+        {
+            return errorType switch
+            {
+                ErrorType.None => "未知",
+                ErrorType.DuplicateValue => "重复出现的值",
+                ErrorType.MissingKeyword => "缺少关键字",
+                ErrorType.UnexpectedValue => "非法值",
+                ErrorType.ParseError => "解析错误",
+                _ => throw new ArgumentException($"意外的值 {errorType}", nameof(errorType))
+            };
+        }
+
+        throw new ArgumentException($"转换失败, 类型不应该是 {value.GetType().FullName}", nameof(value));
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is string str)
+        {
+            return str.Split(Separator);
+        }
+
+        throw new ArgumentException($"转换失败, 类型不应该是 {value.GetType().FullName}", nameof(value));
+    }
+}
