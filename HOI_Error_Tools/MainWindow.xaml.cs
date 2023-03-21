@@ -44,6 +44,8 @@ namespace HOI_Error_Tools
             {
                 Dispatcher.InvokeAsync(() =>
                 {
+                    StartButton.Content = "完成";
+                    this.LoadingCircle.IsRunning = false;
                     var win = new ErrorMessageWindowView(list.Value);
                     win.Show();
 #if RELEASE
@@ -51,15 +53,6 @@ namespace HOI_Error_Tools
 #endif
                 });
             });
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            
-        }
-
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
         }
     }
 }

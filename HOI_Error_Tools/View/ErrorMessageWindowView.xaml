@@ -43,7 +43,6 @@
                     Header="错误信息"
                     IsReadOnly="True" />
                 <DataGridTextColumn
-                    Width="80"
                     Binding="{Binding Position.Line, Mode=Default}"
                     Header="行号"
                     IsReadOnly="True" />

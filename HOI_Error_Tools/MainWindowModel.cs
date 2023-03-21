@@ -29,6 +29,13 @@ public partial class MainWindowModel : ObservableObject
 
     [ObservableProperty]
     private string _modRootPath = string.Empty;
+
+    [ObservableProperty]
+    private string _startParseButtonText = "开始分析";
+
+    [ObservableProperty]
+    private bool _loadingCircleIsRunning = false;
+
     private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
     [RelayCommand]
@@ -71,6 +78,9 @@ public partial class MainWindowModel : ObservableObject
             MessageBox.Error("未选择资源路径", "错误");
             return;
         }
+
+        StartParseButtonText = "分析中, 请稍等...";
+        LoadingCircleIsRunning = true;
 
         await Task.Run(async () =>
         {
