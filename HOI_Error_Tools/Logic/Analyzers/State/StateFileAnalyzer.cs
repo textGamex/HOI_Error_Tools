@@ -21,6 +21,7 @@ public class StateFileAnalyzer : AnalyzerBase
     /// </summary>
     private readonly IReadOnlySet<uint> _registeredProvince;
     private readonly IImmutableDictionary<string, BuildingInfo> _registeredBuildings;
+    private readonly IImmutableSet<string> _resourcesTypeSet;
     private static readonly ConcurrentBag<Province> existingProvinces = new();
     private static readonly ConcurrentDictionary<uint, ConcurrentBag<string>> repeatedProvinceFilePathMap = new();
 
@@ -29,6 +30,7 @@ public class StateFileAnalyzer : AnalyzerBase
         _filePath = filePath;
         _registeredProvince = resources.RegisteredProvinceSet;
         _registeredBuildings = resources.BuildingInfoMap;
+        _resourcesTypeSet = resources.ResourcesType;
     }
 
     public override IEnumerable<ErrorMessage> GetErrorMessages()
@@ -65,6 +67,7 @@ public class StateFileAnalyzer : AnalyzerBase
         errorList.AddRange(helper.AssertKeywordExistsInChild(ScriptKeyWords.History, ScriptKeyWords.Owner));
         errorList.AddRange(AssertProvinces(result));
         errorList.AddRange(AssertBuildings(result));
+        errorList.AddRange(AssertResourcesTypeIsRegistered(result));
 
         return errorList;
     }
@@ -217,25 +220,26 @@ public class StateFileAnalyzer : AnalyzerBase
         return errorMessages;
     }
 
-    //private IEnumerable<ErrorMessage> AssertResourcesIsRegistered(Node rootNode)
-    //{
-    //    if (rootNode.HasNot(ScriptKeyWords.Resources))
-    //    {
-    //        return Enumerable.Empty<ErrorMessage>();
-    //    }
+    private IEnumerable<ErrorMessage> AssertResourcesTypeIsRegistered(Node rootNode)
+    {
+        if (rootNode.HasNot(ScriptKeyWords.Resources))
+        {
+            return Enumerable.Empty<ErrorMessage>();
+        }
 
-    //    var errorMessages = new List<ErrorMessage>();
+        var errorMessages = new List<ErrorMessage>();
 
-    //    foreach (var leaf in rootNode.Child(ScriptKeyWords.Resources).Value.Leaves)
-    //    {
-    //        if ()
-    //        {
-                
-    //        }
-    //    }
+        foreach (var leaf in rootNode.Child(ScriptKeyWords.Resources).Value.Leaves)
+        {
+            if (!_resourcesTypeSet.Contains(leaf.Key))
+            {
+                errorMessages.Add(
+                    ErrorMessage.CreateSingleFileErrorWithPosition(_filePath, new Position(leaf.Position), "资源类型不存在", ErrorType.UnexpectedValue));
+            }
+        }
 
-    //    return errorMessages;
-    //}
+        return errorMessages;
+    }
 
     private sealed class Province
     {

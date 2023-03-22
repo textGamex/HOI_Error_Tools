@@ -20,22 +20,26 @@ public class GameResources
     public static IReadOnlyCollection<ErrorMessage> ErrorMessages => errorMessageCache;
     public IReadOnlySet<uint> RegisteredProvinceSet => _registeredProvinces;
     public IImmutableDictionary<string, BuildingInfo> BuildingInfoMap => _buildingInfos;
+    public IImmutableSet<string> ResourcesType => _resourcesType;
 
     private readonly ImmutableDictionary<string, BuildingInfo> _buildingInfos;
     private readonly ImmutableHashSet<uint> _registeredProvinces;
+    private readonly IImmutableSet<string> _resourcesType;
+    private readonly GameResourcesPath _gameResourcesPath;
     private static readonly ConcurrentBag<ErrorMessage> errorMessageCache = new();
 
     public GameResources(GameResourcesPath paths)
     {
-        _registeredProvinces = ImmutableHashSet.CreateRange(
-            GetRegisteredProvinceSet(paths.ProvincesDefinitionFilePath));
-        _buildingInfos = GetRegisteredBuildings(paths.BuildingsFilePathList);
+        _gameResourcesPath = paths;
+        _registeredProvinces = ImmutableHashSet.CreateRange(GetRegisteredProvinceSet());
+        _buildingInfos = GetRegisteredBuildings();
+        _resourcesType = GetResourcesType();
     }
 
-    private static ImmutableDictionary<string, BuildingInfo> GetRegisteredBuildings(IEnumerable<string> filesPath)
+    private ImmutableDictionary<string, BuildingInfo> GetRegisteredBuildings()
     {
         var builder = ImmutableDictionary.CreateBuilder<string, BuildingInfo>();
-        foreach (var filePath in filesPath)
+        foreach (var filePath in _gameResourcesPath.BuildingsFilePathList)
         {
             var parser = new CWToolsParser(filePath);
             if (parser.IsFailure)
@@ -57,6 +61,7 @@ public class GameResources
                 }
                 continue;
             }
+
             var buildingsNode = node.Child(ScriptKeyWords.Buildings).Value;
             var map = ParseBuildingInfosToMap(filePath, buildingsNode);
             builder.AddRange(map);
@@ -121,12 +126,11 @@ public class GameResources
     /// <remarks>
     /// 所有 Province 在文件 Hearts of Iron IV\map\definition.csv 中定义
     /// </remarks>
-    /// <param name="filePath">definition.csv 文件的绝对路径</param>
     /// <returns></returns>
-    private static IEnumerable<uint> GetRegisteredProvinceSet(string filePath)
+    private IEnumerable<uint> GetRegisteredProvinceSet()
     {
         var set = new HashSet<uint>(13257);
-        using var reader = new StreamReader(filePath, Encoding.UTF8);
+        using var reader = new StreamReader(_gameResourcesPath.ProvincesDefinitionFilePath, Encoding.UTF8);
         using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
         while (csv.Read())
         {
@@ -138,6 +142,69 @@ public class GameResources
         // 去除 ID 为 0 的未知省份
         set.Remove(0);
         return set;
+    }
+
+    private IImmutableSet<string> GetResourcesType()
+    {
+        var builder = ImmutableHashSet.CreateBuilder<string>();
+        foreach (var path in _gameResourcesPath.ResourcesTypeFilePathList)
+        {
+            var parser = new CWToolsParser(path);
+            if (parser.IsFailure)
+            {
+                errorMessageCache.Add(
+                    ErrorMessage.CreateSingleFileErrorWithPosition(path, new Position(parser.GetError()), "解析错误", ErrorType.ParseError));
+                continue;
+            }
+
+            var rootNode = parser.GetResult();
+            if (rootNode.HasNot(ScriptKeyWords.Resources))
+            {
+                errorMessageCache.Add(
+                    ErrorMessage.CreateSingleFileError(path, "资源类型文件为空", ErrorType.MissingKeyword));
+                continue;
+            }
+
+            var resourcesNode = rootNode.Child(ScriptKeyWords.Resources).Value;
+
+            // 检查所有文件中是否有重复的资源类型
+            //TODO: 实现在哪些文件中重复出现
+            foreach (var type in ParseResourcesType(path, resourcesNode))
+            {
+                if (!builder.Contains(type))
+                {
+                    builder.Add(type);
+                    continue;
+                }
+                errorMessageCache.Add(
+                    ErrorMessage.CreateSingleFileError(path, $"重复定义的资源类型: '{type}'", ErrorType.DuplicateValue));
+            }
+        }
+        return builder.ToImmutable();
+    }
+
+    private static IEnumerable<string> ParseResourcesType(string path, Node resourcesNode)
+    {
+        var set = new HashSet<string>();
+
+        foreach (var node in resourcesNode.Nodes)
+        {
+            if (set.Contains(node.Key))
+            {
+                errorMessageCache.Add(
+                    ErrorMessage.CreateSingleFileErrorWithPosition(path, new Position(node.Position), $"重复定义的资源类型: '{node.Key}'", 
+                        ErrorType.DuplicateValue));
+                continue;
+            }
+
+            set.Add(node.Key);
+        }
+        return set;
+    }
+
+    public static void ClearErrorMessagesCache()
+    {
+        errorMessageCache.Clear();
     }
 
     private static class Key

@@ -18,10 +18,12 @@ public sealed class GameResourcesPath
     public string ModLocPath { get; }
     public string ProvincesDefinitionFilePath { get; }
     public IImmutableList<string> BuildingsFilePathList => _buildingsFilePathList;
+    public IImmutableList<string> ResourcesTypeFilePathList => _resourcesTypeFilePathList;
     public IImmutableList<string> StatesPathList => _statesPathList;
 
     private readonly ImmutableList<string> _statesPathList;
     private readonly ImmutableList<string> _buildingsFilePathList;
+    private readonly ImmutableList<string> _resourcesTypeFilePathList;
     private readonly Descriptor _descriptor;
 
     public GameResourcesPath(string gameRootPath, string modRootPath)
@@ -46,6 +48,8 @@ public sealed class GameResourcesPath
             GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, Key.Buildings)));
         _statesPathList = ImmutableList.CreateRange(
             GetAllFilePriorModByRelativePathForFolder(Path.Combine(ScriptKeyWords.History, Key.States)));
+        _resourcesTypeFilePathList = ImmutableList.CreateRange(
+            GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "resources")));
     }
 
     private static string GetLocPath(string rootPath)
