@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using HOI_Error_Tools.Logic.Analyzers.Error;
+using Humanizer;
 using NLog;
 using static HOI_Error_Tools.ViewModels.ErrorMessageWindowViewModel;
 
@@ -74,15 +75,7 @@ public class ErrorTypeToStringConverter : IValueConverter
     {
         if (value is ErrorType errorType)
         {
-            return errorType switch
-            {
-                ErrorType.None => "未知",
-                ErrorType.DuplicateValue => "重复出现的值",
-                ErrorType.MissingKeyword => "缺少关键字",
-                ErrorType.UnexpectedValue => "非法值",
-                ErrorType.ParseError => "解析错误",
-                _ => throw new ArgumentException($"意外的值 {errorType}", nameof(errorType))
-            };
+            return errorType.Humanize();
         }
 
         throw new ArgumentException($"转换失败, 类型不应该是 {value.GetType().FullName}", nameof(value));
@@ -92,7 +85,7 @@ public class ErrorTypeToStringConverter : IValueConverter
     {
         if (value is string str)
         {
-            return str.Split(Separator);
+            return str.DehumanizeTo<ErrorType>();
         }
 
         throw new ArgumentException($"转换失败, 类型不应该是 {value.GetType().FullName}", nameof(value));

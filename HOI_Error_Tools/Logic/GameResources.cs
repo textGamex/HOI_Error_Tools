@@ -12,6 +12,7 @@ using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.Util;
 using HOI_Error_Tools.Logic.HOIParser;
+using NLog;
 
 namespace HOI_Error_Tools.Logic;
 
@@ -27,6 +28,7 @@ public class GameResources
     private readonly IImmutableSet<string> _resourcesType;
     private readonly GameResourcesPath _gameResourcesPath;
     private static readonly ConcurrentBag<ErrorMessage> errorMessageCache = new();
+    private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
     public GameResources(GameResourcesPath paths)
     {

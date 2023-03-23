@@ -241,6 +241,12 @@ public class StateFileAnalyzer : AnalyzerBase
         return errorMessages;
     }
 
+    public static void Clear()
+    {
+        existingProvinces.Clear();
+        repeatedProvinceFilePathMap.Clear();
+    }
+
     private sealed class Province
     {
         public string FilePath { get; }

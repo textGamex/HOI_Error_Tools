@@ -48,6 +48,9 @@ namespace HOI_Error_Tools
                     this.LoadingCircle.IsRunning = false;
                     var win = new ErrorMessageWindowView(list.Value);
                     win.Show();
+
+                    StateFileAnalyzer.Clear();
+                    GameResources.ClearErrorMessagesCache();
 #if RELEASE
                     this.Close();
 #endif
