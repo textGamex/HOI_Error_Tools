@@ -21,11 +21,11 @@ public class GameResources
     public static IReadOnlyCollection<ErrorMessage> ErrorMessages => errorMessageCache;
     public IReadOnlySet<uint> RegisteredProvinceSet => _registeredProvinces;
     public IImmutableDictionary<string, BuildingInfo> BuildingInfoMap => _buildingInfos;
-    public IImmutableSet<string> ResourcesType => _resourcesType;
+    public IImmutableSet<string> ResourcesType { get; }
+    public IImmutableSet<string> StateCategories { get; }
 
     private readonly ImmutableDictionary<string, BuildingInfo> _buildingInfos;
     private readonly ImmutableHashSet<uint> _registeredProvinces;
-    private readonly IImmutableSet<string> _resourcesType;
     private readonly GameResourcesPath _gameResourcesPath;
     private static readonly ConcurrentBag<ErrorMessage> errorMessageCache = new();
     private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
@@ -35,7 +35,13 @@ public class GameResources
         _gameResourcesPath = paths;
         _registeredProvinces = ImmutableHashSet.CreateRange(GetRegisteredProvinceSet());
         _buildingInfos = GetRegisteredBuildings();
-        _resourcesType = GetResourcesType();
+        ResourcesType = GetResourcesType();
+        StateCategories = GetStateCategories();
+    }
+
+    private IImmutableSet<string> GetStateCategories()
+    {
+        return null;
     }
 
     private ImmutableDictionary<string, BuildingInfo> GetRegisteredBuildings()

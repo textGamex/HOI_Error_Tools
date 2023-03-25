@@ -62,6 +62,6 @@
             HorizontalAlignment="Center"
             VerticalAlignment="Top"
             DotCount="5"
-            IsRunning="{Binding LoadingCircleIsRunning}" />
+            IsRunning="{Binding LoadingCircleIsRunning, Mode=Default}" />
     </Grid>
 </Window>

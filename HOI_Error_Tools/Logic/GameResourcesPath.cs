@@ -3,7 +3,9 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using HOI_Error_Tools.Logic.Analyzers;
+using NLog;
 
 namespace HOI_Error_Tools.Logic;
 
@@ -17,6 +19,7 @@ public sealed class GameResourcesPath
     public string GameLocPath { get; }
     public string ModLocPath { get; }
     public string ProvincesDefinitionFilePath { get; }
+    public IEnumerable<string> StateCategoriesFilePath { get; }
     public IImmutableList<string> BuildingsFilePathList => _buildingsFilePathList;
     public IImmutableList<string> ResourcesTypeFilePathList => _resourcesTypeFilePathList;
     public IImmutableList<string> StatesPathList => _statesPathList;
@@ -25,6 +28,7 @@ public sealed class GameResourcesPath
     private readonly ImmutableList<string> _buildingsFilePathList;
     private readonly ImmutableList<string> _resourcesTypeFilePathList;
     private readonly Descriptor _descriptor;
+    private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
     public GameResourcesPath(string gameRootPath, string modRootPath)
     {
@@ -42,6 +46,7 @@ public sealed class GameResourcesPath
         GameLocPath = GetLocPath(GameRootPath);
         ModLocPath = GetLocPath(ModRootPath);
         ProvincesDefinitionFilePath = GetFilePathPriorModByRelativePath(Path.Combine(Key.Map, "definition.csv"));
+        StateCategoriesFilePath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, Key.StateCategory));
 
         _descriptor = new Descriptor(modRootPath);
         _buildingsFilePathList = ImmutableList.CreateRange(
@@ -106,6 +111,7 @@ public sealed class GameResourcesPath
 
         if (_descriptor.ReplacePaths.Contains(folderRelativePath))
         {
+            Logger.Debug("MOD文件已完全替换: {Path}", folderRelativePath);
             return GetAllFilePathForFolder(modFolder);
         }
 
@@ -158,5 +164,6 @@ public sealed class GameResourcesPath
         public const string Map = "map";
         public const string Common = "common";
         public const string Buildings = "buildings";
+        public const string StateCategory = "state_category";
     }
 }

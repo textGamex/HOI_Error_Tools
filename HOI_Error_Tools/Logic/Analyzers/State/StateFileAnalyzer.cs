@@ -12,7 +12,7 @@ using HOI_Error_Tools.Logic.HOIParser;
 
 namespace HOI_Error_Tools.Logic.Analyzers.State;
 
-public class StateFileAnalyzer : AnalyzerBase
+public partial class StateFileAnalyzer : AnalyzerBase
 {
     private readonly string _filePath;
 
@@ -46,6 +46,7 @@ public class StateFileAnalyzer : AnalyzerBase
         }
 
         var result = parser.GetResult();
+        var stateModel = new StateModel(result);
         if (result.HasNot(ScriptKeyWords.State))
         {
             var errorMessage = ErrorMessage.CreateSingleFileError(_filePath, $"'{ScriptKeyWords.State}' 不存在", ErrorType.MissingKeyword);
