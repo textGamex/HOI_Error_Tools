@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Globalization;
-using System.Linq;
-using CWTools.Process;
+﻿using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.Util;
 using HOI_Error_Tools.Logic.HOIParser;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace HOI_Error_Tools.Logic.Analyzers.State;
 
@@ -185,13 +184,14 @@ public partial class StateFileAnalyzer : AnalyzerBase
         }
 
         var buildingsNode = historyNode.Child(ScriptKeyWords.Buildings).Value;
-        
+
         return AssertBuildingLevelWithinRange(buildingsNode);
     }
 
     private IEnumerable<ErrorMessage> AssertBuildingLevelWithinRange(Node buildingsNode)
     {
         var errorMessages = new List<ErrorMessage>();
+
         foreach (var leaf in buildingsNode.Leaves)
         {
             if (_registeredBuildings.TryGetValue(leaf.Key, out var buildingInfo))
@@ -200,6 +200,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
                 {
                     errorMessages.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
                         _filePath, new Position(leaf.Position), $"数值 '{leaf.ValueText}' 解析失败", ErrorType.UnexpectedValue));
+                    continue;
                 }
 
                 if (level > buildingInfo.MaxLevel)

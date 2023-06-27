@@ -53,7 +53,7 @@ namespace HOI_Error_Tools
                     GameResources.ClearErrorMessagesCache();
 #if RELEASE
                     this.Close();
-#endif
+#endif  
                 });
             });
         }
