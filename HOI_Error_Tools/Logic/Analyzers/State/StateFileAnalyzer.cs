@@ -210,6 +210,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
                         new Position(leaf.Position),
                         $"建筑物等级: {level} 超过最大值: {buildingInfo.MaxLevel}",
                         ErrorType.UnexpectedValue));
+                    continue;
                 }
             }
             else
