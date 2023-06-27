@@ -142,8 +142,8 @@ public class GameResources
         using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
         while (csv.Read())
         {
-            var line = csv.GetField(0) ?? string.Empty;
-            var id = line.Split(';')[0];
+            var line = csv.GetField(0) ?? string.Empty;            
+            string id = line[0..line.IndexOf(';')];
             set.Add(uint.Parse(id));
         }
 
