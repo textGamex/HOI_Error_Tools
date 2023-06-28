@@ -111,7 +111,7 @@ public sealed class GameResourcesPath
 
         if (_descriptor.ReplacePaths.Contains(folderRelativePath))
         {
-            Logger.Debug("MOD文件已完全替换: {Path}", folderRelativePath);
+            Logger.Debug("MOD文件夹已完全替换: {Path}", folderRelativePath);
             return GetAllFilePathForFolder(modFolder);
         }
 

@@ -86,8 +86,9 @@ public class GameResources
             var buildingTypeName = buildingNode.Key;
 
             // 排除特殊值, fuel_silo 类型没有最大等级
-            if (buildingNode.Has("fuel_silo") 
-                && buildingNode.Leafs("fuel_silo").First().ValueText == "yes")
+            const string fuelSilo = "fuel_silo";            
+            if (buildingNode.Has(fuelSilo) 
+                && buildingNode.Leafs(fuelSilo).First().ValueText == "yes")
             {
                 map.Add(buildingTypeName, new BuildingInfo(buildingTypeName, 1));
                 continue;
@@ -191,7 +192,7 @@ public class GameResources
         return builder.ToImmutable();
     }
 
-    private static IEnumerable<string> ParseResourcesType(string path, Node resourcesNode)
+    private static IEnumerable<string> ParseResourcesType(string filePath, Node resourcesNode)
     {
         var set = new HashSet<string>();
 
@@ -200,7 +201,7 @@ public class GameResources
             if (set.Contains(node.Key))
             {
                 errorMessageCache.Add(
-                    ErrorMessage.CreateSingleFileErrorWithPosition(path, new Position(node.Position), $"重复定义的资源类型: '{node.Key}'", 
+                    ErrorMessage.CreateSingleFileErrorWithPosition(filePath, new Position(node.Position), $"重复定义的资源类型: '{node.Key}'", 
                         ErrorType.DuplicateValue));
                 continue;
             }
