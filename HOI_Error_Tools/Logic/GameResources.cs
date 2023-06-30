@@ -22,7 +22,7 @@ public class GameResources
     public IReadOnlySet<uint> RegisteredProvinceSet => _registeredProvinces;
     public IImmutableDictionary<string, BuildingInfo> BuildingInfoMap => _buildingInfos;
     public IImmutableSet<string> ResourcesType { get; }
-    public IImmutableSet<string> StateCategories { get; }
+    public IImmutableSet<string> RegisteredStateCategories { get; }
 
     private readonly ImmutableDictionary<string, BuildingInfo> _buildingInfos;
     private readonly ImmutableHashSet<uint> _registeredProvinces;
@@ -36,12 +36,48 @@ public class GameResources
         _registeredProvinces = ImmutableHashSet.CreateRange(GetRegisteredProvinceSet());
         _buildingInfos = GetRegisteredBuildings();
         ResourcesType = GetResourcesType();
-        StateCategories = GetStateCategories();
+        RegisteredStateCategories = GetRegisteredStateCategories();
     }
 
-    private IImmutableSet<string> GetStateCategories()
+    public GameResources(string gameRootPath, string modRootPath)
     {
-        return null;
+        _gameResourcesPath = new GameResourcesPath(gameRootPath, modRootPath);
+        _registeredProvinces = ImmutableHashSet.CreateRange(GetRegisteredProvinceSet());
+        _buildingInfos = GetRegisteredBuildings();
+        ResourcesType = GetResourcesType();
+        RegisteredStateCategories = GetRegisteredStateCategories();
+    }
+
+    private IImmutableSet<string> GetRegisteredStateCategories()
+    {
+        var builder = ImmutableHashSet.CreateBuilder<string>();
+        foreach (var path in _gameResourcesPath.StateCategoriesFilePath)
+        {
+            var parser = new CWToolsParser(path);
+            if (parser.IsFailure)
+            {
+                errorMessageCache.Add(ErrorMessage.CreateSingleFileError(
+                    path, "地块等级文件解析错误", ErrorType.MissingKeyword));
+                continue;
+            }
+
+            var result = parser.GetResult();
+            if (result.HasNot(Key.StateCategories))
+            {
+                errorMessageCache.Add(ErrorMessage.CreateSingleFileError(
+                    path, $"缺少 '{Key.StateCategories}' 关键字", ErrorType.MissingKeyword));
+                continue;
+            }
+            var stateCategoriesNode = result.Child(Key.StateCategories).Value;
+            _logger.Info($"{stateCategoriesNode.Nodes.Count()}");
+            _logger.Info($"{stateCategoriesNode.Children.Length}");
+            //foreach (var item in stateCategoriesNode.Nodes)
+            //{
+            //    builder.Add(item.Key);
+            //}
+        }
+
+        return builder.ToImmutableHashSet();
     }
 
     private ImmutableDictionary<string, BuildingInfo> GetRegisteredBuildings()
@@ -137,7 +173,7 @@ public class GameResources
     /// </remarks>
     /// <returns></returns>
     private IEnumerable<uint> GetRegisteredProvinceSet()
-    {
+    {        
         var set = new HashSet<uint>(13257);
         using var reader = new StreamReader(_gameResourcesPath.ProvincesDefinitionFilePath, Encoding.UTF8);
         using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
@@ -219,5 +255,6 @@ public class GameResources
     private static class Key
     {
         public const string MaxLevel = "max_level";
+        public const string StateCategories = "state_categories";
     }
 }
