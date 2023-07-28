@@ -40,7 +40,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
         if (parser.IsFailure)
         {
             errorList.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
-                _filePath, new Position(parser.GetError()), "解析错误", ErrorType.ParseError));
+                _filePath, new Position(parser.GetError()), "解析错误", ErrorLevel.Error));
             return errorList;
         }
 
@@ -48,7 +48,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
         // var stateModel = new StateModel(result);
         if (result.HasNot(ScriptKeyWords.State))
         {
-            var errorMessage = ErrorMessage.CreateSingleFileError(_filePath, $"'{ScriptKeyWords.State}' 不存在", ErrorType.MissingKeyword);
+            var errorMessage = ErrorMessage.CreateSingleFileError(_filePath, $"'{ScriptKeyWords.State}' 不存在", ErrorLevel.Error);
             errorList.Add(errorMessage);
             return errorList;
         }
@@ -105,7 +105,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
             }
 
             errorList.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
-                _filePath, position, $"Province {province} 未在文件中注册", ErrorType.UnexpectedValue));
+                _filePath, position, $"Province {province} 未在文件中注册", ErrorLevel.Error));
         }
 
         return errorList;
@@ -134,7 +134,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
                             GetRepeatProvinceFilePaths(u, _filePath),
                             position,
                             $"Province {u} 重复分配",
-                            ErrorType.DuplicateValue));
+                            ErrorLevel.Warn));
                 }
             }
         }
@@ -199,7 +199,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
                 if (!ushort.TryParse(leaf.ValueText, out var level))
                 {
                     errorMessages.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
-                        _filePath, new Position(leaf.Position), $"数值 '{leaf.ValueText}' 解析失败", ErrorType.UnexpectedValue));
+                        _filePath, new Position(leaf.Position), $"数值 '{leaf.ValueText}' 解析失败", ErrorLevel.Error));
                     continue;
                 }
 
@@ -209,14 +209,14 @@ public partial class StateFileAnalyzer : AnalyzerBase
                         _filePath,
                         new Position(leaf.Position),
                         $"建筑物等级: {level} 超过最大值: {buildingInfo.MaxLevel}",
-                        ErrorType.UnexpectedValue));
+                        ErrorLevel.Warn));
                     continue;
                 }
             }
             else
             {
                 errorMessages.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
-                    _filePath, new Position(leaf.Position), $"建筑物类型 '{leaf.Key}' 不存在", ErrorType.UnexpectedValue));
+                    _filePath, new Position(leaf.Position), $"建筑物类型 '{leaf.Key}' 不存在", ErrorLevel.Error));
             }
         }
 
@@ -237,7 +237,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
             if (!_resourcesTypeSet.Contains(leaf.Key))
             {
                 errorMessages.Add(
-                    ErrorMessage.CreateSingleFileErrorWithPosition(_filePath, new Position(leaf.Position), "资源类型不存在", ErrorType.UnexpectedValue));
+                    ErrorMessage.CreateSingleFileErrorWithPosition(_filePath, new Position(leaf.Position), "资源类型不存在", ErrorLevel.Error));
             }
         }
 

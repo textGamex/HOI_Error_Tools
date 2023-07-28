@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
     <PackageReference Include="CsvHelper" Version="30.0.1" />
     <PackageReference Include="CWTools_Plus" Version="1.0.2" />
     <PackageReference Include="FSharp.Core" Version="7.0.300" />
@@ -31,7 +31,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="NLog" Version="5.2.0" />
+    <PackageReference Include="NLog" Version="5.2.2" />
     <PackageReference Include="System.Collections.Immutable" Version="7.0.0" />
   </ItemGroup>
 

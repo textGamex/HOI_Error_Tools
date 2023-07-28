@@ -55,7 +55,7 @@ public class AnalyzeHelper
         {
             if (node.HasNot(key))
             {
-                errorMessageList.Add(ErrorMessage.CreateSingleFileError(_filePath, $"'{key}' 不存在", ErrorType.MissingKeyword));
+                errorMessageList.Add(ErrorMessage.CreateSingleFileError(_filePath, $"'{key}' 不存在", ErrorLevel.Error));
             }
         }
         
@@ -74,7 +74,7 @@ public class AnalyzeHelper
         {
             if (_rootNode.HasNot(key))
             {
-                errorMessageList.Add(ErrorMessage.CreateSingleFileErrorWithPosition(_filePath, new Position(_rootNode.Position),$"'{key}' 不存在", ErrorType.MissingKeyword));
+                errorMessageList.Add(ErrorMessage.CreateSingleFileErrorWithPosition(_filePath, new Position(_rootNode.Position),$"'{key}' 不存在", ErrorLevel.Error));
             }
         }
 
