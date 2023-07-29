@@ -30,7 +30,12 @@ public sealed class GameResourcesPath
     private readonly Descriptor _descriptor;
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-    public GameResourcesPath(string gameRootPath, string modRootPath)
+    public GameResourcesPath(string gameRootPath, string modRootPath) 
+        : this(gameRootPath, modRootPath, new Descriptor(modRootPath))
+    {
+    }
+
+    public GameResourcesPath(string gameRootPath, string modRootPath, Descriptor descriptor)
     {
         if (!Directory.Exists(gameRootPath))
         {
@@ -43,12 +48,12 @@ public sealed class GameResourcesPath
 
         GameRootPath = gameRootPath;
         ModRootPath = modRootPath;
+        _descriptor = descriptor;
         GameLocPath = GetLocPath(GameRootPath);
         ModLocPath = GetLocPath(ModRootPath);
         ProvincesDefinitionFilePath = GetFilePathPriorModByRelativePath(Path.Combine(Key.Map, "definition.csv"));
         StateCategoriesFilePath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, Key.StateCategory));
 
-        _descriptor = new Descriptor(modRootPath);
         _buildingsFilePathList = ImmutableList.CreateRange(
             GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, Key.Buildings)));
         _statesPathList = ImmutableList.CreateRange(

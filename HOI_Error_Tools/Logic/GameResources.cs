@@ -171,8 +171,8 @@ public class GameResources
     /// </remarks>
     /// <returns></returns>
     private IEnumerable<uint> GetRegisteredProvinceSet()
-    {        
-        var set = new HashSet<uint>(13257);
+    {
+        var set = new HashSet<uint>(13275);
         using var reader = new StreamReader(_gameResourcesPath.ProvincesDefinitionFilePath, Encoding.UTF8);
         using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
         while (csv.Read())

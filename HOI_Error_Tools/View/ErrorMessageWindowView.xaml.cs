@@ -36,7 +36,7 @@ public partial class ErrorMessageWindowView
 
 public class StringCollectionConverter : IValueConverter
 {
-    public static StringCollectionConverter Instance { get; } = new ();
+    public static StringCollectionConverter Instance { get; } = new();
     private const string Separator = ", ";
 
     private StringCollectionConverter()

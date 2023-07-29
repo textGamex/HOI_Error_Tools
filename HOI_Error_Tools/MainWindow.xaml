@@ -8,8 +8,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prop="clr-namespace:HOI_Error_Tools.Properties"
     Title="{x:Static prop:Resources.AppName}"
-    Width="800"
-    Height="450"
+    Width="850"
+    Height="550"
     d:DataContext="{d:DesignInstance local:MainWindowModel}"
     mc:Ignorable="d">
     <Grid>
@@ -50,7 +50,8 @@
         <Button
             x:Name="StartButton"
             Width="164"
-            Margin="0,198,0,0"
+            Margin="311,200,0,0"
+            HorizontalAlignment="Left"
             VerticalAlignment="Top"
             Command="{Binding ClickStartButtonCommand, Mode=Default}"
             Content="{Binding StartParseButtonText, Mode=Default}" />
@@ -63,5 +64,25 @@
             VerticalAlignment="Top"
             DotCount="5"
             IsRunning="{Binding LoadingCircleIsRunning, Mode=Default}" />
+        <TextBox
+            Width="180"
+            Margin="0,233,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            hc:InfoElement.Title="Mod名称"
+            IsReadOnly="True"
+            Style="{StaticResource TextBoxExtend}"
+            Text="{Binding ModName}"
+            TextWrapping="NoWrap" />
+        <TextBox
+            Width="180"
+            Margin="0,290,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            hc:InfoElement.Title="Mod标签"
+            IsReadOnly="True"
+            Style="{StaticResource TextBoxExtend}"
+            Text="{Binding ModTags}"
+            TextWrapping="NoWrap" />
     </Grid>
 </Window>

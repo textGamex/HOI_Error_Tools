@@ -135,7 +135,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
                             position,
                             $"Province {u} 重复分配",
                             ErrorLevel.Warn));
-                }
+                } 
             }
         }
 
