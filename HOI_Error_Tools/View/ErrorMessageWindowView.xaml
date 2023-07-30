@@ -46,7 +46,7 @@
                     Binding="{Binding Position.Line, Mode=Default}"
                     Header="行号"
                     IsReadOnly="True" />
-                <DataGridTextColumn Binding="{Binding FilePaths, Mode=Default, Converter={x:Static local:StringCollectionConverter.Instance}}" Header="文件路径" />
+                <DataGridTextColumn Binding="{Binding FileInfo, Mode=Default, Converter={x:Static local:StringCollectionConverter.Instance}}" Header="文件路径" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

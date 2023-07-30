@@ -7,6 +7,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Collections.Specialized;
 using System.Linq;
 
 namespace HOI_Error_Tools.Logic.Analyzers.State;
@@ -21,8 +22,10 @@ public partial class StateFileAnalyzer : AnalyzerBase
     private readonly IReadOnlySet<uint> _registeredProvince;
     private readonly IImmutableDictionary<string, BuildingInfo> _registeredBuildings;
     private readonly IImmutableSet<string> _resourcesTypeSet;
-    private static readonly ConcurrentBag<Province> existingProvinces = new();
-    private static readonly ConcurrentDictionary<uint, ConcurrentBag<string>> repeatedProvinceFilePathMap = new();
+    /// <summary>
+    /// 已经分配的 Provinces, 用于检查重复分配错误
+    /// </summary>
+    private static readonly ConcurrentDictionary<uint, (Position Position, string FilePath)> ExistingProvinces = new();
 
     public StateFileAnalyzer(string filePath, GameResources resources)
     {
@@ -61,13 +64,12 @@ public partial class StateFileAnalyzer : AnalyzerBase
             ScriptKeyWords.StateCategory,
             ScriptKeyWords.Manpower,
             ScriptKeyWords.Name,
-            ScriptKeyWords.History,
-            ScriptKeyWords.Provinces
-            ));
+            ScriptKeyWords.History
+        ));
         errorList.AddRange(helper.AssertKeywordExistsInChild(ScriptKeyWords.History, ScriptKeyWords.Owner));
-        errorList.AddRange(AssertProvinces(result));
-        errorList.AddRange(AssertBuildings(result));
-        errorList.AddRange(AssertResourcesTypeIsRegistered(result));
+        errorList.AddRange(AnalyzeProvinces(stateModel));
+        errorList.AddRange(AnalyzeBuildings(result));
+        errorList.AddRange(AssertResourcesTypeIsRegistered(stateModel));
 
         return errorList;
     }
@@ -75,102 +77,80 @@ public partial class StateFileAnalyzer : AnalyzerBase
     /// <summary>
     /// 如果 Provinces Key 不存在, 返回空集合
     /// </summary>
-    /// <param name="root"></param>
+    /// <remarks>
+    /// </remarks>
+    /// <param name="model"></param>
     /// <returns></returns>
-    private IEnumerable<ErrorMessage> AssertProvinces(Node root)
+    private IEnumerable<ErrorMessage> AnalyzeProvinces(StateModel model)
     {
-        if (root.HasNot(ScriptKeyWords.Provinces))
-        {
-            return Enumerable.Empty<ErrorMessage>();
-        }
         var errorList = new List<ErrorMessage>();
-        var provincesNode = root.Child(ScriptKeyWords.Provinces).Value;
-        var provincesSet = provincesNode.LeafValues.Select(p => uint.Parse(p.Key)).ToHashSet();
+        if (model.Provinces.Count == 0)
+        {
+            //TODO: 应该带上 provinces 块的位置
+            errorList.Add(ErrorMessage.CreateSingleFileError(_filePath, "空的 provinces 块", ErrorLevel.Warn));
+            return errorList;
+        }
 
-        var position = new Position(provincesNode.Position);
-        errorList.AddRange(AssertProvincesIsRegistered(provincesSet, position));
-        errorList.AddRange(AssertProvincesNotRepeat(provincesSet, position));
-
+        var provinces = new List<(uint, Position)>();
+        foreach (var (provinceIdText, position) in model.Provinces)
+        {
+            if (!uint.TryParse(provinceIdText, out var provinceId))
+            {
+                errorList.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
+                                       _filePath, position, $"Province '{provinceIdText}' 无法转换为整数", ErrorLevel.Error));
+                continue;
+            }
+            provinces.Add((provinceId, position));
+        }
+        errorList.AddRange(AssertProvincesIsRegistered(provinces));
+        errorList.AddRange(AssertProvincesNotRepeat(provinces));
         return errorList;
     }
 
-    private IEnumerable<ErrorMessage> AssertProvincesIsRegistered(IEnumerable<uint> provinces, Position position)
+    private IEnumerable<ErrorMessage> AssertProvincesIsRegistered(IEnumerable<(uint ProvinceId, Position Position)> provinces)
     {
         var errorList = new List<ErrorMessage>(16);
-        foreach (var province in provinces)
+        foreach (var (provinceId, position) in provinces)
         {
-            if (_registeredProvince.Contains(province))
+            if (!_registeredProvince.Contains(provinceId))
             {
-                continue;
+                errorList.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
+                    _filePath, position, $"Province '{provinceId}' 未在 map\\definition.csv 文件中注册", ErrorLevel.Error));
             }
-
-            errorList.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
-                _filePath, position, $"Province {province} 未在文件中注册", ErrorLevel.Error));
         }
 
         return errorList;
     }
 
     /// <summary>
-    /// 检查Provinces 是否重复
+    /// 检查 Provinces 是否重复分配
     /// </summary>
     /// <returns></returns>
-    private IEnumerable<ErrorMessage> AssertProvincesNotRepeat(HashSet<uint> provincesSet, Position position)
+    private IEnumerable<ErrorMessage> AssertProvincesNotRepeat(IEnumerable<(uint ProvinceId, Position Position)> provinces)
     {
         var errorList = new List<ErrorMessage>();
-
-        foreach (var u in provincesSet)
+        foreach (var (provinceId, position) in provinces)
         {
-            if (repeatedProvinceFilePathMap.TryGetValue(u, out var filePathList))
+            if (!ExistingProvinces.TryGetValue(provinceId, out var infoOfExistingValue))
             {
-                filePathList.Add(_filePath);
+                if (!ExistingProvinces.TryAdd(provinceId, (position, _filePath)))
+                {
+                    throw new ArgumentException("ExistingProvinces 添加失败");
+                }
                 continue;
             }
-            foreach (var existingProvince in existingProvinces)
+            var fileInfo = new List<(string, Position)>
             {
-                if (existingProvince.IsExists(u))
-                {
-                    errorList.Add(new ErrorMessage(
-                            GetRepeatProvinceFilePaths(u, _filePath),
-                            position,
-                            $"Province {u} 重复分配",
-                            ErrorLevel.Warn));
-                } 
-            }
+                (_filePath, position),
+                (infoOfExistingValue.FilePath, infoOfExistingValue.Position)
+            };
+            errorList.Add(new ErrorMessage(fileInfo, "Province 在文件中重复分配", ErrorLevel.Error));
         }
-
-        existingProvinces.Add(new Province(_filePath, position.Line, provincesSet));
+        
         return errorList;
     }
 
-    /// <summary>
-    /// 获得重复小地块所在文件路径的集合, 如果是第一次检查到重复, 创建一个新集合注册并返回
-    /// </summary>
-    /// <param name="province"></param>
-    /// <param name="filePath"></param>
-    /// <returns></returns>
-    private static IEnumerable<string> GetRepeatProvinceFilePaths(uint province, string filePath)
-    {
-        if (repeatedProvinceFilePathMap.TryGetValue(province, out var filePathList))
-        {
-            filePathList.Add(filePath);
-            return filePathList;
-        }
-
-        return RegisterToRepeatedProvinceFilePathMap(province, filePath);
-    }
-
-    private static IEnumerable<string> RegisterToRepeatedProvinceFilePathMap(uint province, string filePath)
-    {
-        var list = new ConcurrentBag<string> { filePath };
-        if (!repeatedProvinceFilePathMap.TryAdd(province, list))
-        {
-            throw new ArgumentException("数据添加失败");
-        }
-        return list;
-    }
-
-    private IEnumerable<ErrorMessage> AssertBuildings(Node result)
+    private IEnumerable<ErrorMessage> AnalyzeBuildings(Node result)
     {
         if (result.HasNot(ScriptKeyWords.History))
         {
@@ -223,21 +203,31 @@ public partial class StateFileAnalyzer : AnalyzerBase
         return errorMessages;
     }
 
-    private IEnumerable<ErrorMessage> AssertResourcesTypeIsRegistered(Node rootNode)
+    /// <summary>
+    /// 判断战略资源的类型是否存在
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    private IEnumerable<ErrorMessage> AssertResourcesTypeIsRegistered(StateModel model)
     {
-        if (rootNode.HasNot(ScriptKeyWords.Resources))
+        if (model.Resources.Count == 0)
         {
             return Enumerable.Empty<ErrorMessage>();
         }
-
         var errorMessages = new List<ErrorMessage>();
 
-        foreach (var leaf in rootNode.Child(ScriptKeyWords.Resources).Value.Leaves)
+        foreach (var (resourceType, amountText,position) in model.Resources)
         {
-            if (!_resourcesTypeSet.Contains(leaf.Key))
+            if (!_resourcesTypeSet.Contains(resourceType))
             {
-                errorMessages.Add(
-                    ErrorMessage.CreateSingleFileErrorWithPosition(_filePath, new Position(leaf.Position), "资源类型不存在", ErrorLevel.Error));
+                errorMessages.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
+                                       _filePath, position, $"战略资源类型 '{resourceType}' 不存在", ErrorLevel.Error));
+            }
+
+            if (!uint.TryParse(amountText, out _))
+            {
+                errorMessages.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
+                    _filePath, position, $"战略资源数量 '{amountText}' 无法转换为整数", ErrorLevel.Error));
             }
         }
 
@@ -246,26 +236,6 @@ public partial class StateFileAnalyzer : AnalyzerBase
 
     public static void Clear()
     {
-        existingProvinces.Clear();
-        repeatedProvinceFilePathMap.Clear();
-    }
-
-    private sealed class Province
-    {
-        public string FilePath { get; }
-        public long Line { get; }
-        private readonly HashSet<uint> _provinces;
-
-        public Province(string filePath, long line, HashSet<uint> provinces)
-        {
-            FilePath = filePath;
-            Line = line;
-            _provinces = provinces;
-        }
-
-        public bool IsExists(uint province)
-        {
-            return _provinces.Contains(province);
-        }
+        ExistingProvinces.Clear();
     }
 }

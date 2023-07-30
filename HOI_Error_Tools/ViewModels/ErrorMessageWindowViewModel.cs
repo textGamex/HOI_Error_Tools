@@ -35,7 +35,7 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
     {
         foreach (ErrorMessage errorMessage in folderPathList)
         {
-            _ = Process.Start("Explorer.exe", $"/select, {errorMessage.FilePaths.First()}");
+            _ = Process.Start("Explorer.exe", $"/select, {errorMessage.FileInfo.First()}");
         }
     }
 
@@ -71,7 +71,7 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
         p.Start();//启动程序
 
         //向cmd窗口发送输入信息
-        p.StandardInput.WriteLine($"code {_selectErrorMessage.FilePaths.First()}" + "&exit");
+        p.StandardInput.WriteLine($"code {_selectErrorMessage.FileInfo.First()}" + "&exit");
         p.StandardInput.AutoFlush = true;
 
         p.WaitForExit();//等待程序执行完退出进程
