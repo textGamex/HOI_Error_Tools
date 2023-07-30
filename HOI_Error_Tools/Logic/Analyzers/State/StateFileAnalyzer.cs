@@ -68,7 +68,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
         ));
         errorList.AddRange(helper.AssertKeywordExistsInChild(ScriptKeyWords.History, ScriptKeyWords.Owner));
         errorList.AddRange(AnalyzeProvinces(stateModel));
-        errorList.AddRange(AnalyzeBuildings(result));
+        errorList.AddRange(AnalyzeBuildings(stateModel));
         errorList.AddRange(AssertResourcesTypeIsRegistered(stateModel));
 
         return errorList;
@@ -150,53 +150,35 @@ public partial class StateFileAnalyzer : AnalyzerBase
         return errorList;
     }
 
-    private IEnumerable<ErrorMessage> AnalyzeBuildings(Node result)
+    private IEnumerable<ErrorMessage> AnalyzeBuildings(StateModel model)
     {
-        if (result.HasNot(ScriptKeyWords.History))
-        {
-            return Enumerable.Empty<ErrorMessage>();
-        }
-
-        var historyNode = result.Child(ScriptKeyWords.History).Value;
-        if (historyNode.HasNot(ScriptKeyWords.Buildings))
-        {
-            return Enumerable.Empty<ErrorMessage>();
-        }
-
-        var buildingsNode = historyNode.Child(ScriptKeyWords.Buildings).Value;
-
-        return AssertBuildingLevelWithinRange(buildingsNode);
+        return model.Buildings.Count == 0 ? Enumerable.Empty<ErrorMessage>() : AssertBuildingLevelWithinRange(model);
     }
 
-    private IEnumerable<ErrorMessage> AssertBuildingLevelWithinRange(Node buildingsNode)
+    private IEnumerable<ErrorMessage> AssertBuildingLevelWithinRange(StateModel model)
     {
         var errorMessages = new List<ErrorMessage>();
 
-        foreach (var leaf in buildingsNode.Leaves)
+        foreach (var (buildingType, levelText, position) in model.Buildings)
         {
-            if (_registeredBuildings.TryGetValue(leaf.Key, out var buildingInfo))
-            {
-                if (!ushort.TryParse(leaf.ValueText, out var level))
-                {
-                    errorMessages.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
-                        _filePath, new Position(leaf.Position), $"数值 '{leaf.ValueText}' 解析失败", ErrorLevel.Error));
-                    continue;
-                }
-
-                if (level > buildingInfo.MaxLevel)
-                {
-                    errorMessages.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
-                        _filePath,
-                        new Position(leaf.Position),
-                        $"建筑物等级: {level} 超过最大值: {buildingInfo.MaxLevel}",
-                        ErrorLevel.Warn));
-                    continue;
-                }
-            }
-            else
+            if (!_registeredBuildings.TryGetValue(buildingType, out var buildingInfo))
             {
                 errorMessages.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
-                    _filePath, new Position(leaf.Position), $"建筑物类型 '{leaf.Key}' 不存在", ErrorLevel.Error));
+                    _filePath, position, $"建筑类型 '{buildingType}' 不存在", ErrorLevel.Error));
+                continue;
+            }
+
+            if (!uint.TryParse(levelText, out var level))
+            {
+                errorMessages.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
+                    _filePath, position, $"建筑等级 '{levelText}' 无法转换为整数", ErrorLevel.Error));
+                continue;
+            }
+
+            if (level > buildingInfo.MaxLevel)
+            {
+                errorMessages.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
+                    _filePath, position, $"建筑等级 '{level}' 超出范围 [{buildingInfo.MaxLevel}]", ErrorLevel.Error));
             }
         }
 
