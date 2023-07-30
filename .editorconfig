@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# CodeOptimization: 使用AI来优化你的代码
+dotnet_diagnostic.CodeOptimization.severity = none

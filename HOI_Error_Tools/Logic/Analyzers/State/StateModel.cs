@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Globalization;
 using System.Linq;
 using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers.Error;
@@ -12,49 +11,87 @@ public partial class StateFileAnalyzer
 {
     private sealed class StateModel
     {
-        public IReadOnlyList<(string Tag, Position Position)> HasCoreTags { get; private set; }
-        public IReadOnlyList<(string BuildingType, ushort Level, Position Position)> Buildings { get; private set; }
-        public IReadOnlyList<(string StateCategory, string Type)> StateCategories { get; private set; }
+        public IReadOnlyList<(string Id, Position Position)> Ids { get; private set; } = ImmutableList<(string, Position)>.Empty;
+        public IReadOnlyList<(string Manpower, Position Position)> Manpowers { get; private set; } = ImmutableList<(string, Position)>.Empty;
+        public IReadOnlyList<(string Name, Position Position)> Names { get; private set; } = ImmutableList<(string, Position)>.Empty;
+        public IReadOnlyList<(string Tag, Position Position)> HasCoreTags { get; private set; } = ImmutableList<(string, Position)>.Empty;
+        public IReadOnlyList<(string BuildingType, string Level, Position Position)> Buildings { get; private set; } 
+            = ImmutableList<(string, string, Position)>.Empty;
+        public IReadOnlyList<(string Type, Position Position)> StateCategories { get; private set; } = ImmutableList<(string, Position)>.Empty;
+        public IReadOnlyList<(string Owner, Position Position)> Owners { get; private set; } = ImmutableList<(string, Position)>.Empty;
+        public IReadOnlyList<(string ProvinceId, IReadOnlyList<(string BuildingName, string Level, Position Position)> Buildings, Position Position)> BuildingsByProvince { get; private set; } 
+            = ImmutableList<(string, IReadOnlyList<(string, string, Position)>, Position)>.Empty;
+        public IReadOnlyList<(string ResourceName, string Amount, Position Position)> Resources { get; private set; } 
+            = ImmutableList<(string, string, Position)>.Empty;
+        public IReadOnlyList<(string ProvinceId, Position Position)> Provinces { get; private set; } = ImmutableList<(string, Position)>.Empty;
 
         public StateModel(Node rootNode)
         {
             if (rootNode.HasNot(ScriptKeyWords.State))
             {
-                SetEmpty();
-                StateCategories = ImmutableList<(string, string)>.Empty;
+                return;
+            }
+            var stateNode = rootNode.Child(ScriptKeyWords.State).Value;
+
+            Ids = GetLeavesValue(ScriptKeyWords.Id, stateNode);
+            Manpowers = GetLeavesValue(ScriptKeyWords.Manpower, stateNode);
+            Names = GetLeavesValue(ScriptKeyWords.Name, stateNode);
+            StateCategories = GetLeavesValue(ScriptKeyWords.StateCategory, stateNode);
+            
+            if (stateNode.HasNot(ScriptKeyWords.History))
+            {
                 return;
             }
 
-            var stateNode = rootNode.Child(ScriptKeyWords.State).Value;
-            StateCategories = stateNode.Leafs(ScriptKeyWords.StateCategory)
-                .Select(x => (x.Key, x.ValueText))
-                .ToImmutableList();
-
-            if (stateNode.HasNot(ScriptKeyWords.History))
+            if (stateNode.Has(ScriptKeyWords.Resources))
             {
-                SetEmpty();
-                return;
+                var resourcesNode = stateNode.Child(ScriptKeyWords.Resources).Value;
+                Resources = GetLeavesKeyValuePairs(resourcesNode);
+            }
+
+            if (stateNode.Has(ScriptKeyWords.Provinces))
+            {
+                var provincesNode = stateNode.Child(ScriptKeyWords.Provinces).Value;
+                Provinces = provincesNode.LeafValues
+                    .Select(leaf => (leaf.ValueText, new Position(leaf.Position)))
+                    .ToImmutableList();
             }
 
             var historyNode = stateNode.Child(ScriptKeyWords.History).Value;
-            var buildingsBuilder = ImmutableList.CreateBuilder<(string, ushort, Position)>();
+            var buildingsBuilder = ImmutableList.CreateBuilder<(string, string, Position)>();
+            var buildingsByProvince = ImmutableList.CreateBuilder<(string, IReadOnlyList<(string, string, Position)>, Position)>();
             if (historyNode.Has(ScriptKeyWords.Buildings))
             {
-                foreach (var leaf in historyNode.Child(ScriptKeyWords.Buildings).Value.Leaves)
+                var buildingsNode = historyNode.Child(ScriptKeyWords.Buildings).Value;
+                foreach (var leaf in buildingsNode.Leaves)
                 {
-                    buildingsBuilder.Add((leaf.Key, ushort.Parse(leaf.ValueText), new Position(leaf.Position)));
+                    buildingsBuilder.Add((leaf.Key, leaf.ValueText, new Position(leaf.Position)));
+                }
+
+                foreach (var provinceNode in buildingsNode.Nodes)
+                {
+                    var provinceBuildings = GetLeavesKeyValuePairs(provinceNode);
+                    buildingsByProvince.Add((provinceNode.Key, provinceBuildings, new Position(provinceNode.Position)));
                 }
             }
-            HasCoreTags = historyNode.Leafs("add_core_of")
+            Buildings = buildingsBuilder.ToImmutable();
+            BuildingsByProvince = buildingsByProvince.ToImmutable();
+            Owners = GetLeavesValue(ScriptKeyWords.Owner, historyNode);
+            HasCoreTags = GetLeavesValue("add_core_of", historyNode);
+        }
+        
+        private static ImmutableList<(string, Position)> GetLeavesValue(string key, Node node)
+        {
+            return node.Leafs(key)
                 .Select(x => (x.ValueText, new Position(x.Position)))
                 .ToImmutableList();
-            Buildings = buildingsBuilder.ToImmutable();
+        }
 
-            void SetEmpty()
-            {
-                HasCoreTags = ImmutableList<(string, Position)>.Empty;
-                Buildings = ImmutableList<(string, ushort, Position)>.Empty;
-            }
+        private static ImmutableList<(string, string, Position)> GetLeavesKeyValuePairs(Node node)
+        {
+            return node.Leaves
+                .Select(x => (x.Key, x.ValueText, new Position(x.Position)))
+                .ToImmutableList();
         }
     }
 }
