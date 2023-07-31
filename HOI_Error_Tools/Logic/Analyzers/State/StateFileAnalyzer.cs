@@ -6,6 +6,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 
 namespace HOI_Error_Tools.Logic.Analyzers.State;
@@ -79,7 +80,8 @@ public partial class StateFileAnalyzer : AnalyzerBase
         var errorList = new List<ErrorMessage>();
         if (!AssertExistKeyword(model.Manpowers, ScriptKeyWords.Manpower, out var errorMessage))
         {
-            errorList.Add(errorMessage!);
+            Debug.Assert(errorMessage != null, nameof(errorMessage) + " != null");
+            errorList.Add(errorMessage);
             return errorList;
         }
 
@@ -93,8 +95,9 @@ public partial class StateFileAnalyzer : AnalyzerBase
             }
         }
 
-        if (AssertKeywordIsOnly(model.Manpowers, ScriptKeyWords.Manpower, out errorMessage!))
+        if (!AssertKeywordIsOnly(model.Manpowers, ScriptKeyWords.Manpower, out errorMessage))
         {
+            Debug.Assert(errorMessage != null, nameof(errorMessage) + " != null");
             errorList.Add(errorMessage);
             return errorList;
         }
@@ -108,12 +111,14 @@ public partial class StateFileAnalyzer : AnalyzerBase
 
         if (!AssertExistKeyword(model.Names, ScriptKeyWords.Name, out var errorMessage))
         {
-            errorList.Add(errorMessage!);
+            Debug.Assert(errorMessage != null, nameof(errorMessage) + " != null");
+            errorList.Add(errorMessage);
             return errorList;
         }
 
-        if (!AssertKeywordIsOnly(model.Names, ScriptKeyWords.Name, out errorMessage!))
+        if (!AssertKeywordIsOnly(model.Names, ScriptKeyWords.Name, out errorMessage))
         {
+            Debug.Assert(errorMessage != null, nameof(errorMessage) + " != null");
             errorList.Add(errorMessage);
         }
         return errorList;
@@ -124,7 +129,8 @@ public partial class StateFileAnalyzer : AnalyzerBase
         var errorList = new List<ErrorMessage>();
         if (!AssertExistKeyword(model.StateCategories, ScriptKeyWords.StateCategory, out var errorMessage))
         {
-            errorList.Add(errorMessage!);
+            Debug.Assert(errorMessage != null, nameof(errorMessage) + " != null");
+            errorList.Add(errorMessage);
             return errorList;
         }
 
@@ -139,7 +145,8 @@ public partial class StateFileAnalyzer : AnalyzerBase
 
         if (!AssertKeywordIsOnly(model.StateCategories, ScriptKeyWords.StateCategory, out errorMessage))
         {
-            errorList.Add(errorMessage!);
+            Debug.Assert(errorMessage != null, nameof(errorMessage) + " != null");
+            errorList.Add(errorMessage);
         }
         return errorList;
     }

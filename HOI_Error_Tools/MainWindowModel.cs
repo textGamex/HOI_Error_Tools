@@ -126,7 +126,6 @@ public partial class MainWindowModel : ObservableObject
         }
         errorList.AddRange(GameResources.ErrorMessages);
 
-        errorList.RemoveAll(x => x is null);
         WeakReferenceMessenger.Default.Send(new ValueChangedMessage<IImmutableList<ErrorMessage>>(errorList.ToImmutable()));
     }
 }
