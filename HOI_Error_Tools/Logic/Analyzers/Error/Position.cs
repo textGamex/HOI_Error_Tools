@@ -1,4 +1,6 @@
-﻿namespace HOI_Error_Tools.Logic.Analyzers.Error;
+﻿using System;
+
+namespace HOI_Error_Tools.Logic.Analyzers.Error;
 
 public class Position
 {
@@ -16,8 +18,13 @@ public class Position
         Line = error.Line;
     }
 
-    public Position(long line)
+    private Position(long line)
     {
         Line = line;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Line);
     }
 }

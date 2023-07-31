@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace HOI_Error_Tools.Logic.Analyzers.State;
 
-//TODO: 省份建筑的检查, 例如: 重复建筑, 不存在的建筑, 不存在的省份
+//TODO: 省份建筑的检查, 例如: 重复建筑
 public partial class StateFileAnalyzer : AnalyzerBase
 {
     private readonly string _filePath;
@@ -20,13 +20,15 @@ public partial class StateFileAnalyzer : AnalyzerBase
     /// 在文件中注册的省份ID
     /// </summary>
     private readonly IReadOnlySet<uint> _registeredProvince;
+    /// <summary>
+    /// Key 为 建筑名称
+    /// </summary>
     private readonly IImmutableDictionary<string, BuildingInfo> _registeredBuildings;
     private readonly IImmutableSet<string> _resourcesTypeSet;
     private readonly IImmutableSet<string> _registeredStateCategories;
     private readonly IImmutableSet<string> _registeredCountriesTag;
 
     private static readonly ConcurrentDictionary<uint, (string FilePath, Position Position)> ExistingIds = new();
-
     /// <summary>
     /// 已经分配的 Provinces, 用于检查重复分配错误
     /// </summary>
@@ -67,11 +69,42 @@ public partial class StateFileAnalyzer : AnalyzerBase
         errorList.AddRange(AnalyzeManpower(stateModel));
         errorList.AddRange(AnalyzeStateCategory(stateModel));
         errorList.AddRange(AnalyzeProvinces(stateModel));
+        errorList.AddRange(AnalyzeBuildingsByProvince(stateModel));
         errorList.AddRange(AnalyzeBuildings(stateModel));
         errorList.AddRange(AnalyzeOwner(stateModel));
         errorList.AddRange(AnalyzeHasCoreTags(stateModel));
         errorList.AddRange(AssertResourcesTypeIsRegistered(stateModel));
 
+        return errorList;
+    }
+
+    private IEnumerable<ErrorMessage> AnalyzeBuildingsByProvince(StateModel model)
+    {
+        var errorList = new List<ErrorMessage>();
+        var provinceInStateSet = model.Provinces.Select(x => x.ProvinceId).ToHashSet();
+
+        foreach (var (provinceIdText, buildings, position) in model.BuildingsByProvince)
+        {
+            errorList.AddRange(AssertBuildingLevelWithinRange(buildings));
+            if (!uint.TryParse(provinceIdText, out var provinceId))
+            {
+                errorList.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
+                    _filePath, position, $"ProvinceId '{provinceIdText}' 无法转换为正整数", ErrorLevel.Error));
+                continue;
+            }
+
+            if (!_registeredProvince.Contains(provinceId))
+            {
+                errorList.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
+                    _filePath, position, $"ProvinceId '{provinceId}' 未注册", ErrorLevel.Error));
+            }
+
+            if (!provinceInStateSet.Contains(provinceIdText))
+            {
+                errorList.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
+                    _filePath, position, $"Province '{provinceId}' 未分配在此 State 中, 但却在此地有 Province 建筑", ErrorLevel.Error));
+            }
+        }
         return errorList;
     }
 
@@ -346,25 +379,36 @@ public partial class StateFileAnalyzer : AnalyzerBase
 
     private IEnumerable<ErrorMessage> AnalyzeBuildings(StateModel model)
     {
-        return model.Buildings.Count == 0 ? Enumerable.Empty<ErrorMessage>() : AssertBuildingLevelWithinRange(model);
+        return model.Buildings.Count == 0 ? Enumerable.Empty<ErrorMessage>() : AssertBuildingLevelWithinRange(model.Buildings);
     }
 
     /// <summary>
     /// 判断 Buildings 是否合规 (建筑类型是否存在, 等级是否在范围内)
     /// </summary>
-    /// <param name="model"></param>
+    /// <param name="buildings"></param>
     /// <returns></returns>
-    private IEnumerable<ErrorMessage> AssertBuildingLevelWithinRange(StateModel model)
+    private IEnumerable<ErrorMessage> AssertBuildingLevelWithinRange(IReadOnlyList<(string BuildingName, string Level, Position Position)> buildings)
     {
         var errorMessages = new List<ErrorMessage>();
+        //TODO: 待优化 (什么shi山代码)
+        var existingBuildings = new Dictionary<string, List<Position>>();
 
-        foreach (var (buildingType, levelText, position) in model.Buildings)
+        foreach (var (buildingType, levelText, position) in buildings)
         {
+            if (existingBuildings.TryGetValue(buildingType, out var list))
+            {
+                list.Add(position);
+            }
+            else
+            {
+                existingBuildings.Add(buildingType, new List<Position>() { position });
+            }
+
+            // 建筑类型和建筑等级是否为整数可以一起判断
             if (!_registeredBuildings.TryGetValue(buildingType, out var buildingInfo))
             {
                 errorMessages.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
                     _filePath, position, $"建筑类型 '{buildingType}' 不存在", ErrorLevel.Error));
-                continue;
             }
 
             if (!uint.TryParse(levelText, out var level))
@@ -374,11 +418,23 @@ public partial class StateFileAnalyzer : AnalyzerBase
                 continue;
             }
 
-            if (level > buildingInfo.MaxLevel)
+            // 检测 buildingInfo 是否为 null 是因为建筑类型和建筑等级是互不干扰的两项检测.
+            // 当建筑类型不存在时, buildingInfo 为 null, 但是 levelText 仍然有可能为整数, 仍然可以进行等级合法性检测.
+            if (buildingInfo != null && level > buildingInfo.MaxLevel)
             {
                 errorMessages.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
                     _filePath, position, $"建筑等级 '{level}' 超出范围 [{buildingInfo.MaxLevel}]", ErrorLevel.Error));
             }
+        }
+
+        foreach (var (buildingType, positionList) in existingBuildings)
+        {
+            if (positionList.Count < 2)
+            {
+                continue;
+            }
+            var fileInfo = positionList.Select(position => (_filePath, position)).ToList();
+            errorMessages.Add(new ErrorMessage(fileInfo, $"重复声明的建筑物 '{buildingType}'", ErrorLevel.Error));
         }
 
         return errorMessages;
