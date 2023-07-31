@@ -134,9 +134,7 @@ public sealed class GameResourcesPath
     {
         Debug.Assert(Directory.Exists(folderPath), $"文件夹不存在 {folderPath}");
 
-        var dir = new DirectoryInfo(folderPath);
-        var files = dir.GetFiles();
-        return files.Select(f => f.FullName).ToList();
+        return Directory.GetFiles(folderPath);
     }
 
     /// <summary>
@@ -151,7 +149,6 @@ public sealed class GameResourcesPath
         var set = new HashSet<string>();
 
         // 优先读取Mod文件
-        // 使用 ChatGPT 生成
         foreach (var filePath in modFilePathList.Concat(gameFilePathList))
         {
             var fileName = Path.GetFileName(filePath) ?? throw new FileFormatException($"无法得到文件名 {filePath}");
