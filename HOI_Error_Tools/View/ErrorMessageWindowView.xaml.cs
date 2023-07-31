@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
+using System.Linq;
 using System.Windows.Data;
 
 namespace HOI_Error_Tools.View;
@@ -19,34 +20,5 @@ public partial class ErrorMessageWindowView
         InitializeComponent();
 
         this.DataContext = new ViewModels.ErrorMessageWindowViewModel(errors);
-    }
-}
-
-public class StringCollectionConverter : IValueConverter
-{
-    public static StringCollectionConverter Instance { get; } = new();
-    private const string Separator = ", ";
-
-    private StringCollectionConverter()
-    { }
-
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        if (value is IEnumerable<string> collection)
-        {
-            return string.Join(Separator, collection);
-        }
-
-        throw new ArgumentException($"转换失败, 类型不应该是 {value.GetType().FullName}", nameof(value));
-    }
-
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        if (value is string str)
-        {
-            return str.Split(Separator);
-        }
-
-        throw new ArgumentException($"转换失败, 类型不应该是 {value.GetType().FullName}", nameof(value));
     }
 }

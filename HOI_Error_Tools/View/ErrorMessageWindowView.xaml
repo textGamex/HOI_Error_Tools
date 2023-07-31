@@ -1,4 +1,4 @@
-﻿<hc:Window
+﻿<Window
     x:Class="HOI_Error_Tools.View.ErrorMessageWindowView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -16,38 +16,26 @@
 
     <Grid>
         <DataGrid
-            x:Name="dataGrid"
             AutoGenerateColumns="False"
             IsReadOnly="True"
-            ItemsSource="{Binding ErrorMessage, Mode=Default}">
-
-            <DataGrid.ContextMenu>
-                <ContextMenu>
-                    <MenuItem />
-                </ContextMenu>
-            </DataGrid.ContextMenu>
-
-            <hc:Interaction.Triggers>
-                <hc:EventTrigger EventName="MouseDoubleClick">
-                    <hc:InvokeCommandAction Command="{Binding OpenFolderCommand, Mode=Default}" CommandParameter="{Binding ElementName=dataGrid, Path=SelectedItems, Mode=Default}" />
-                </hc:EventTrigger>
-                <hc:EventTrigger EventName="SelectionChanged">
-                    <hc:InvokeCommandAction Command="{Binding SelectItemChangeCommand, Mode=Default}" CommandParameter="{Binding ElementName=dataGrid, Path=SelectedItem, Mode=Default}" />
-                </hc:EventTrigger>
-            </hc:Interaction.Triggers>
-
+            ItemsSource="{Binding ErrorMessage}"
+            SelectionMode="Single"
+            VirtualizingPanel.IsVirtualizing="True"
+            VirtualizingPanel.VirtualizationMode="Recycling">
             <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding Path=Message}" Header="错误信息" />
 
-                <DataGridTextColumn
-                    Binding="{Binding Message, Mode=Default}"
-                    Header="错误信息"
-                    IsReadOnly="True" />
-                <DataGridTextColumn
-                    Binding="{Binding Position.Line, Mode=Default}"
-                    Header="行号"
-                    IsReadOnly="True" />
-                <DataGridTextColumn Binding="{Binding FileInfo, Mode=Default, Converter={x:Static local:StringCollectionConverter.Instance}}" Header="文件路径" />
+                <DataGridTemplateColumn Header="错误位置">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button
+                                Command="{Binding DataContext.ShowErrorFileInfoCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                CommandParameter="{Binding FileInfo}"
+                                Content="显示位置" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>
-</hc:Window>
+</Window>

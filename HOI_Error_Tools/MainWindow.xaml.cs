@@ -9,37 +9,33 @@ using HOI_Error_Tools.Logic.Analyzers.State;
 using HOI_Error_Tools.View;
 using NLog;
 
-namespace HOI_Error_Tools
+namespace HOI_Error_Tools;
+
+public partial class MainWindow : Window
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
+    private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+
+    public MainWindow()
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        InitializeComponent();
 
-        public MainWindow()
+        this.DataContext = new MainWindowModel();
+
+        WeakReferenceMessenger.Default.Register<MainWindow, ValueChangedMessage<IImmutableList<ErrorMessage>>>(this, (_, list) =>
         {
-            InitializeComponent();
-
-            this.DataContext = new MainWindowModel();
-
-            WeakReferenceMessenger.Default.Register<MainWindow, ValueChangedMessage<IImmutableList<ErrorMessage>>>(this, (_, list) =>
+            Dispatcher.InvokeAsync(() =>
             {
-                Dispatcher.InvokeAsync(() =>
-                {
-                    StartButton.Content = "完成";
-                    this.LoadingCircle.IsRunning = false;
-                    var win = new ErrorMessageWindowView(list.Value);
-                    win.Show();
+                StartButton.Content = "完成";
+                this.LoadingCircle.IsRunning = false;
+                var win = new ErrorMessageWindowView(list.Value);
+                win.Show();
 
-                    StateFileAnalyzer.Clear();
-                    GameResources.ClearErrorMessagesCache();
+                StateFileAnalyzer.Clear();
+                GameResources.ClearErrorMessagesCache();
 #if RELEASE
                     this.Close();
 #endif  
-                });
             });
-        }
+        });
     }
 }

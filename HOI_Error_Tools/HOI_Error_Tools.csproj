@@ -17,7 +17,6 @@
     <Folder Include="Logic\Analyzers\Util\" />
     <Folder Include="Logic\CustomException\" />
     <Folder Include="Resources\" />
-    <Folder Include="ViewModels\" />
   </ItemGroup>
 
   <ItemGroup>
