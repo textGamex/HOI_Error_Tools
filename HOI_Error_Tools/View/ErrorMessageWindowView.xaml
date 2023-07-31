@@ -23,6 +23,7 @@
             VirtualizingPanel.IsVirtualizing="True"
             VirtualizingPanel.VirtualizationMode="Recycling">
             <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding Path=Level}" Header="等级" />
                 <DataGridTextColumn Binding="{Binding Path=Message}" Header="错误信息" />
 
                 <DataGridTemplateColumn Header="错误位置">
