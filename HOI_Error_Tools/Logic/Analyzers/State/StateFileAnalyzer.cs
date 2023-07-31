@@ -23,12 +23,15 @@ public partial class StateFileAnalyzer : AnalyzerBase
     private readonly IImmutableDictionary<string, BuildingInfo> _registeredBuildings;
     private readonly IImmutableSet<string> _resourcesTypeSet;
     private readonly IImmutableSet<string> _registeredStateCategories;
+
+    private static readonly ConcurrentDictionary<uint, (string FilePath, Position Position)> ExistingIds = new();
+
     /// <summary>
     /// 已经分配的 Provinces, 用于检查重复分配错误
     /// </summary>
     private static readonly ConcurrentDictionary<uint, (Position Position, string FilePath)> ExistingProvinces = new();
 
-    public StateFileAnalyzer(string filePath, GameResources resources)
+    public StateFileAnalyzer(string filePath, GameResources resources) 
     {
         _filePath = filePath;
         _registeredProvince = resources.RegisteredProvinceSet;
@@ -57,21 +60,78 @@ public partial class StateFileAnalyzer : AnalyzerBase
             return errorList;
         }
 
-        result = result.Child(ScriptKeyWords.State).Value;
-        var helper = new AnalyzeHelper(_filePath, result);
-
-        errorList.AddRange(helper.AssertKeywordExistsInCurrentNode(
-            ScriptKeyWords.Id,
-            ScriptKeyWords.History
-        ));
-        errorList.AddRange(helper.AssertKeywordExistsInChild(ScriptKeyWords.History, ScriptKeyWords.Owner));
-        errorList.AddRange(AnalyzeProvinces(stateModel));
-        errorList.AddRange(AnalyzeBuildings(stateModel));
+        errorList.AddRange(AnalyzeId(stateModel));
+        errorList.AddRange(AnalyzeName(stateModel));
         errorList.AddRange(AnalyzeManpower(stateModel));
         errorList.AddRange(AnalyzeStateCategory(stateModel));
-        errorList.AddRange(AnalyzeName(stateModel));
+        errorList.AddRange(AnalyzeProvinces(stateModel));
+        errorList.AddRange(AnalyzeBuildings(stateModel));
         errorList.AddRange(AssertResourcesTypeIsRegistered(stateModel));
 
+        return errorList;
+    }
+
+    private IEnumerable<ErrorMessage> AnalyzeId(StateModel model)
+    {
+        var errorList = new List<ErrorMessage>();
+        if (!AssertExistKeyword(model.Ids, ScriptKeyWords.Id, out var errorMessage))
+        {
+            Debug.Assert(errorMessage != null, nameof(errorMessage) + " != null");
+            errorList.Add(errorMessage);
+            return errorList;
+        }
+
+        foreach (var (idText, position) in model.Ids)
+        {
+            if (!uint.TryParse(idText, out var id))
+            {
+                errorList.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
+                    _filePath, position, $"Id '{idText}' 无法转换为正整数", ErrorLevel.Error));
+                continue;
+            }
+
+            if (ExistingIds.TryGetValue(id, out var existingIdOfFileInfo))
+            {
+                var fileInfo = new List<(string, Position)>()
+                {
+                    existingIdOfFileInfo,
+                    (_filePath, position)
+                };
+                
+                errorList.Add(new ErrorMessage(fileInfo, $"Id '{id}' 重复定义", ErrorLevel.Error));
+            }
+            else
+            {
+                bool result = ExistingIds.TryAdd(id, (_filePath, position));
+                Debug.Assert(result, $"{nameof(ExistingIds)} 添加元素失败");
+            }
+        }
+
+        if (!AssertKeywordIsOnly(model.Ids, ScriptKeyWords.Id, out errorMessage))
+        {
+            Debug.Assert(errorMessage != null, nameof(errorMessage) + " != null");
+            errorList.Add(errorMessage);
+        }
+
+        return errorList;
+    }
+
+    private IEnumerable<ErrorMessage> AnalyzeName(StateModel model)
+    {
+        var errorList = new List<ErrorMessage>();
+
+        if (!AssertExistKeyword(model.Names, ScriptKeyWords.Name, out var errorMessage))
+        {
+            Debug.Assert(errorMessage != null, nameof(errorMessage) + " != null");
+            errorList.Add(errorMessage);
+            return errorList;
+        }
+
+        if (!AssertKeywordIsOnly(model.Names, ScriptKeyWords.Name, out errorMessage))
+        {
+            Debug.Assert(errorMessage != null, nameof(errorMessage) + " != null");
+            errorList.Add(errorMessage);
+        }
         return errorList;
     }
 
@@ -102,25 +162,6 @@ public partial class StateFileAnalyzer : AnalyzerBase
             return errorList;
         }
 
-        return errorList;
-    }
-
-    private IEnumerable<ErrorMessage> AnalyzeName(StateModel model)
-    {
-        var errorList = new List<ErrorMessage>();
-
-        if (!AssertExistKeyword(model.Names, ScriptKeyWords.Name, out var errorMessage))
-        {
-            Debug.Assert(errorMessage != null, nameof(errorMessage) + " != null");
-            errorList.Add(errorMessage);
-            return errorList;
-        }
-
-        if (!AssertKeywordIsOnly(model.Names, ScriptKeyWords.Name, out errorMessage))
-        {
-            Debug.Assert(errorMessage != null, nameof(errorMessage) + " != null");
-            errorList.Add(errorMessage);
-        }
         return errorList;
     }
 
