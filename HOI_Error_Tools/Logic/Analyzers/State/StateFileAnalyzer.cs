@@ -23,13 +23,14 @@ public partial class StateFileAnalyzer : AnalyzerBase
     private readonly IImmutableDictionary<string, BuildingInfo> _registeredBuildings;
     private readonly IImmutableSet<string> _resourcesTypeSet;
     private readonly IImmutableSet<string> _registeredStateCategories;
+    private readonly IImmutableSet<string> _registeredCountriesTag;
 
     private static readonly ConcurrentDictionary<uint, (string FilePath, Position Position)> ExistingIds = new();
 
     /// <summary>
     /// 已经分配的 Provinces, 用于检查重复分配错误
     /// </summary>
-    private static readonly ConcurrentDictionary<uint, (Position Position, string FilePath)> ExistingProvinces = new();
+    private static readonly ConcurrentDictionary<uint, (string FilePath, Position Position)> ExistingProvinces = new();
 
     public StateFileAnalyzer(string filePath, GameResources resources) 
     {
@@ -38,6 +39,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
         _registeredBuildings = resources.BuildingInfoMap;
         _resourcesTypeSet = resources.ResourcesType;
         _registeredStateCategories = resources.RegisteredStateCategories;
+        _registeredCountriesTag = resources.RegisteredCountriesTag;
     }
 
     public override IEnumerable<ErrorMessage> GetErrorMessages()
@@ -66,8 +68,53 @@ public partial class StateFileAnalyzer : AnalyzerBase
         errorList.AddRange(AnalyzeStateCategory(stateModel));
         errorList.AddRange(AnalyzeProvinces(stateModel));
         errorList.AddRange(AnalyzeBuildings(stateModel));
+        errorList.AddRange(AnalyzeOwner(stateModel));
+        errorList.AddRange(AnalyzeHasCoreTags(stateModel));
         errorList.AddRange(AssertResourcesTypeIsRegistered(stateModel));
 
+        return errorList;
+    }
+
+    private IEnumerable<ErrorMessage> AnalyzeHasCoreTags(StateModel model)
+    {
+        var errorList = new List<ErrorMessage>(3);
+
+        foreach (var (tag, position) in model.HasCoreTags)
+        {
+            if (!_registeredCountriesTag.Contains(tag))
+            {
+                errorList.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
+                    _filePath, position, $"国家Tag '{tag}' 未注册", ErrorLevel.Error));
+            }
+        }
+
+        return errorList;
+    }
+
+    private IEnumerable<ErrorMessage> AnalyzeOwner(StateModel model)
+    {
+        var errorList = new List<ErrorMessage>(5);
+        if (!AssertExistKeyword(model.Owners, ScriptKeyWords.Owner, out var errorMessage))
+        {
+            Debug.Assert(errorMessage != null, nameof(errorMessage) + " != null");
+            errorList.Add(errorMessage);
+            return errorList;
+        }
+
+        foreach (var (owner, position) in model.Owners)
+        {
+            if (!_registeredCountriesTag.Contains(owner))
+            {
+                errorList.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
+                                       _filePath, position, $"国家Tag '{owner}' 未注册", ErrorLevel.Error));
+            }
+        }
+
+        if (!AssertKeywordIsOnly(model.Owners, ScriptKeyWords.Owner, out errorMessage))
+        {
+            Debug.Assert(errorMessage != null, nameof(errorMessage) + " != null");
+            errorList.Add(errorMessage);
+        }
         return errorList;
     }
 
@@ -280,7 +327,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
         {
             if (!ExistingProvinces.TryGetValue(provinceId, out var infoOfExistingValue))
             {
-                if (!ExistingProvinces.TryAdd(provinceId, (position, _filePath)))
+                if (!ExistingProvinces.TryAdd(provinceId, (_filePath, position)))
                 {
                     throw new ArgumentException("ExistingProvinces 添加失败");
                 }

@@ -3,7 +3,6 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using HOI_Error_Tools.Logic.Analyzers;
 using NLog;
 
@@ -20,9 +19,10 @@ public sealed class GameResourcesPath
     public string ModLocPath { get; }
     public string ProvincesDefinitionFilePath { get; }
     public IEnumerable<string> StateCategoriesFilePath { get; }
-    public IImmutableList<string> BuildingsFilePathList => _buildingsFilePathList;
-    public IImmutableList<string> ResourcesTypeFilePathList => _resourcesTypeFilePathList;
-    public IImmutableList<string> StatesPathList => _statesPathList;
+    public IReadOnlyList<string> BuildingsFilePathList => _buildingsFilePathList;
+    public IReadOnlyList<string> ResourcesTypeFilePathList => _resourcesTypeFilePathList;
+    public IReadOnlyList<string> StatesPathList => _statesPathList;
+    public IReadOnlyList<string> CountriesTagPath { get; }
 
     private readonly ImmutableList<string> _statesPathList;
     private readonly ImmutableList<string> _buildingsFilePathList;
@@ -52,10 +52,11 @@ public sealed class GameResourcesPath
         GameLocPath = GetLocPath(GameRootPath);
         ModLocPath = GetLocPath(ModRootPath);
         ProvincesDefinitionFilePath = GetFilePathPriorModByRelativePath(Path.Combine(Key.Map, "definition.csv"));
-        StateCategoriesFilePath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, Key.StateCategory));
+        StateCategoriesFilePath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.StateCategory));
+        CountriesTagPath = ImmutableList.CreateRange(GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "country_tags")));
 
         _buildingsFilePathList = ImmutableList.CreateRange(
-            GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, Key.Buildings)));
+            GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.Buildings)));
         _statesPathList = ImmutableList.CreateRange(
             GetAllFilePriorModByRelativePathForFolder(Path.Combine(ScriptKeyWords.History, Key.States)));
         _resourcesTypeFilePathList = ImmutableList.CreateRange(
@@ -133,7 +134,6 @@ public sealed class GameResourcesPath
     private static IEnumerable<string> GetAllFilePathForFolder(string folderPath)
     {
         Debug.Assert(Directory.Exists(folderPath), $"文件夹不存在 {folderPath}");
-
         return Directory.GetFiles(folderPath);
     }
 
@@ -165,7 +165,5 @@ public sealed class GameResourcesPath
         public const string States = "states";
         public const string Map = "map";
         public const string Common = "common";
-        public const string Buildings = "buildings";
-        public const string StateCategory = "state_category";
     }
 }

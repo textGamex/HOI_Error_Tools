@@ -13,6 +13,7 @@ using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.Util;
 using HOI_Error_Tools.Logic.HOIParser;
 using NLog;
+using System.Windows.Shapes;
 
 namespace HOI_Error_Tools.Logic;
 
@@ -23,6 +24,7 @@ public class GameResources
     public IImmutableDictionary<string, BuildingInfo> BuildingInfoMap => _buildingInfos;
     public IImmutableSet<string> ResourcesType { get; }
     public IImmutableSet<string> RegisteredStateCategories { get; }
+    public IImmutableSet<string> RegisteredCountriesTag { get; }
 
     private readonly ImmutableDictionary<string, BuildingInfo> _buildingInfos;
     private readonly ImmutableHashSet<uint> _registeredProvinces;
@@ -38,6 +40,7 @@ public class GameResources
         _buildingInfos = GetRegisteredBuildings();
         ResourcesType = GetResourcesType();
         RegisteredStateCategories = GetRegisteredStateCategories();
+        RegisteredCountriesTag = GetCountriesTag();
     }
 
     public GameResources(string gameRootPath, string modRootPath)
@@ -47,6 +50,44 @@ public class GameResources
         _buildingInfos = GetRegisteredBuildings();
         ResourcesType = GetResourcesType();
         RegisteredStateCategories = GetRegisteredStateCategories();
+    }
+
+    private IImmutableSet<string> GetCountriesTag()
+    {
+        var builder = ImmutableHashSet.CreateBuilder<string>();
+        foreach (var path in _gameResourcesPath.CountriesTagPath)
+        {
+            var parser = new CWToolsParser(path);
+            if (parser.IsFailure)
+            {
+                errorMessageCache.Add(ErrorMessage.CreateSingleFileError(
+                    path, "地块等级文件解析错误", ErrorLevel.Error));
+                continue;
+            }
+            builder.UnionWith(GetCountriesTagFromFile(path, parser.GetResult()));
+        }
+
+        return builder.ToImmutableHashSet();
+    }
+
+    private static IReadOnlySet<string> GetCountriesTagFromFile(string filePath, Node result)
+    {
+        var separateBuilder = ImmutableHashSet.CreateBuilder<string>();
+        foreach (var leaf in result.Leaves)
+        {
+            if (leaf.Key == "dynamic_tags" && leaf.ValueText == "yes")
+            {
+                separateBuilder.Clear();
+                break;
+            }
+
+            if (!separateBuilder.Add(leaf.Key))
+            {
+                errorMessageCache.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
+                    filePath, new Position(leaf.Position), $"重复的国家标签 '{leaf.Key}'", ErrorLevel.Error));
+            }
+        }
+        return separateBuilder.ToImmutableHashSet();
     }
 
     private IImmutableSet<string> GetRegisteredStateCategories()
