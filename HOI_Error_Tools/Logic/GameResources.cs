@@ -27,6 +27,7 @@ public class GameResources
     private readonly ImmutableDictionary<string, BuildingInfo> _buildingInfos;
     private readonly ImmutableHashSet<uint> _registeredProvinces;
     private readonly GameResourcesPath _gameResourcesPath;
+
     private static readonly ConcurrentBag<ErrorMessage> errorMessageCache = new();
     private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 

@@ -24,11 +24,13 @@ public partial class StateFileAnalyzer
         public IReadOnlyList<(string ResourceName, string Amount, Position Position)> Resources { get; private set; } 
             = ImmutableList<(string, string, Position)>.Empty;
         public IReadOnlyList<(string ProvinceId, Position Position)> Provinces { get; private set; } = ImmutableList<(string, Position)>.Empty;
+        public bool IsEmptyFile { get; private set; }
 
         public StateModel(Node rootNode)
         {
             if (rootNode.HasNot(ScriptKeyWords.State))
             {
+                IsEmptyFile = true;
                 return;
             }
             var stateNode = rootNode.Child(ScriptKeyWords.State).Value;
