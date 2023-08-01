@@ -1,6 +1,5 @@
 ﻿using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
-using HOI_Error_Tools.Logic.Analyzers.Util;
 using HOI_Error_Tools.Logic.HOIParser;
 using System;
 using System.Collections.Concurrent;
@@ -11,7 +10,6 @@ using System.Linq;
 
 namespace HOI_Error_Tools.Logic.Analyzers.State;
 
-//TODO: 省份建筑的检查, 例如: 重复建筑
 public partial class StateFileAnalyzer : AnalyzerBase
 {
     private readonly string _filePath;
@@ -383,14 +381,14 @@ public partial class StateFileAnalyzer : AnalyzerBase
     }
 
     /// <summary>
-    /// 判断 Buildings 是否合规 (建筑类型是否存在, 等级是否在范围内)
+    /// 判断 Buildings 是否合规 (类型是否存在, 等级是否在范围内, 是否重复声明)
     /// </summary>
     /// <param name="buildings"></param>
     /// <returns></returns>
     private IEnumerable<ErrorMessage> AssertBuildingLevelWithinRange(IReadOnlyList<(string BuildingName, string Level, Position Position)> buildings)
     {
         var errorMessages = new List<ErrorMessage>();
-        //TODO: 待优化 (什么shi山代码)
+        //TODO: 待优化
         var existingBuildings = new Dictionary<string, List<Position>>();
 
         foreach (var (buildingType, levelText, position) in buildings)
@@ -426,7 +424,13 @@ public partial class StateFileAnalyzer : AnalyzerBase
                     _filePath, position, $"建筑等级 '{level}' 超出范围 [{buildingInfo.MaxLevel}]", ErrorLevel.Error));
             }
         }
+        errorMessages.AddRange(GetErrorOfRepeatedBuildingsType(existingBuildings));
+        return errorMessages;
+    }
 
+    private IEnumerable<ErrorMessage> GetErrorOfRepeatedBuildingsType(Dictionary<string, List<Position>> existingBuildings)
+    {
+        var errorMessages = new List<ErrorMessage>();
         foreach (var (buildingType, positionList) in existingBuildings)
         {
             if (positionList.Count < 2)
@@ -436,7 +440,6 @@ public partial class StateFileAnalyzer : AnalyzerBase
             var fileInfo = positionList.Select(position => (_filePath, position)).ToList();
             errorMessages.Add(new ErrorMessage(fileInfo, $"重复声明的建筑物 '{buildingType}'", ErrorLevel.Error));
         }
-
         return errorMessages;
     }
 
@@ -474,5 +477,6 @@ public partial class StateFileAnalyzer : AnalyzerBase
     public static void Clear()
     {
         ExistingProvinces.Clear();
+        ExistingIds.Clear();
     }
 }

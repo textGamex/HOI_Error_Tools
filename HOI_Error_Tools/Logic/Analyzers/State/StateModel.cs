@@ -40,11 +40,6 @@ public partial class StateFileAnalyzer
             Names = GetLeavesValue(ScriptKeyWords.Name, stateNode);
             StateCategories = GetLeavesValue(ScriptKeyWords.StateCategory, stateNode);
             
-            if (stateNode.HasNot(ScriptKeyWords.History))
-            {
-                return;
-            }
-
             if (stateNode.Has(ScriptKeyWords.Resources))
             {
                 var resourcesNode = stateNode.Child(ScriptKeyWords.Resources).Value;
@@ -59,7 +54,13 @@ public partial class StateFileAnalyzer
                     .ToImmutableList();
             }
 
+            if (stateNode.HasNot(ScriptKeyWords.History))
+            {
+                return;
+            }
+
             var historyNode = stateNode.Child(ScriptKeyWords.History).Value;
+
             var buildingsBuilder = ImmutableList.CreateBuilder<(string, string, Position)>();
             var buildingsByProvince = ImmutableList.CreateBuilder<(string, IReadOnlyList<(string, string, Position)>, Position)>();
             if (historyNode.Has(ScriptKeyWords.Buildings))
@@ -76,6 +77,7 @@ public partial class StateFileAnalyzer
                     buildingsByProvince.Add((provinceNode.Key, provinceBuildings, new Position(provinceNode.Position)));
                 }
             }
+
             Buildings = buildingsBuilder.ToImmutable();
             BuildingsByProvince = buildingsByProvince.ToImmutable();
             Owners = GetLeavesValue(ScriptKeyWords.Owner, historyNode);
