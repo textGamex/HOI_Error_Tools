@@ -35,7 +35,7 @@ public class GameResources
     {
         _gameResourcesPath = paths;
         _registeredProvinces = ImmutableHashSet.CreateRange(GetRegisteredProvinceSet());
-        _buildingInfos = GetRegisteredBuildings();
+        _buildingInfos = GetRegisteredBuildings();  
         ResourcesType = GetResourcesType();
         RegisteredStateCategories = GetRegisteredStateCategories();
         RegisteredCountriesTag = GetCountriesTag();
@@ -53,7 +53,7 @@ public class GameResources
             var parser = new CWToolsParser(path);
             if (parser.IsFailure)
             {
-                errorMessageCache.Add(ErrorMessage.CreateSingleFileError(
+                errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(
                     path, "地块等级文件解析错误", ErrorLevel.Error));
                 continue;
             }
@@ -76,7 +76,7 @@ public class GameResources
 
             if (!separateBuilder.Add(leaf.Key))
             {
-                errorMessageCache.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
+                errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                     filePath, new Position(leaf.Position), $"重复的国家标签 '{leaf.Key}'", ErrorLevel.Error));
             }
         }
@@ -91,7 +91,7 @@ public class GameResources
             var parser = new CWToolsParser(path);
             if (parser.IsFailure)
             {
-                errorMessageCache.Add(ErrorMessage.CreateSingleFileError(
+                errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(
                     path, "地块等级文件解析错误", ErrorLevel.Error));
                 continue;
             }
@@ -99,7 +99,7 @@ public class GameResources
             var result = parser.GetResult();
             if (result.HasNot(Key.StateCategories))
             {
-                errorMessageCache.Add(ErrorMessage.CreateSingleFileError(
+                errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(
                     path, $"缺少 '{Key.StateCategories}' 关键字", ErrorLevel.Error));
                 continue;
             }
@@ -123,14 +123,14 @@ public class GameResources
             {
                 var error = parser.GetError();
                 errorMessageCache.Add(
-                    ErrorMessage.CreateSingleFileErrorWithPosition(filePath, new Position(error), "解析错误", ErrorLevel.Error));
+                    ErrorMessageFactory.CreateSingleFileErrorWithPosition(filePath, new Position(error), "解析错误", ErrorLevel.Error));
                 continue;
             }
 
             var node = parser.GetResult();
             if (node.HasNot(ScriptKeyWords.Buildings))
             {
-                errorMessageCache.Add(ErrorMessage.CreateSingleFileError(
+                errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(
                     filePath, $"缺少 '{ScriptKeyWords.Buildings}' 关键字", ErrorLevel.Error));
                 continue;
             }
@@ -174,7 +174,7 @@ public class GameResources
         var maxLevelLeafs = buildingNode.Leafs(Key.MaxLevel).ToList();
         if (maxLevelLeafs.Count > 1)
         {
-            errorMessageCache.Add(ErrorMessage.CreateSingleFileErrorWithPosition(filePath, new Position(maxLevelLeafs[0].Position), "重复的 Key", 
+            errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(filePath, new Position(maxLevelLeafs[0].Position), "重复的 Key", 
                 ErrorLevel.Error));
         }
 
@@ -183,7 +183,7 @@ public class GameResources
         {
             return true;
         }
-        errorMessageCache.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
+        errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
             filePath,
             new Position(maxLevelLeaf.Position),
             $"建筑物最大等级超过最大值 {ushort.MaxValue}",
@@ -226,7 +226,7 @@ public class GameResources
             if (parser.IsFailure)
             {
                 errorMessageCache.Add(
-                    ErrorMessage.CreateSingleFileErrorWithPosition(path, new Position(parser.GetError()), "解析错误", ErrorLevel.Error));
+                    ErrorMessageFactory.CreateSingleFileErrorWithPosition(path, new Position(parser.GetError()), "解析错误", ErrorLevel.Error));
                 continue;
             }
 
@@ -234,7 +234,7 @@ public class GameResources
             if (rootNode.HasNot(ScriptKeyWords.Resources))
             {
                 errorMessageCache.Add(
-                    ErrorMessage.CreateSingleFileError(path, "资源类型文件为空", ErrorLevel.Error));
+                    ErrorMessageFactory.CreateSingleFileError(path, "资源类型文件为空", ErrorLevel.Error));
                 continue;
             }
 
@@ -250,7 +250,7 @@ public class GameResources
                     continue;
                 }
                 errorMessageCache.Add(
-                    ErrorMessage.CreateSingleFileError(path, $"重复定义的资源类型: '{type}'", ErrorLevel.Error));
+                    ErrorMessageFactory.CreateSingleFileError(path, $"重复定义的资源类型: '{type}'", ErrorLevel.Error));
             }
         }
         return builder.ToImmutable();
@@ -265,7 +265,7 @@ public class GameResources
             if (set.Contains(node.Key))
             {
                 errorMessageCache.Add(
-                    ErrorMessage.CreateSingleFileErrorWithPosition(filePath, new Position(node.Position), $"重复定义的资源类型: '{node.Key}'", 
+                    ErrorMessageFactory.CreateSingleFileErrorWithPosition(filePath, new Position(node.Position), $"重复定义的资源类型: '{node.Key}'", 
                         ErrorLevel.Warn));
                 continue;
             }
