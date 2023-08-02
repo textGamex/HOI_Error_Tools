@@ -10,7 +10,6 @@ using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers;
 using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
-using HOI_Error_Tools.Logic.Analyzers.Util;
 using HOI_Error_Tools.Logic.HOIParser;
 using NLog;
 
@@ -129,17 +128,12 @@ public class GameResources
             }
 
             var node = parser.GetResult();
-            var helper = new AnalyzeHelper(filePath, node);
-            var errorMessages = helper.AssertKeywordExistsInCurrentNode(ScriptKeyWords.Buildings).ToList();
-            if (errorMessages.Count != 0)
+            if (node.HasNot(ScriptKeyWords.Buildings))
             {
-                foreach (var errorMessage in errorMessages)
-                {
-                    errorMessageCache.Add(errorMessage);
-                }
+                errorMessageCache.Add(ErrorMessage.CreateSingleFileError(
+                    filePath, $"缺少 '{ScriptKeyWords.Buildings}' 关键字", ErrorLevel.Error));
                 continue;
             }
-
             var buildingsNode = node.Child(ScriptKeyWords.Buildings).Value;
             var map = ParseBuildingInfosToMap(filePath, buildingsNode);
             builder.AddRange(map);
