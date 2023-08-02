@@ -11,6 +11,7 @@ public partial class StateFileAnalyzer
 {
     private sealed class StateModel
     {
+        //TODO: 用 ImmutableList 还是 ImmutableArray?
         public IReadOnlyList<(string Id, Position Position)> Ids { get; private set; } = ImmutableList<(string, Position)>.Empty;
         public IReadOnlyList<(string Manpower, Position Position)> Manpowers { get; private set; } = ImmutableList<(string, Position)>.Empty;
         public IReadOnlyList<(string Name, Position Position)> Names { get; private set; } = ImmutableList<(string, Position)>.Empty;

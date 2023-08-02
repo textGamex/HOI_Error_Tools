@@ -7,13 +7,11 @@ using HOI_Error_Tools.Logic.Analyzers;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.State;
 using NLog;
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using MessageBox = HandyControl.Controls.MessageBox;
@@ -110,6 +108,7 @@ public partial class MainWindowModel : ObservableObject
     private async Task StartAnalyzersAsync()
     {
         Debug.Assert(_descriptor != null, nameof(_descriptor) + " != null");
+
         var gameResourcesPath = new GameResourcesPath(GameRootPath, ModRootPath, _descriptor);
         var gameResources = new GameResources(gameResourcesPath);
         var errorsTask = new List<Task<IEnumerable<ErrorMessage>>>();

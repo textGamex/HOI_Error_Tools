@@ -13,7 +13,6 @@ using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.Util;
 using HOI_Error_Tools.Logic.HOIParser;
 using NLog;
-using System.Windows.Shapes;
 
 namespace HOI_Error_Tools.Logic;
 
@@ -21,7 +20,7 @@ public class GameResources
 {
     public static IReadOnlyCollection<ErrorMessage> ErrorMessages => errorMessageCache;
     public IReadOnlySet<uint> RegisteredProvinceSet => _registeredProvinces;
-    public IImmutableDictionary<string, BuildingInfo> BuildingInfoMap => _buildingInfos;
+    public IReadOnlyDictionary<string, BuildingInfo> BuildingInfoMap => _buildingInfos;
     public IImmutableSet<string> ResourcesType { get; }
     public IImmutableSet<string> RegisteredStateCategories { get; }
     public IImmutableSet<string> RegisteredCountriesTag { get; }
@@ -43,13 +42,8 @@ public class GameResources
         RegisteredCountriesTag = GetCountriesTag();
     }
 
-    public GameResources(string gameRootPath, string modRootPath)
+    public GameResources(string gameRootPath, string modRootPath) : this(new GameResourcesPath(gameRootPath, modRootPath))
     {
-        _gameResourcesPath = new GameResourcesPath(gameRootPath, modRootPath);
-        _registeredProvinces = ImmutableHashSet.CreateRange(GetRegisteredProvinceSet());
-        _buildingInfos = GetRegisteredBuildings();
-        ResourcesType = GetResourcesType();
-        RegisteredStateCategories = GetRegisteredStateCategories();
     }
 
     private IImmutableSet<string> GetCountriesTag()

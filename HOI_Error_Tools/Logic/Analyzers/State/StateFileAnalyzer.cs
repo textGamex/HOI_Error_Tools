@@ -22,7 +22,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
     /// <summary>
     /// Key 为 建筑名称
     /// </summary>
-    private readonly IImmutableDictionary<string, BuildingInfo> _registeredBuildings;
+    private readonly IReadOnlyDictionary<string, BuildingInfo> _registeredBuildings;
     private readonly IImmutableSet<string> _resourcesTypeSet;
     private readonly IImmutableSet<string> _registeredStateCategories;
     private readonly IImmutableSet<string> _registeredCountriesTag;
