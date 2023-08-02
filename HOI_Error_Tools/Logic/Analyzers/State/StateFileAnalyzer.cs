@@ -23,9 +23,9 @@ public partial class StateFileAnalyzer : AnalyzerBase
     /// Key 为 建筑名称
     /// </summary>
     private readonly IReadOnlyDictionary<string, BuildingInfo> _registeredBuildings;
-    private readonly IImmutableSet<string> _resourcesTypeSet;
-    private readonly IImmutableSet<string> _registeredStateCategories;
-    private readonly IImmutableSet<string> _registeredCountriesTag;
+    private readonly IReadOnlySet<string> _resourcesTypeSet;
+    private readonly IReadOnlySet<string> _registeredStateCategories;
+    private readonly IReadOnlySet<string> _registeredCountriesTag;
 
     private static readonly ConcurrentDictionary<uint, (string FilePath, Position Position)> ExistingIds = new();
     /// <summary>

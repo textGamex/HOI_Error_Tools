@@ -20,9 +20,9 @@ public class GameResources
     public static IReadOnlyCollection<ErrorMessage> ErrorMessages => errorMessageCache;
     public IReadOnlySet<uint> RegisteredProvinceSet => _registeredProvinces;
     public IReadOnlyDictionary<string, BuildingInfo> BuildingInfoMap => _buildingInfos;
-    public IImmutableSet<string> ResourcesType { get; }
-    public IImmutableSet<string> RegisteredStateCategories { get; }
-    public IImmutableSet<string> RegisteredCountriesTag { get; }
+    public IReadOnlySet<string> ResourcesType { get; }
+    public IReadOnlySet<string> RegisteredStateCategories { get; }
+    public IReadOnlySet<string> RegisteredCountriesTag { get; }
 
     private readonly ImmutableDictionary<string, BuildingInfo> _buildingInfos;
     private readonly ImmutableHashSet<uint> _registeredProvinces;
@@ -45,7 +45,7 @@ public class GameResources
     {
     }
 
-    private IImmutableSet<string> GetCountriesTag()
+    private IReadOnlySet<string> GetCountriesTag()
     {
         var builder = ImmutableHashSet.CreateBuilder<string>();
         foreach (var path in _gameResourcesPath.CountriesTagPath)
@@ -83,7 +83,7 @@ public class GameResources
         return separateBuilder.ToImmutableHashSet();
     }
 
-    private IImmutableSet<string> GetRegisteredStateCategories()
+    private IReadOnlySet<string> GetRegisteredStateCategories()
     {
         var builder = ImmutableHashSet.CreateBuilder<string>();
         foreach (var path in _gameResourcesPath.StateCategoriesFilePath)
@@ -217,7 +217,7 @@ public class GameResources
         return set;
     }
 
-    private IImmutableSet<string> GetResourcesType()
+    private IReadOnlySet<string> GetResourcesType()
     {
         var builder = ImmutableHashSet.CreateBuilder<string>();
         foreach (var path in _gameResourcesPath.ResourcesTypeFilePathList)

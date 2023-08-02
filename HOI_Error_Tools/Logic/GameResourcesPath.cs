@@ -19,10 +19,11 @@ public sealed class GameResourcesPath
     public string ModLocPath { get; }
     public string ProvincesDefinitionFilePath { get; }
     public IEnumerable<string> StateCategoriesFilePath { get; }
+    public IEnumerable<string> CountriesDefineFilePath { get; }
+    public IReadOnlyList<string> CountriesTagPath { get; }
     public IReadOnlyList<string> BuildingsFilePathList => _buildingsFilePathList;
     public IReadOnlyList<string> ResourcesTypeFilePathList => _resourcesTypeFilePathList;
     public IReadOnlyList<string> StatesPathList => _statesPathList;
-    public IReadOnlyList<string> CountriesTagPath { get; }
 
     private readonly ImmutableList<string> _statesPathList;
     private readonly ImmutableList<string> _buildingsFilePathList;
@@ -54,6 +55,7 @@ public sealed class GameResourcesPath
         ProvincesDefinitionFilePath = GetFilePathPriorModByRelativePath(Path.Combine(Key.Map, "definition.csv"));
         StateCategoriesFilePath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.StateCategory));
         CountriesTagPath = ImmutableList.CreateRange(GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "country_tags")));
+        CountriesDefineFilePath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(ScriptKeyWords.History, "countries"));
 
         _buildingsFilePathList = ImmutableList.CreateRange(
             GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.Buildings)));
