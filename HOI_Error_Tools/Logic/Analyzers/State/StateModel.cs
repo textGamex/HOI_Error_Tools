@@ -24,6 +24,8 @@ public partial class StateFileAnalyzer
         public IReadOnlyList<(string ResourceName, string Amount, Position Position)> Resources { get; private set; } 
             = ImmutableList<(string, string, Position)>.Empty;
         public IReadOnlyList<(string ProvinceId, Position Position)> Provinces { get; private set; } = ImmutableList<(string, Position)>.Empty;
+        public IReadOnlyList<(IReadOnlyList<string> VictoryPoints, Position Position)> VictoryPoints { get; } 
+            = ImmutableList<(IReadOnlyList<string>, Position)>.Empty;
         public bool IsEmptyFile { get; private set; }
 
         public StateModel(Node rootNode)
@@ -82,8 +84,27 @@ public partial class StateFileAnalyzer
             BuildingsByProvince = buildingsByProvince.ToImmutable();
             Owners = GetLeavesValue(ScriptKeyWords.Owner, historyNode);
             HasCoreTags = GetLeavesValue("add_core_of", historyNode);
+            VictoryPoints = GetVictoryPoints(historyNode);
         }
-        
+
+        private static IReadOnlyList<(IReadOnlyList<string>, Position)> GetVictoryPoints(Node historyNode)
+        {
+            var victoryPoints = ImmutableList.CreateBuilder<(IReadOnlyList<string>, Position)>();
+            var victoryPointsNodes = historyNode.Childs("victory_points");
+            
+            foreach (var victoryPointsNode in victoryPointsNodes)
+            {
+                var builder = ImmutableList.CreateBuilder<string>();
+                foreach (var leafValue in victoryPointsNode.LeafValues)
+                {
+                    builder.Add(leafValue.Key);
+                }
+
+                victoryPoints.Add((builder.ToImmutable(), new Position(victoryPointsNode.Position)));
+            }
+            return victoryPoints.ToImmutable();
+        }
+
         private static ImmutableList<(string, Position)> GetLeavesValue(string key, Node node)
         {
             return node.Leafs(key)

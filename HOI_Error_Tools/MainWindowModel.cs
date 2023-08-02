@@ -11,7 +11,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using MessageBox = HandyControl.Controls.MessageBox;
@@ -107,8 +109,8 @@ public partial class MainWindowModel : ObservableObject
 
     private async Task StartAnalyzersAsync()
     {
-        var gameResourcesPath = new GameResourcesPath(GameRootPath, ModRootPath, 
-            _descriptor ?? throw new ArgumentNullException("mod描述对象为 null"));
+        Debug.Assert(_descriptor != null, nameof(_descriptor) + " != null");
+        var gameResourcesPath = new GameResourcesPath(GameRootPath, ModRootPath, _descriptor);
         var gameResources = new GameResources(gameResourcesPath);
         var errorsTask = new List<Task<IEnumerable<ErrorMessage>>>();
         var stateList = new List<AnalyzerBase>(gameResourcesPath.StatesPathList.Count);
@@ -125,7 +127,7 @@ public partial class MainWindowModel : ObservableObject
             errorList.AddRange(error);
         }
         errorList.AddRange(GameResources.ErrorMessages);
-
+        
         WeakReferenceMessenger.Default.Send(new ValueChangedMessage<IImmutableList<ErrorMessage>>(errorList.ToImmutable()));
     }
 }

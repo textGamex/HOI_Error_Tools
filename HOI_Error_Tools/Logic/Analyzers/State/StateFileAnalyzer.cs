@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 
 namespace HOI_Error_Tools.Logic.Analyzers.State;
@@ -62,12 +63,15 @@ public partial class StateFileAnalyzer : AnalyzerBase
             return errorList;
         }
 
+        var provinceInStateSet = stateModel.Provinces.Select(x => x.ProvinceId).ToHashSet();
+
         errorList.AddRange(AnalyzeId(stateModel));
         errorList.AddRange(AnalyzeName(stateModel));
         errorList.AddRange(AnalyzeManpower(stateModel));
         errorList.AddRange(AnalyzeStateCategory(stateModel));
         errorList.AddRange(AnalyzeProvinces(stateModel));
-        errorList.AddRange(AnalyzeBuildingsByProvince(stateModel));
+        errorList.AddRange(AnalyzeBuildingsByProvince(stateModel, provinceInStateSet));
+        errorList.AddRange(AnalyzeVictoryPoints(stateModel, provinceInStateSet));
         errorList.AddRange(AnalyzeBuildings(stateModel));
         errorList.AddRange(AnalyzeOwner(stateModel));
         errorList.AddRange(AnalyzeHasCoreTags(stateModel));
@@ -76,10 +80,49 @@ public partial class StateFileAnalyzer : AnalyzerBase
         return errorList;
     }
 
-    private IEnumerable<ErrorMessage> AnalyzeBuildingsByProvince(StateModel model)
+    private IEnumerable<ErrorMessage> AnalyzeVictoryPoints(StateModel model, IReadOnlySet<string> provinceInStateSet)
     {
         var errorList = new List<ErrorMessage>();
-        var provinceInStateSet = model.Provinces.Select(x => x.ProvinceId).ToHashSet();
+        
+        foreach (var (victoryPoints, position) in model.VictoryPoints)
+        {
+            if (victoryPoints.Count != 2)
+            {
+                errorList.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
+                    _filePath, position, "VictoryPoints 格式不正确", ErrorLevel.Error));
+                continue;
+            }
+
+            if (!uint.TryParse(victoryPoints[1], out _))
+            {
+                errorList.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
+                    _filePath, position, $"胜利点价值 '{victoryPoints[1]}' 无法转换为正整数", ErrorLevel.Error));
+            }
+
+            var provinceIdText = victoryPoints[0];
+            if (!uint.TryParse(provinceIdText, out _))
+            {
+                errorList.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
+                    _filePath, position, $"ProvinceId '{provinceIdText}' 无法转换为正整数", ErrorLevel.Error));
+                continue;
+            }
+
+            if (!provinceInStateSet.Contains(provinceIdText))
+            {
+                errorList.Add(ErrorMessage.CreateSingleFileErrorWithPosition(
+                    _filePath, 
+                    position, 
+                    $"Province '{provinceIdText}' 未分配在 State '{Path.GetFileNameWithoutExtension(_filePath)}' 中, 但却在此地有 VictoryPoints", 
+                    ErrorLevel.Warn));
+            }
+        }
+
+        return errorList;
+    }
+
+    private IEnumerable<ErrorMessage> AnalyzeBuildingsByProvince(StateModel model, IReadOnlySet<string> provinceInStateSet)
+    {
+        var errorList = new List<ErrorMessage>();
 
         foreach (var (provinceIdText, buildings, position) in model.BuildingsByProvince)
         {
