@@ -13,19 +13,19 @@ public partial class StateFileAnalyzer
     private sealed class StateModel
     {
         //TODO: 用 ImmutableList 还是 ImmutableArray?
-        public IReadOnlyList<(string Id, Position Position)> Ids { get; private set; } = ImmutableList<(string, Position)>.Empty;
-        public IReadOnlyList<(string Manpower, Position Position)> Manpowers { get; private set; } = ImmutableList<(string, Position)>.Empty;
-        public IReadOnlyList<(string Name, Position Position)> Names { get; private set; } = ImmutableList<(string, Position)>.Empty;
-        public IReadOnlyList<(string Tag, Position Position)> HasCoreTags { get; private set; } = ImmutableList<(string, Position)>.Empty;
-        public IReadOnlyList<(string BuildingType, string Level, Position Position)> Buildings { get; private set; } 
+        public IReadOnlyList<(string Id, Position Position)> Ids { get; } = ImmutableList<(string, Position)>.Empty;
+        public IReadOnlyList<(string Manpower, Position Position)> Manpowers { get; } = ImmutableList<(string, Position)>.Empty;
+        public IReadOnlyList<(string Name, Position Position)> Names { get; } = ImmutableList<(string, Position)>.Empty;
+        public IReadOnlyList<(string Tag, Position Position)> HasCoreTags { get; } = ImmutableList<(string, Position)>.Empty;
+        public IReadOnlyList<(string BuildingType, string Level, Position Position)> Buildings { get; } 
             = ImmutableList<(string, string, Position)>.Empty;
-        public IReadOnlyList<(string Type, Position Position)> StateCategories { get; private set; } = ImmutableList<(string, Position)>.Empty;
-        public IReadOnlyList<(string Owner, Position Position)> Owners { get; private set; } = ImmutableList<(string, Position)>.Empty;
-        public IReadOnlyList<(string ProvinceId, IReadOnlyList<(string BuildingName, string Level, Position Position)> Buildings, Position Position)> BuildingsByProvince { get; private set; } 
+        public IReadOnlyList<(string Type, Position Position)> StateCategories { get; } = ImmutableList<(string, Position)>.Empty;
+        public IReadOnlyList<(string Owner, Position Position)> Owners { get; } = ImmutableList<(string, Position)>.Empty;
+        public IReadOnlyList<(string ProvinceId, IReadOnlyList<(string BuildingName, string Level, Position Position)> Buildings, Position Position)> BuildingsByProvince { get; } 
             = ImmutableList<(string, IReadOnlyList<(string, string, Position)>, Position)>.Empty;
-        public IReadOnlyList<(string ResourceName, string Amount, Position Position)> Resources { get; private set; } 
+        public IReadOnlyList<(string ResourceName, string Amount, Position Position)> Resources { get; } 
             = ImmutableList<(string, string, Position)>.Empty;
-        public IReadOnlyList<(string ProvinceId, Position Position)> Provinces { get; private set; } = ImmutableList<(string, Position)>.Empty;
+        public IReadOnlyList<(string ProvinceId, Position Position)> Provinces { get; } = ImmutableList<(string, Position)>.Empty;
         public IReadOnlyList<(IReadOnlyList<string> VictoryPoints, Position Position)> VictoryPoints { get; } 
             = ImmutableList<(IReadOnlyList<string>, Position)>.Empty;
         public bool IsEmptyFile { get; }

@@ -169,10 +169,11 @@ public partial class StateFileAnalyzer : AnalyzerBase
     private IEnumerable<ErrorMessage> AnalyzeOwner(StateModel model)
     {
         var errorList = new List<ErrorMessage>(5);
-        if (!AssertExistKeyword(model.Owners, ScriptKeyWords.Owner, out var errorMessage))
+
+        var error = AssertExistKeyword(model.Owners, ScriptKeyWords.Owner);
+        if (error is not null)
         {
-            Debug.Assert(errorMessage != null, nameof(errorMessage) + " != null");
-            errorList.Add(errorMessage);
+            errorList.Add(error);
             return errorList;
         }
 
@@ -185,20 +186,17 @@ public partial class StateFileAnalyzer : AnalyzerBase
             }
         }
 
-        if (!AssertKeywordIsOnly(model.Owners, ScriptKeyWords.Owner, out errorMessage))
-        {
-            Debug.Assert(errorMessage != null, nameof(errorMessage) + " != null");
-            errorList.Add(errorMessage);
-        }
+        errorList.AddRange(AssertKeywordIsOnly(model.Owners, ScriptKeyWords.Owner));
         return errorList;
     }
 
     private IEnumerable<ErrorMessage> AnalyzeId(StateModel model)
     {
         var errorList = new List<ErrorMessage>();
-        if (!AssertExistKeyword(model.Ids, ScriptKeyWords.Id, out var errorMessage))
+        var errorMessage = AssertExistKeyword(model.Ids, ScriptKeyWords.Id);
+
+        if (errorMessage is not null)
         {
-            Debug.Assert(errorMessage != null, nameof(errorMessage) + " != null");
             errorList.Add(errorMessage);
             return errorList;
         }
@@ -229,12 +227,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
             }
         }
 
-        if (!AssertKeywordIsOnly(model.Ids, ScriptKeyWords.Id, out errorMessage))
-        {
-            Debug.Assert(errorMessage != null, nameof(errorMessage) + " != null");
-            errorList.Add(errorMessage);
-        }
-
+        errorList.AddRange(AssertKeywordIsOnly(model.Ids, ScriptKeyWords.Id));
         return errorList;
     }
 
@@ -242,27 +235,23 @@ public partial class StateFileAnalyzer : AnalyzerBase
     {
         var errorList = new List<ErrorMessage>();
 
-        if (!AssertExistKeyword(model.Names, ScriptKeyWords.Name, out var errorMessage))
+        var errorMessage = AssertExistKeyword(model.Names, ScriptKeyWords.Name);
+        if (errorMessage is not null)
         {
-            Debug.Assert(errorMessage != null, nameof(errorMessage) + " != null");
             errorList.Add(errorMessage);
             return errorList;
         }
 
-        if (!AssertKeywordIsOnly(model.Names, ScriptKeyWords.Name, out errorMessage))
-        {
-            Debug.Assert(errorMessage != null, nameof(errorMessage) + " != null");
-            errorList.Add(errorMessage);
-        }
+        errorList.AddRange(AssertKeywordIsOnly(model.Names, ScriptKeyWords.Name));
         return errorList;
     }
 
     private IEnumerable<ErrorMessage> AnalyzeManpower(StateModel model)
     {
         var errorList = new List<ErrorMessage>();
-        if (!AssertExistKeyword(model.Manpowers, ScriptKeyWords.Manpower, out var errorMessage))
+        var errorMessage = AssertExistKeyword(model.Manpowers, ScriptKeyWords.Manpower);
+        if (errorMessage is not null)
         {
-            Debug.Assert(errorMessage != null, nameof(errorMessage) + " != null");
             errorList.Add(errorMessage);
             return errorList;
         }
@@ -277,22 +266,16 @@ public partial class StateFileAnalyzer : AnalyzerBase
             }
         }
 
-        if (!AssertKeywordIsOnly(model.Manpowers, ScriptKeyWords.Manpower, out errorMessage))
-        {
-            Debug.Assert(errorMessage != null, nameof(errorMessage) + " != null");
-            errorList.Add(errorMessage);
-            return errorList;
-        }
-
+        errorList.AddRange(AssertKeywordIsOnly(model.Manpowers, ScriptKeyWords.Manpower));
         return errorList;
     }
 
     private IEnumerable<ErrorMessage> AnalyzeStateCategory(StateModel model)
     {
         var errorList = new List<ErrorMessage>();
-        if (!AssertExistKeyword(model.StateCategories, ScriptKeyWords.StateCategory, out var errorMessage))
+        var errorMessage = AssertExistKeyword(model.StateCategories, ScriptKeyWords.StateCategory);
+        if (errorMessage is not null)
         {
-            Debug.Assert(errorMessage != null, nameof(errorMessage) + " != null");
             errorList.Add(errorMessage);
             return errorList;
         }
@@ -306,40 +289,26 @@ public partial class StateFileAnalyzer : AnalyzerBase
             }
         }
 
-        if (!AssertKeywordIsOnly(model.StateCategories, ScriptKeyWords.StateCategory, out errorMessage))
-        {
-            Debug.Assert(errorMessage != null, nameof(errorMessage) + " != null");
-            errorList.Add(errorMessage);
-        }
+        errorList.AddRange(AssertKeywordIsOnly(model.StateCategories, ScriptKeyWords.StateCategory));
         return errorList;
     }
 
-    private bool AssertExistKeyword<T>(IEnumerable<T> enumerable, string keyword, out ErrorMessage? errorMessage)
+    private ErrorMessage? AssertExistKeyword<T>(IEnumerable<T> enumerable, string keyword)
     {
-        if (!enumerable.Any())
-        {
-            errorMessage = ErrorMessageFactory.CreateSingleFileError(_filePath, $"缺少 '{keyword}' 关键字", ErrorLevel.Error);
-            return false;
-        }
-        errorMessage = null;
-        return true;
+        return enumerable.Any() ? null : ErrorMessageFactory.CreateSingleFileError(_filePath, $"缺少 '{keyword}' 关键字", ErrorLevel.Error);
     }
 
-    private bool AssertKeywordIsOnly(IReadOnlyCollection<(string, Position)> enumerable, string keyword,
-        out ErrorMessage? errorMessage)
+    /// <summary>
+    /// 断言 <c>keyword</c> 只出现一次, 如果出现多次或者未出现, 返回 <c>ErrorMessage</c>, 否则返回空集合
+    /// </summary>
+    /// <param name="enumerable"></param>
+    /// <param name="keyword"></param>
+    /// <returns></returns>
+    private IEnumerable<ErrorMessage> AssertKeywordIsOnly(IReadOnlyCollection<(string, Position)> enumerable, string keyword)
     {
-        if (enumerable.Count > 1)
-        {
-            var errorFileInfo = new List<(string, Position)>();
-            foreach (var (_, position) in enumerable)
-            {
-                errorFileInfo.Add((_filePath, position));
-            }
-            errorMessage = new ErrorMessage(errorFileInfo, $"重复的 '{keyword}' 关键字", ErrorLevel.Error);
-            return false;
-        }
-        errorMessage = null;
-        return true;
+        return enumerable.Count > 1 
+            ? new []{ ErrorMessageFactory.CreateSingleFileError(_filePath, $"重复的 '{keyword}' 关键字", ErrorLevel.Error) }
+            : Enumerable.Empty<ErrorMessage>();
     }
     
 
