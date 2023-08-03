@@ -23,6 +23,7 @@ public class GameResources
     public IReadOnlySet<string> ResourcesType { get; }
     public IReadOnlySet<string> RegisteredStateCategories { get; }
     public IReadOnlySet<string> RegisteredCountriesTag { get; }
+    public IReadOnlySet<string> RegisteredIdeologies { get; }
 
     private readonly ImmutableDictionary<string, BuildingInfo> _buildingInfos;
     private readonly ImmutableHashSet<uint> _registeredProvinces;
@@ -30,6 +31,10 @@ public class GameResources
 
     private static readonly ConcurrentBag<ErrorMessage> errorMessageCache = new();
     private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+
+    public GameResources(string gameRootPath, string modRootPath) : this(new GameResourcesPath(gameRootPath, modRootPath))
+    {
+    }
 
     public GameResources(GameResourcesPath paths)
     {
@@ -39,22 +44,63 @@ public class GameResources
         ResourcesType = GetResourcesType();
         RegisteredStateCategories = GetRegisteredStateCategories();
         RegisteredCountriesTag = GetCountriesTag();
+        RegisteredIdeologies = GetRegisteredIdeologies();
     }
 
-    public GameResources(string gameRootPath, string modRootPath) : this(new GameResourcesPath(gameRootPath, modRootPath))
+    private IReadOnlySet<string> GetRegisteredIdeologies()
     {
-    }
+        var set = ImmutableDictionary.CreateBuilder<string, ParameterInfo>();
 
-    private IReadOnlySet<string> GetCountriesTag()
-    {
-        var builder = ImmutableHashSet.CreateBuilder<string>();
-        foreach (var path in _gameResourcesPath.CountriesTagPath)
+        foreach (var path in _gameResourcesPath.IdeologiesFilePath)
         {
             var parser = new CWToolsParser(path);
             if (parser.IsFailure)
             {
-                errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(
-                    path, "地块等级文件解析错误", ErrorLevel.Error));
+                errorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(path, parser.GetError()));
+                continue;
+            }
+
+            var result = parser.GetResult();
+            if (result.HasNot(ScriptKeyWords.Ideologies))
+            {
+                continue;
+            }
+
+            var ideologies = result.Child(ScriptKeyWords.Ideologies).Value;
+            foreach (var ideology in ideologies.Nodes)
+            {
+                if (set.TryGetValue(ideology.Key, out var ideologyPosition))
+                {
+                    var list = new List<(string, Position)>()
+                    {
+                        (path, new Position(ideology.Position)),
+                        (ideologyPosition.FilePath, ideologyPosition.Position)
+                    };
+                    errorMessageCache.Add(new ErrorMessage(list, "重复定义 ideology", ErrorLevel.Warn));
+                }
+                else
+                {
+                    set.Add(ideology.Key, new ParameterInfo(path, new Position(ideology.Position)));
+                }
+            }
+        }
+
+        return set.Select(x => x.Key).ToImmutableHashSet();
+    }
+
+    
+
+    private IReadOnlySet<string> GetCountriesTag()
+    {
+        //TODO: 不能跨文件识别重复的国家标签
+        var builder = ImmutableHashSet.CreateBuilder<string>();
+        foreach (var path in _gameResourcesPath.CountriesTagFilePath)
+        {
+            var parser = new CWToolsParser(path);
+            if (parser.IsFailure)
+            {
+                errorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(
+                    path, parser.GetError()));
                 continue;
             }
             builder.UnionWith(GetCountriesTagFromFile(path, parser.GetResult()));
@@ -91,8 +137,8 @@ public class GameResources
             var parser = new CWToolsParser(path);
             if (parser.IsFailure)
             {
-                errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(
-                    path, "地块等级文件解析错误", ErrorLevel.Error));
+                errorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(
+                    path, parser.GetError()));
                 continue;
             }
 
@@ -123,7 +169,7 @@ public class GameResources
             {
                 var error = parser.GetError();
                 errorMessageCache.Add(
-                    ErrorMessageFactory.CreateSingleFileErrorWithPosition(filePath, new Position(error), "解析错误", ErrorLevel.Error));
+                    ErrorMessageFactory.CreateParseErrorMessage(filePath, error));
                 continue;
             }
 
@@ -226,7 +272,7 @@ public class GameResources
             if (parser.IsFailure)
             {
                 errorMessageCache.Add(
-                    ErrorMessageFactory.CreateSingleFileErrorWithPosition(path, new Position(parser.GetError()), "解析错误", ErrorLevel.Error));
+                    ErrorMessageFactory.CreateParseErrorMessage(path, parser.GetError()));
                 continue;
             }
 

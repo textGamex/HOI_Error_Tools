@@ -20,12 +20,13 @@ public sealed class GameResourcesPath
     public string ProvincesDefinitionFilePath { get; }
     public IEnumerable<string> StateCategoriesFilePath { get; }
     public IEnumerable<string> CountriesDefineFilePath { get; }
-    public IReadOnlyList<string> CountriesTagPath { get; }
+    public IReadOnlyList<string> CountriesTagFilePath { get; }
+    public IReadOnlyList<string> IdeologiesFilePath { get; }
     public IReadOnlyList<string> BuildingsFilePathList => _buildingsFilePathList;
     public IReadOnlyList<string> ResourcesTypeFilePathList => _resourcesTypeFilePathList;
-    public IReadOnlyList<string> StatesPathList => _statesPathList;
+    public IReadOnlyList<string> StatesFilePathList => _statesFilePathList;
 
-    private readonly ImmutableList<string> _statesPathList;
+    private readonly ImmutableList<string> _statesFilePathList;
     private readonly ImmutableList<string> _buildingsFilePathList;
     private readonly ImmutableList<string> _resourcesTypeFilePathList;
     private readonly Descriptor _descriptor;
@@ -54,12 +55,14 @@ public sealed class GameResourcesPath
         ModLocPath = GetLocPath(ModRootPath);
         ProvincesDefinitionFilePath = GetFilePathPriorModByRelativePath(Path.Combine(Key.Map, "definition.csv"));
         StateCategoriesFilePath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.StateCategory));
-        CountriesTagPath = ImmutableList.CreateRange(GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "country_tags")));
         CountriesDefineFilePath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(ScriptKeyWords.History, "countries"));
+
+        CountriesTagFilePath = ImmutableList.CreateRange(GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "country_tags")));
+        IdeologiesFilePath = ImmutableList.CreateRange(GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.Ideologies)));
 
         _buildingsFilePathList = ImmutableList.CreateRange(
             GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.Buildings)));
-        _statesPathList = ImmutableList.CreateRange(
+        _statesFilePathList = ImmutableList.CreateRange(
             GetAllFilePriorModByRelativePathForFolder(Path.Combine(ScriptKeyWords.History, Key.States)));
         _resourcesTypeFilePathList = ImmutableList.CreateRange(
             GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "resources")));

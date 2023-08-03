@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers.Error;
+using HOI_Error_Tools.Logic.Analyzers.Util;
 using HOI_Error_Tools.Logic.HOIParser;
 
 namespace HOI_Error_Tools.Logic.Analyzers.State;
@@ -27,7 +28,7 @@ public partial class StateFileAnalyzer
         public IReadOnlyList<(string ProvinceId, Position Position)> Provinces { get; private set; } = ImmutableList<(string, Position)>.Empty;
         public IReadOnlyList<(IReadOnlyList<string> VictoryPoints, Position Position)> VictoryPoints { get; } 
             = ImmutableList<(IReadOnlyList<string>, Position)>.Empty;
-        public bool IsEmptyFile { get; private set; }
+        public bool IsEmptyFile { get; }
 
         public StateModel(Node rootNode)
         {
@@ -38,15 +39,15 @@ public partial class StateFileAnalyzer
             }
             var stateNode = rootNode.Child(ScriptKeyWords.State).Value;
 
-            Ids = GetLeavesValue(ScriptKeyWords.Id, stateNode);
-            Manpowers = GetLeavesValue(ScriptKeyWords.Manpower, stateNode);
-            Names = GetLeavesValue(ScriptKeyWords.Name, stateNode);
-            StateCategories = GetLeavesValue(ScriptKeyWords.StateCategory, stateNode);
+            Ids = ParseHelper.GetLeavesValue(ScriptKeyWords.Id, stateNode).ToList();
+            Manpowers = ParseHelper.GetLeavesValue(ScriptKeyWords.Manpower, stateNode).ToList();
+            Names = ParseHelper.GetLeavesValue(ScriptKeyWords.Name, stateNode).ToList();
+            StateCategories = ParseHelper.GetLeavesValue(ScriptKeyWords.StateCategory, stateNode).ToList();
             
             if (stateNode.Has(ScriptKeyWords.Resources))
             {
                 var resourcesNode = stateNode.Child(ScriptKeyWords.Resources).Value;
-                Resources = GetLeavesKeyValuePairs(resourcesNode);
+                Resources = ParseHelper.GetLeavesKeyValuePairs(resourcesNode).ToList();
             }
 
             if (stateNode.Has(ScriptKeyWords.Provinces))
@@ -54,7 +55,7 @@ public partial class StateFileAnalyzer
                 var provincesNode = stateNode.Child(ScriptKeyWords.Provinces).Value;
                 Provinces = provincesNode.LeafValues
                     .Select(leaf => (leaf.ValueText, new Position(leaf.Position)))
-                    .ToImmutableList();
+                    .ToList();
             }
 
             if (stateNode.HasNot(ScriptKeyWords.History))
@@ -76,15 +77,15 @@ public partial class StateFileAnalyzer
 
                 foreach (var provinceNode in buildingsNode.Nodes)
                 {
-                    var provinceBuildings = GetLeavesKeyValuePairs(provinceNode);
+                    var provinceBuildings = ParseHelper.GetLeavesKeyValuePairs(provinceNode).ToList();
                     buildingsByProvince.Add((provinceNode.Key, provinceBuildings, new Position(provinceNode.Position)));
                 }
             }
 
             Buildings = buildingsBuilder.ToImmutable();
             BuildingsByProvince = buildingsByProvince.ToImmutable();
-            Owners = GetLeavesValue(ScriptKeyWords.Owner, historyNode);
-            HasCoreTags = GetLeavesValue("add_core_of", historyNode);
+            Owners = ParseHelper.GetLeavesValue(ScriptKeyWords.Owner, historyNode).ToList();
+            HasCoreTags = ParseHelper.GetLeavesValue("add_core_of", historyNode).ToList();
             VictoryPoints = GetVictoryPoints(historyNode);
         }
 
@@ -104,20 +105,6 @@ public partial class StateFileAnalyzer
                 victoryPoints.Add((builder.ToImmutable(), new Position(victoryPointsNode.Position)));
             }
             return victoryPoints.ToImmutable();
-        }
-
-        private static ImmutableList<(string, Position)> GetLeavesValue(string key, Node node)
-        {
-            return node.Leafs(key)
-                .Select(x => (x.ValueText, new Position(x.Position)))
-                .ToImmutableList();
-        }
-
-        private static ImmutableList<(string, string, Position)> GetLeavesKeyValuePairs(Node node)
-        {
-            return node.Leaves
-                .Select(x => (x.Key, x.ValueText, new Position(x.Position)))
-                .ToImmutableList();
         }
     }
 }

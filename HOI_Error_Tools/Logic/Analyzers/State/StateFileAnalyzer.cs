@@ -51,8 +51,8 @@ public partial class StateFileAnalyzer : AnalyzerBase
 
         if (parser.IsFailure)
         {
-            errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                _filePath, new Position(parser.GetError()), "解析错误", ErrorLevel.Error));
+            errorList.Add(ErrorMessageFactory.CreateParseErrorMessage(
+                _filePath, parser.GetError()));
             return errorList;
         }
 
@@ -181,7 +181,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
             if (!_registeredCountriesTag.Contains(owner))
             {
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                                       _filePath, position, $"国家Tag '{owner}' 未注册", ErrorLevel.Error));
+                    _filePath, position, $"国家Tag '{owner}' 未注册", ErrorLevel.Error));
             }
         }
 

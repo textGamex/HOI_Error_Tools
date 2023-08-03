@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using CWTools.CSharp;
 
 namespace HOI_Error_Tools.Logic.Analyzers.Error;
 
@@ -14,8 +15,8 @@ public static class ErrorMessageFactory
         return new ErrorMessage(new[] { (filePath, position) }, message, level);
     }
 
-    public static ErrorMessage CreateParseErrorMessage(string filePath)
+    public static ErrorMessage CreateParseErrorMessage(string filePath, ParserError error)
     {
-        return CreateSingleFileError(filePath, $"文件 '{Path.GetFileNameWithoutExtension(filePath)}' 解析错误", ErrorLevel.Error);
+        return CreateSingleFileErrorWithPosition(filePath, new Position(error), $"文件 '{Path.GetFileNameWithoutExtension(filePath)}' 解析错误", ErrorLevel.Error);
     }
 }
