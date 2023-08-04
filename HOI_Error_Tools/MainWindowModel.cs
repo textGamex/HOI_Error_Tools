@@ -102,8 +102,8 @@ public partial class MainWindowModel : ObservableObject
 
         StartParseButtonText = "分析中, 请稍等...";
         LoadingCircleIsRunning = true;
-        
-        await StartAnalyzersAsync();
+
+        await StartAnalyzersAsync().ConfigureAwait(false);
     }
 
     private async Task StartAnalyzersAsync()
@@ -112,16 +112,13 @@ public partial class MainWindowModel : ObservableObject
 
         var gameResourcesPath = new GameResourcesPath(GameRootPath, ModRootPath, _descriptor);
         var gameResources = new GameResources(gameResourcesPath);
-        var errorsTask = new List<Task<IEnumerable<ErrorMessage>>>();
         var analyzers = new List<AnalyzerBase>(1024);
+
         analyzers.AddRange(gameResourcesPath.StatesFilePathList.Select(path => new StateFileAnalyzer(path, gameResources)));
         analyzers.AddRange(gameResourcesPath.CountriesDefineFilePath.Select(path => new CountryDefineFileAnalyzer(path, gameResources)));
-        foreach (var analyzer in analyzers)
-        {
-            var errorMessage = Task.Run(() => analyzer.GetErrorMessages());
-            errorsTask.Add(errorMessage);
-        }
+        var errorsTask = analyzers.Select(analyzer => Task.Run(analyzer.GetErrorMessages)).ToList();
         await Task.WhenAll(errorsTask);
+
         var errorList = ImmutableList.CreateBuilder<ErrorMessage>();
         foreach (var error in errorsTask.Select(x => x.Result))
         {
