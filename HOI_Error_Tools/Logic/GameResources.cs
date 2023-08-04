@@ -123,7 +123,7 @@ public class GameResources
             if (!separateBuilder.Add(leaf.Key))
             {
                 errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    filePath, new Position(leaf.Position), $"重复的国家标签 '{leaf.Key}'", ErrorLevel.Error));
+                    filePath, new Position(leaf.Position), $"重复的国家标签 '{leaf.Key}'"));
             }
         }
         return separateBuilder.ToImmutableHashSet();
@@ -146,7 +146,7 @@ public class GameResources
             if (result.HasNot(Key.StateCategories))
             {
                 errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(
-                    path, $"缺少 '{Key.StateCategories}' 关键字", ErrorLevel.Error));
+                    path, $"缺少 '{Key.StateCategories}' 关键字"));
                 continue;
             }
             var stateCategoriesNode = result.Child(Key.StateCategories).Value;
@@ -177,7 +177,7 @@ public class GameResources
             if (node.HasNot(ScriptKeyWords.Buildings))
             {
                 errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(
-                    filePath, $"缺少 '{ScriptKeyWords.Buildings}' 关键字", ErrorLevel.Error));
+                    filePath, $"缺少 '{ScriptKeyWords.Buildings}' 关键字"));
                 continue;
             }
             var buildingsNode = node.Child(ScriptKeyWords.Buildings).Value;
@@ -220,8 +220,7 @@ public class GameResources
         var maxLevelLeafs = buildingNode.Leafs(Key.MaxLevel).ToList();
         if (maxLevelLeafs.Count > 1)
         {
-            errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(filePath, new Position(maxLevelLeafs[0].Position), "重复的 Key", 
-                ErrorLevel.Error));
+            errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(filePath, new Position(maxLevelLeafs[0].Position), "重复的 Key"));
         }
 
         var maxLevelLeaf = maxLevelLeafs.Last();
@@ -280,7 +279,7 @@ public class GameResources
             if (rootNode.HasNot(ScriptKeyWords.Resources))
             {
                 errorMessageCache.Add(
-                    ErrorMessageFactory.CreateSingleFileError(path, "资源类型文件为空", ErrorLevel.Error));
+                    ErrorMessageFactory.CreateSingleFileError(path, "资源类型文件为空"));
                 continue;
             }
 
@@ -296,7 +295,7 @@ public class GameResources
                     continue;
                 }
                 errorMessageCache.Add(
-                    ErrorMessageFactory.CreateSingleFileError(path, $"重复定义的资源类型: '{type}'", ErrorLevel.Error));
+                    ErrorMessageFactory.CreateSingleFileError(path, $"重复定义的资源类型: '{type}'"));
             }
         }
         return builder.ToImmutable();

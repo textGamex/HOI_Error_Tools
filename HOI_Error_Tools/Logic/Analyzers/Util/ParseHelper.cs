@@ -28,18 +28,18 @@ public static class ParseHelper
     public static IEnumerable<(string, string, Position)> GetLeavesKeyValuePairs(Node node)
     {
         return node.Leaves
-            .Select(x => (x.Key, x.ValueText, new Position(x.Position)));
+            .Select(leaf => (leaf.Key, leaf.ValueText, new Position(leaf.Position)));
     }
 
-    public static IEnumerable<IEnumerable<(string, string, Position)>> GetAllLeafKeyAndValueInAllNode(Node rootNode, string nodeKey)
+    public static IEnumerable<(IEnumerable<(string Key, string Value, Position)> NodeContent, Position)> GetAllLeafKeyAndValueInAllNode(Node rootNode, string nodeKey)
     {
         if (rootNode.HasNot(nodeKey))
         {
-            return Enumerable.Empty<IEnumerable<(string, string, Position)>>();
+            return Enumerable.Empty<(IEnumerable <(string Key, string Value, Position)> NodeContent, Position)>();
         }
 
         var nodes = rootNode.Childs(nodeKey);
 
-        return nodes.Select(GetLeavesKeyValuePairs).ToList();
+        return nodes.Select(node => (GetLeavesKeyValuePairs(node), new Position(node.Position))).ToList();
     }
 }

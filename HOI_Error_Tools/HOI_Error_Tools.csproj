@@ -13,7 +13,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
 
   <ItemGroup>
-    <Folder Include="Logic\Analyzers\Common\" />
     <Folder Include="Logic\Analyzers\Util\" />
     <Folder Include="Logic\CustomException\" />
     <Folder Include="Resources\" />

@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using HOI_Error_Tools.Logic.Analyzers.CountryDefine;
 using MessageBox = HandyControl.Controls.MessageBox;
 
 namespace HOI_Error_Tools;
@@ -112,11 +113,12 @@ public partial class MainWindowModel : ObservableObject
         var gameResourcesPath = new GameResourcesPath(GameRootPath, ModRootPath, _descriptor);
         var gameResources = new GameResources(gameResourcesPath);
         var errorsTask = new List<Task<IEnumerable<ErrorMessage>>>();
-        var stateList = new List<AnalyzerBase>(gameResourcesPath.StatesPathList.Count);
-        stateList.AddRange(gameResourcesPath.StatesPathList.Select(path => new StateFileAnalyzer(path, gameResources)));
-        foreach (var stateFileAnalyzer in stateList)
+        var analyzers = new List<AnalyzerBase>(1024);
+        analyzers.AddRange(gameResourcesPath.StatesFilePathList.Select(path => new StateFileAnalyzer(path, gameResources)));
+        analyzers.AddRange(gameResourcesPath.CountriesDefineFilePath.Select(path => new CountryDefineFileAnalyzer(path, gameResources)));
+        foreach (var analyzer in analyzers)
         {
-            var errorMessage = Task.Run(() => stateFileAnalyzer.GetErrorMessages());
+            var errorMessage = Task.Run(() => analyzer.GetErrorMessages());
             errorsTask.Add(errorMessage);
         }
         await Task.WhenAll(errorsTask);
