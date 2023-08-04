@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Concurrent;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
-using System.Windows.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HOI_Error_Tools.Logic.Analyzers.Error;
@@ -20,13 +12,15 @@ namespace HOI_Error_Tools.ViewModels;
 
 public partial class ErrorMessageWindowViewModel : ObservableObject
 {
-    [ObservableProperty]
-    private IImmutableList<ErrorMessage> _errorMessage;
+    public IReadOnlyList<ErrorMessage> ErrorMessage { get; }
+    public string StatisticsInfo { get; }
+
     private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
-    public ErrorMessageWindowViewModel(IImmutableList<ErrorMessage> errors)
+    public ErrorMessageWindowViewModel(IReadOnlyList<ErrorMessage> errors)
     {
-        _errorMessage = errors;
+        ErrorMessage = errors;
+        StatisticsInfo = $"错误 {ErrorMessage.Count}";
     }
 
     [RelayCommand]
