@@ -1,0 +1,16 @@
+﻿aaa = 1
+
+# 既要区分不同的if (根据limit来判断), 也要区分不同的else (?)
+if = {
+	bbb = {
+		ccc = 1
+		ddd = 1
+	}
+	else = {
+		eee = 5
+		bbb = {
+			ccc = 2
+			ddd = 2
+		}
+	}
+}

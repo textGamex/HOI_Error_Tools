@@ -19,9 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.0" />
     <PackageReference Include="NUnit" Version="3.13.3" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.4.2" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageReference Include="NUnit.Analyzers" Version="3.6.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -34,8 +34,10 @@
 
   <ItemGroup>
     <Folder Include="Data\Mod\" />
+    <Folder Include="Data\Realistic\Hearts of Iron IV\common\state_category\" />
     <Folder Include="Data\Realistic\Hearts of Iron IV\history\states\" />
     <Folder Include="Data\Realistic\Hearts of Iron IV\map\" />
+    <Folder Include="Logic\Analyzers\Util\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -52,10 +54,16 @@
     <None Update="Data\Realistic\Hearts of Iron IV\common\buildings\test.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Data\Realistic\Hearts of Iron IV\common\state_category\city.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Data\Realistic\Hearts of Iron IV\history\states\test.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Data\Realistic\Hearts of Iron IV\map\definition.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\TestText\ParseHelperTestText.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
