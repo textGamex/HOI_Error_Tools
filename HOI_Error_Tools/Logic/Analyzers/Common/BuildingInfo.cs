@@ -10,4 +10,9 @@ public class BuildingInfo
         Name = name;
         MaxLevel = maxLevel;
     }
+
+    public override string ToString()
+    {
+        return $"{nameof(Name)}={Name}, {nameof(MaxLevel)}={MaxLevel}";
+    }
 }

@@ -44,10 +44,16 @@ public static class ParseHelper
         //    return Enumerable.Empty<(IEnumerable<LeafContent> NodeContent, Position)>();
         //}
 
-        var nodeList = new List<Node>();
-        nodeList.AddRange(rootNode.Childs(nodeKey));
-        nodeList.AddRange(GetAllNodeInIfStatement(rootNode, nodeKey));
+        var nodeList = GetAllNodeInAll(rootNode, nodeKey);
         return nodeList.Select(node => (GetLeavesKeyValuePairs(node), new Position(node.Position))).ToList();
+    }
+
+    private static IEnumerable<Node> GetAllNodeInAll(Node rootNode, string keyword)
+    {
+        var nodeList = new List<Node>();
+        nodeList.AddRange(rootNode.Childs(keyword));
+        nodeList.AddRange(GetAllNodeInIfStatement(rootNode, keyword));
+        return nodeList;
     }
 
     /// <summary>
@@ -76,5 +82,20 @@ public static class ParseHelper
             result.AddRange(nodes);
         }
         return result;
+    }
+
+    public static IEnumerable<LeafValueNode> GetLeafValueNodesInAllNode(Node rootNode, string keyword)
+    {
+        var list = new List<LeafValueNode>(16);
+        var nodeList = GetAllNodeInAll(rootNode, keyword);
+        foreach (var node in nodeList)
+        {
+            if (!node.LeafValues.Any())
+            {
+                continue;
+            }
+            list.Add(new LeafValueNode(node.LeafValues.Select(LeafValueContent.FromCWToolsLeafValue), new Position(node.Position)));
+        }
+        return list;
     }
 }
