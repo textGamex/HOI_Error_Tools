@@ -381,34 +381,36 @@ public partial class StateFileAnalyzer : AnalyzerBase
     /// </summary>
     /// <param name="buildings"></param>
     /// <returns></returns>
-    private IEnumerable<ErrorMessage> AssertBuildingLevelWithinRange(IReadOnlyList<(string BuildingName, string Level, Position Position)> buildings)
+    private IEnumerable<ErrorMessage> AssertBuildingLevelWithinRange(IReadOnlyList<LeafContent> buildings)
     {
         var errorMessages = new List<ErrorMessage>();
         //TODO: 待优化
         var existingBuildings = new Dictionary<string, List<Position>>();
 
-        foreach (var (buildingType, levelText, position) in buildings)
+        foreach (var building in buildings)
         {
+            var buildingType = building.Key;
+            var levelText = building.Value;
             if (existingBuildings.TryGetValue(buildingType, out var list))
             {
-                list.Add(position);
+                list.Add(building.Position);
             }
             else
             {
-                existingBuildings.Add(buildingType, new List<Position>() { position });
+                existingBuildings.Add(buildingType, new List<Position>() { building.Position });
             }
 
             // 建筑类型和建筑等级是否为整数可以一起判断
             if (!_registeredBuildings.TryGetValue(buildingType, out var buildingInfo))
             {
                 errorMessages.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    _filePath, position, $"建筑类型 '{buildingType}' 不存在"));
+                    _filePath, building.Position, $"建筑类型 '{buildingType}' 不存在"));
             }
 
             if (!uint.TryParse(levelText, out var level))
             {
                 errorMessages.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    _filePath, position, $"建筑等级 '{levelText}' 无法转换为整数"));
+                    _filePath, building.Position, $"建筑等级 '{levelText}' 无法转换为整数"));
                 continue;
             }
 
@@ -417,7 +419,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
             if (buildingInfo != null && level > buildingInfo.MaxLevel)
             {
                 errorMessages.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    _filePath, position, $"建筑等级 '{level}' 超出范围 [{buildingInfo.MaxLevel}]"));
+                    _filePath, building.Position, $"建筑等级 '{level}' 超出范围 [{buildingInfo.MaxLevel}]"));
             }
         }
         errorMessages.AddRange(GetErrorOfRepeatedBuildingsType(existingBuildings));

@@ -41,28 +41,30 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
     {
         var errorList = new List<ErrorMessage>();
 
-        var errorMessage = _helper.AssertExistKeyword(model.SetPopularities, "set_popularities");
+        var errorMessage = _helper.AssertExistKeyword(model.SetPopularitiesList, "set_popularities");
         if (errorMessage is not null)
         {
             errorList.Add(errorMessage);
             return errorList;
         }
 
-        foreach (var popularity in model.SetPopularities)
+        foreach (var popularities in model.SetPopularitiesList)
         {
             uint sum = 0;
-            foreach (var (ideologiesName, proportionText, position) in popularity.Popularity)
+            foreach (var popularity in popularities.Popularity)
             {
+                var ideologiesName = popularity.Key;
+                var proportionText = popularity.Value;
                 if (!_registeredIdeologies.Contains(ideologiesName))
                 {
                     errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                        _filePath, position, $"未注册的意识形态 '{ideologiesName}'"));
+                        _filePath, popularity.Position, $"未注册的意识形态 '{ideologiesName}'"));
                 }
 
                 if (!uint.TryParse(proportionText, out var proportion))
                 {
                     errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                        _filePath, position, $"'{proportionText}' 无法转化为整数"));
+                        _filePath, popularity.Position, $"'{proportionText}' 无法转化为整数"));
                 }
                 sum += proportion;
             }
@@ -70,11 +72,9 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
             if (sum != 100)
             {
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    _filePath, popularity.Position, "总和不为100"));
+                    _filePath, popularities.Position, "政党支持率总和不为100"));
             }
         }
-
-        errorList.AddRange(_helper.AssertKeywordIsOnly(model.SetPopularities, "set_popularities"));
         return errorList;
     }
 }

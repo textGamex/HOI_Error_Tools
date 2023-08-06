@@ -57,6 +57,9 @@
     <None Update="Data\Realistic\Hearts of Iron IV\common\state_category\city.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Data\Realistic\Hearts of Iron IV\history\countries\AAA - AAAAAA.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Data\Realistic\Hearts of Iron IV\history\states\test.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
