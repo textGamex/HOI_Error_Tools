@@ -29,6 +29,7 @@ public class GameResources
     private readonly ImmutableDictionary<string, BuildingInfo> _buildingInfos;
     private readonly ImmutableHashSet<uint> _registeredProvinces;
     private readonly GameResourcesPath _gameResourcesPath;
+    private readonly IEnumerable<string> _registeredIdeaTag;
 
     private static readonly ConcurrentBag<ErrorMessage> errorMessageCache = new();
     private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
@@ -46,14 +47,48 @@ public class GameResources
         RegisteredStateCategories = GetRegisteredStateCategories();
         RegisteredCountriesTag = GetCountriesTag();
         RegisteredIdeologies = GetRegisteredIdeologies();
-        RegisteredIdeas = GetRegisteredIdeas();
+        _registeredIdeaTag = GetRegisteredIdeaTags();
+        RegisteredIdeas = GetRegisteredIdeas(_registeredIdeaTag.ToList());
     }
 
-    private IReadOnlySet<string> GetRegisteredIdeas()
+    private IEnumerable<string> GetRegisteredIdeaTags()
+    {
+        var ideaTagList = new List<string>();
+        foreach (var path in _gameResourcesPath.IdeaTagsFilePath)
+        {
+            var parser = new CWToolsParser(path);
+            if (parser.IsFailure)
+            {
+                errorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(path, parser.GetError()));
+                continue;
+            }
+
+            var rootNode = parser.GetResult();
+            if (rootNode.HasNot("idea_categories"))
+            {
+                errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(path, "空文件", ErrorLevel.Tip));
+            }
+            var ideaCategoriesNode = rootNode.Child("idea_categories").Value;
+
+            foreach (var node in ideaCategoriesNode.Nodes)
+            {
+                if (node.Has("slot") || node.Has("character_slot"))
+                {
+                    var slot = node.Leafs("slot");
+                    ideaTagList.AddRange(node.Leafs("character_slot").Union(slot).Select(leaf => leaf.ValueText));
+                }
+                else
+                {
+                    ideaTagList.Add(node.Key);
+                }
+            }
+        }
+        return ideaTagList.Distinct();
+    }
+
+    private IReadOnlySet<string> GetRegisteredIdeas(IReadOnlyList<string> registeredIdeaTag)
     {
         var map = new Dictionary<string, ParameterFileInfo>();
-        var keywords = new[] { "country", "mobilization_laws", "economy", "political_advisor", "hidden_ideas" };
-        const string ideasKeyword = "ideas";
 
         foreach (var path in _gameResourcesPath.IdeaFilesPath)
         {
@@ -65,20 +100,20 @@ public class GameResources
             }
 
             var result = parser.GetResult();
-            if (result.HasNot(ideasKeyword))
+            if (result.HasNot(ScriptKeyWords.Ideas))
             {
                 continue;
             }
 
-            var ideasNode = result.Child(ideasKeyword).Value;
-            var subordinateMap = TryGetIdeas(ideasNode, path, keywords);
+            var ideasNode = result.Child(ScriptKeyWords.Ideas).Value;
+            var subordinateMap = TryGetIdeas(ideasNode, path, registeredIdeaTag);
             MergeMap(map, subordinateMap);
         }
 
         return map.Select(item => item.Key).ToImmutableHashSet();
     }
 
-    private static IReadOnlyDictionary<string, ParameterFileInfo> TryGetIdeas(Node rootNode, string filePath, params string[] keywords)
+    private static IReadOnlyDictionary<string, ParameterFileInfo> TryGetIdeas(Node rootNode, string filePath, IEnumerable<string> keywords)
     {
         var map = new Dictionary<string, ParameterFileInfo>();
         foreach (var keyword in keywords)
@@ -91,7 +126,7 @@ public class GameResources
             var node = rootNode.Child(keyword).Value;
             foreach (var item in node.Nodes)
             {
-                if (map.TryGetValue(keyword, out var value))
+                if (map.TryGetValue(item.Key, out var value))
                 {
                     var fileInfo = new List<ParameterFileInfo>()
                     {

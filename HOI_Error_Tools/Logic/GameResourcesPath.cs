@@ -21,6 +21,7 @@ public sealed class GameResourcesPath
     public IEnumerable<string> StateCategoriesFilePath { get; }
     public IEnumerable<string> CountriesDefineFilePath { get; }
     public IEnumerable<string> IdeaFilesPath { get; }
+    public IEnumerable<string> IdeaTagsFilePath { get; }
     public IReadOnlyList<string> CountriesTagFilePath { get; }
     public IReadOnlyList<string> IdeologiesFilePath { get; }
     public IReadOnlyList<string> BuildingsFilePathList => _buildingsFilePathList;
@@ -57,7 +58,8 @@ public sealed class GameResourcesPath
         ProvincesDefinitionFilePath = GetFilePathPriorModByRelativePath(Path.Combine(Key.Map, "definition.csv"));
         StateCategoriesFilePath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.StateCategory));
         CountriesDefineFilePath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(ScriptKeyWords.History, "countries"));
-        IdeaFilesPath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, Key.Ideas));
+        IdeaFilesPath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.Ideas));
+        IdeaTagsFilePath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "idea_tags"));
 
         CountriesTagFilePath = ImmutableList.CreateRange(GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "country_tags")));
         IdeologiesFilePath = ImmutableList.CreateRange(GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.Ideologies)));
@@ -172,6 +174,5 @@ public sealed class GameResourcesPath
         public const string States = "states";
         public const string Map = "map";
         public const string Common = "common";
-        public const string Ideas = "ideas";
     }
 }

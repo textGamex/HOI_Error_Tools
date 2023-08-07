@@ -9,6 +9,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
 {
     private readonly string _filePath;
     private readonly IReadOnlySet<string> _registeredCountriesTag;
+    private readonly IReadOnlySet<string> _registeredIdeas;
     private readonly IReadOnlySet<string> _registeredIdeologies;
     private readonly AnalyzerHelper _helper;
 
@@ -18,6 +19,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
         _helper = new AnalyzerHelper(_filePath);
         _registeredCountriesTag = resources.RegisteredCountriesTag;
         _registeredIdeologies = resources.RegisteredIdeologies;
+        _registeredIdeas = resources.RegisteredIdeas;
     }
 
     public override IEnumerable<ErrorMessage> GetErrorMessages()
@@ -33,7 +35,25 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
         var model = new CountryDefineFileModel(parser.GetResult());
         
         errorList.AddRange(AnalyzePopularities(model));
+        errorList.AddRange(AnalyzeIdeas(model));
 
+        return errorList;
+    }
+
+    private IEnumerable<ErrorMessage> AnalyzeIdeas(CountryDefineFileModel model)
+    {
+        var errorList = new List<ErrorMessage>();
+        foreach (var ideasNode in model.OwnIdeaNodes)
+        {
+            foreach (var idea in ideasNode.LeafValueContents)
+            {
+                if (!_registeredIdeas.Contains(idea.Value))
+                {
+                    errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                        _filePath, idea.Position, $"Idea '{idea.Value}' 未定义"));
+                }
+            }
+        }
         return errorList;
     }
 

@@ -12,4 +12,9 @@ public sealed class ParameterFileInfo
         FilePath = filePath;
         Position = position;
     }
+
+    public override string ToString()
+    {
+        return $"{nameof(FilePath)}={FilePath}, {nameof(Position)}={Position}";
+    }
 }
