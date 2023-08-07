@@ -41,14 +41,19 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding Path=Level}" Header="等级" />
                 <DataGridTextColumn Binding="{Binding Path=Message}" Header="错误信息" />
-
                 <DataGridTemplateColumn Header="错误位置">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Button
-                                Command="{Binding DataContext.ShowErrorFileInfoCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
-                                CommandParameter="{Binding FileInfo}"
-                                Content="显示位置" />
+                            <StackPanel Orientation="Horizontal">
+                                <Button
+                                    Command="{Binding DataContext.ShowErrorFileInfoCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                    CommandParameter="{Binding FileInfo}"
+                                    Content="显示位置" />
+                                <Label
+                                    Content="{Binding Path=FileInfo, Converter={x:Static vm:FilePathToErrorSourceTypeConverter.Instance}}"
+                                    FontSize="13"
+                                    Style="{DynamicResource LabelInfo}" />
+                            </StackPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

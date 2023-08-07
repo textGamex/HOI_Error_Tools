@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Windows.AI.MachineLearning;
 using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers;
 using HOI_Error_Tools.Logic.Analyzers.Common;
@@ -24,6 +25,7 @@ public class GameResources
     public IReadOnlySet<string> RegisteredStateCategories { get; }
     public IReadOnlySet<string> RegisteredCountriesTag { get; }
     public IReadOnlySet<string> RegisteredIdeologies { get; }
+    public IReadOnlySet<string> RegisteredIdeas { get; }
 
     private readonly ImmutableDictionary<string, BuildingInfo> _buildingInfos;
     private readonly ImmutableHashSet<uint> _registeredProvinces;
@@ -45,11 +47,92 @@ public class GameResources
         RegisteredStateCategories = GetRegisteredStateCategories();
         RegisteredCountriesTag = GetCountriesTag();
         RegisteredIdeologies = GetRegisteredIdeologies();
+        RegisteredIdeas = GetRegisteredIdeas();
+    }
+
+    private IReadOnlySet<string> GetRegisteredIdeas()
+    {
+        var map = new Dictionary<string, ParameterFileInfo>();
+        var keywords = new[] { "country", "mobilization_laws", "economy", "political_advisor", "hidden_ideas" };
+        const string ideasKeyword = "ideas";
+
+        foreach (var path in _gameResourcesPath.IdeaFilesPath)
+        {
+            var parser = new CWToolsParser(path);
+            if (parser.IsFailure)
+            {
+                errorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(path, parser.GetError()));
+                continue;
+            }
+
+            var result = parser.GetResult();
+            if (result.HasNot(ideasKeyword))
+            {
+                continue;
+            }
+
+            var ideasNode = result.Child(ideasKeyword).Value;
+            var subordinateMap = TryGetIdeas(ideasNode, path, keywords);
+            MergeMap(map, subordinateMap);
+        }
+
+        return map.Select(item => item.Key).ToImmutableHashSet();
+    }
+
+    private static IReadOnlyDictionary<string, ParameterFileInfo> TryGetIdeas(Node rootNode, string filePath, params string[] keywords)
+    {
+        var map = new Dictionary<string, ParameterFileInfo>();
+        foreach (var keyword in keywords)
+        {
+            if (rootNode.HasNot(keyword))
+            {
+                continue;
+            }
+
+            var node = rootNode.Child(keyword).Value;
+            foreach (var item in node.Nodes)
+            {
+                if (map.TryGetValue(keyword, out var value))
+                {
+                    var fileInfo = new List<ParameterFileInfo>()
+                    {
+                        new(value.FilePath, value.Position),
+                        new(value.FilePath, new Position(item.Position))
+                    };
+                    errorMessageCache.Add(new ErrorMessage(fileInfo, $"重复的定义 Ideas '{item.Key}'", ErrorLevel.Error));
+                }
+                else
+                {
+                    map.Add(item.Key, new ParameterFileInfo(filePath, new Position(item.Position)));
+                }
+            }
+        }
+        return map;
+    }
+
+    private static void MergeMap(Dictionary<string, ParameterFileInfo> mainMap, IReadOnlyDictionary<string, ParameterFileInfo> secondaryMap)
+    {
+        foreach (var (ideaKey, fileInfo) in secondaryMap)
+        {
+            if (mainMap.TryGetValue(ideaKey, out var mainFilePath))
+            {
+                var fileInfoList = new List<ParameterFileInfo>()
+                {
+                    fileInfo,
+                    mainFilePath
+                };
+                errorMessageCache.Add(new ErrorMessage(fileInfoList, $"重复的定义 Ideas '{ideaKey}'", ErrorLevel.Error));
+            }
+            else
+            {
+                mainMap.Add(ideaKey, fileInfo);
+            }
+        }
     }
 
     private IReadOnlySet<string> GetRegisteredIdeologies()
     {
-        var set = ImmutableDictionary.CreateBuilder<string, ParameterInfo>();
+        var set = ImmutableDictionary.CreateBuilder<string, ParameterFileInfo>();
 
         foreach (var path in _gameResourcesPath.IdeologiesFilePath)
         {
@@ -80,7 +163,7 @@ public class GameResources
                 }
                 else
                 {
-                    set.Add(ideology.Key, new ParameterInfo(path, new Position(ideology.Position)));
+                    set.Add(ideology.Key, new ParameterFileInfo(path, new Position(ideology.Position)));
                 }
             }
         }
@@ -220,7 +303,8 @@ public class GameResources
         var maxLevelLeafs = buildingNode.Leafs(Key.MaxLevel).ToList();
         if (maxLevelLeafs.Count > 1)
         {
-            errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(filePath, new Position(maxLevelLeafs[0].Position), "重复的 Key"));
+            errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                filePath, new Position(maxLevelLeafs[0].Position), "重复的 Key"));
         }
 
         var maxLevelLeaf = maxLevelLeafs.Last();

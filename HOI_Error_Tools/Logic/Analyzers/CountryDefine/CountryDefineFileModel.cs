@@ -12,11 +12,11 @@ public partial class CountryDefineFileAnalyzer
     private sealed class CountryDefineFileModel
     {
         public IReadOnlyList<(IEnumerable<LeafContent> Popularity, Position Position)> SetPopularitiesList { get; }
-        public IReadOnlyList<LeafValueNode> Ideas { get; }
+        public IReadOnlyList<LeafValueNode> OwnIdeas { get; }
         public CountryDefineFileModel(Node rootNode)
         {
             SetPopularitiesList = ParseHelper.GetAllLeafKeyAndValueInAllNode(rootNode, "set_popularities").ToList();
-            Ideas = ParseHelper.GetLeafValueNodesInAllNode(rootNode, "add_ideas").ToList();
+            OwnIdeas = ParseHelper.GetLeafValueNodesInAllNode(rootNode, "add_ideas").ToList();
         }
     }
 }

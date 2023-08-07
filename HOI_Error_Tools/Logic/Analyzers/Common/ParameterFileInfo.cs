@@ -2,12 +2,12 @@
 
 namespace HOI_Error_Tools.Logic.Analyzers.Common;
 
-public sealed class ParameterInfo
+public sealed class ParameterFileInfo
 {
     public string FilePath { get; }
     public Position Position { get; }
 
-    public ParameterInfo(string filePath, Position position)
+    public ParameterFileInfo(string filePath, Position position)
     {
         FilePath = filePath;
         Position = position;
