@@ -28,12 +28,12 @@ public partial class StateFileAnalyzer : AnalyzerBase
     private readonly IReadOnlySet<string> _registeredStateCategories;
     private readonly IReadOnlySet<string> _registeredCountriesTag;
 
-    private static readonly ConcurrentDictionary<uint, (string FilePath, Position Position)> ExistingIds = new();
+    private static readonly ConcurrentDictionary<uint, ParameterFileInfo> ExistingIds = new();
 
     /// <summary>
     /// 已经分配的 Provinces, 用于检查重复分配错误
     /// </summary>
-    private static readonly ConcurrentDictionary<uint, (string FilePath, Position Position)> ExistingProvinces = new();
+    private static readonly ConcurrentDictionary<uint, ParameterFileInfo> ExistingProvinces = new();
 
     public StateFileAnalyzer(string filePath, GameResources resources) 
     {
@@ -214,17 +214,17 @@ public partial class StateFileAnalyzer : AnalyzerBase
 
             if (ExistingIds.TryGetValue(id, out var existingIdOfFileInfo))
             {
-                var fileInfo = new List<(string, Position)>()
+                var fileInfo = new List<ParameterFileInfo>()
                 {
                     existingIdOfFileInfo,
-                    (_filePath, position)
+                    new (_filePath, position)
                 };
                 
                 errorList.Add(new ErrorMessage(fileInfo, $"Id '{id}' 重复定义", ErrorLevel.Error));
             }
             else
             {
-                bool result = ExistingIds.TryAdd(id, (_filePath, position));
+                bool result = ExistingIds.TryAdd(id, new ParameterFileInfo(_filePath, position));
                 Debug.Assert(result, $"{nameof(ExistingIds)} 添加元素失败");
             }
         }
@@ -354,16 +354,16 @@ public partial class StateFileAnalyzer : AnalyzerBase
         {
             if (!ExistingProvinces.TryGetValue(provinceId, out var infoOfExistingValue))
             {
-                if (!ExistingProvinces.TryAdd(provinceId, (_filePath, position)))
+                if (!ExistingProvinces.TryAdd(provinceId, new ParameterFileInfo(_filePath, position)))
                 {
                     throw new ArgumentException("ExistingProvinces 添加失败");
                 }
                 continue;
             }
-            var fileInfo = new List<(string, Position)>
+            var fileInfo = new List<ParameterFileInfo>
             {
-                (_filePath, position),
-                (infoOfExistingValue.FilePath, infoOfExistingValue.Position)
+                new (_filePath, position),
+                new (infoOfExistingValue.FilePath, infoOfExistingValue.Position)
             };
             errorList.Add(new ErrorMessage(fileInfo, "Province 在文件中重复分配", ErrorLevel.Error));
         }
@@ -435,7 +435,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
             {
                 continue;
             }
-            var fileInfo = positionList.Select(position => (_filePath, position)).ToList();
+            var fileInfo = positionList.Select(position => new ParameterFileInfo(_filePath, position));
             errorMessages.Add(new ErrorMessage(fileInfo, $"重复声明的建筑物 '{buildingType}'", ErrorLevel.Error));
         }
         return errorMessages;

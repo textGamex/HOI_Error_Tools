@@ -6,7 +6,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Windows.AI.MachineLearning;
 using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers;
 using HOI_Error_Tools.Logic.Analyzers.Common;
@@ -154,12 +153,12 @@ public class GameResources
             {
                 if (set.TryGetValue(ideology.Key, out var ideologyPosition))
                 {
-                    var list = new List<(string, Position)>()
+                    var fileInfoList = new List<ParameterFileInfo>()
                     {
-                        (path, new Position(ideology.Position)),
-                        (ideologyPosition.FilePath, ideologyPosition.Position)
+                        new (path, new Position(ideology.Position)),
+                        new (ideologyPosition.FilePath, ideologyPosition.Position)
                     };
-                    errorMessageCache.Add(new ErrorMessage(list, "重复定义 ideology", ErrorLevel.Warn));
+                    errorMessageCache.Add(new ErrorMessage(fileInfoList, "重复定义 ideology", ErrorLevel.Warn));
                 }
                 else
                 {
@@ -394,8 +393,8 @@ public class GameResources
             if (set.Contains(node.Key))
             {
                 errorMessageCache.Add(
-                    ErrorMessageFactory.CreateSingleFileErrorWithPosition(filePath, new Position(node.Position), $"重复定义的资源类型: '{node.Key}'", 
-                        ErrorLevel.Warn));
+                    ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                        filePath, new Position(node.Position), $"重复定义的资源类型: '{node.Key}'", ErrorLevel.Warn));
                 continue;
             }
 

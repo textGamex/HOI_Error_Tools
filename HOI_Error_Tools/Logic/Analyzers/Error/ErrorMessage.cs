@@ -16,9 +16,4 @@ public class ErrorMessage
         Message = message;
         Level = level;
     }
-
-    public ErrorMessage(IEnumerable<(string, Position)> fileInfo, string message, ErrorLevel level)
-        : this(fileInfo.Select(x => new ParameterFileInfo(x.Item1, x.Item2)), message, level)
-    {
-    }
 }

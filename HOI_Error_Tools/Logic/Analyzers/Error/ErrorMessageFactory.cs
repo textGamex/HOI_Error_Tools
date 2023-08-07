@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using CWTools.CSharp;
+using HOI_Error_Tools.Logic.Analyzers.Common;
 
 namespace HOI_Error_Tools.Logic.Analyzers.Error;
 
@@ -12,7 +13,7 @@ public static class ErrorMessageFactory
 
     public static ErrorMessage CreateSingleFileErrorWithPosition(string filePath, Position position, string message, ErrorLevel level = ErrorLevel.Error)
     {
-        return new ErrorMessage(new[] { (filePath, position) }, message, level);
+        return new ErrorMessage(new[] { new ParameterFileInfo(filePath, position) }, message, level);
     }
 
     public static ErrorMessage CreateParseErrorMessage(string filePath, ParserError error)
