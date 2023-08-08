@@ -2,7 +2,6 @@
 using System.Linq;
 using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers.Common;
-using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.Util;
 
 namespace HOI_Error_Tools.Logic.Analyzers.CountryDefine;
@@ -11,9 +10,6 @@ public partial class CountryDefineFileAnalyzer
 {
     private sealed class CountryDefineFileModel
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public IReadOnlyList<LeavesNode> SetPopularitiesList { get; }
         public IReadOnlyList<LeafValueNode> OwnIdeaNodes { get; }
 
