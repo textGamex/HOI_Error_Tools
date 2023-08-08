@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using CWTools.Process;
-using System.Linq;
+﻿using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HOI_Error_Tools.Logic.Analyzers.Util;
 
@@ -14,10 +14,10 @@ public static class ParseHelper
     /// <param name="key"></param>
     /// <param name="node"></param>
     /// <returns></returns>
-    public static IEnumerable<(string, Position)> GetLeavesValue(string key, Node node)
+    public static IEnumerable<(string ValueOfLeaf, Position)> GetLeavesValue(string key, Node node)
     {
         return node.Leafs(key)
-            .Select(x => (x.ValueText, new Position(x.Position)));
+            .Select(leaf => (leaf.ValueText, new Position(leaf.Position)));
     }
 
     /// <summary>
@@ -37,15 +37,10 @@ public static class ParseHelper
     /// <param name="rootNode"></param>
     /// <param name="nodeKey"></param>
     /// <returns></returns>
-    public static IEnumerable<(IEnumerable<LeafContent> NodeContent, Position)> GetAllLeafKeyAndValueInAllNode(Node rootNode, string nodeKey)
+    public static IEnumerable<LeavesNode> GetAllLeafKeyAndValueInAllNode(Node rootNode, string nodeKey)
     {
-        //if (rootNode.HasNot(nodeKey))
-        //{
-        //    return Enumerable.Empty<(IEnumerable<LeafContent> NodeContent, Position)>();
-        //}
-
         var nodeList = GetAllNodeInAll(rootNode, nodeKey);
-        return nodeList.Select(node => (GetLeavesKeyValuePairs(node), new Position(node.Position))).ToList();
+        return nodeList.Select(node => new LeavesNode(GetLeavesKeyValuePairs(node), new Position(node.Position))).ToList();
     }
 
     private static IEnumerable<Node> GetAllNodeInAll(Node rootNode, string keyword)

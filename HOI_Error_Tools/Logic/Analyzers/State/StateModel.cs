@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using CWTools.Process;
+﻿using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.Util;
 using HOI_Error_Tools.Logic.HOIParser;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace HOI_Error_Tools.Logic.Analyzers.State;
 
@@ -17,16 +17,16 @@ public partial class StateFileAnalyzer
         public IReadOnlyList<(string Manpower, Position Position)> Manpowers { get; } = ImmutableList<(string, Position)>.Empty;
         public IReadOnlyList<(string Name, Position Position)> Names { get; } = ImmutableList<(string, Position)>.Empty;
         public IReadOnlyList<(string Tag, Position Position)> HasCoreTags { get; } = ImmutableList<(string, Position)>.Empty;
-        public IReadOnlyList<LeafContent> Buildings { get; } 
+        public IReadOnlyList<LeafContent> Buildings { get; }
             = ImmutableList<LeafContent>.Empty;
         public IReadOnlyList<(string Type, Position Position)> StateCategories { get; } = ImmutableList<(string, Position)>.Empty;
         public IReadOnlyList<(string Owner, Position Position)> Owners { get; } = ImmutableList<(string, Position)>.Empty;
-        public IReadOnlyList<(string ProvinceId, IReadOnlyList<LeafContent> Buildings, Position Position)> BuildingsByProvince { get; } 
+        public IReadOnlyList<(string ProvinceId, IReadOnlyList<LeafContent> Buildings, Position Position)> BuildingsByProvince { get; }
             = ImmutableList<(string, IReadOnlyList<LeafContent>, Position)>.Empty;
-        public IReadOnlyList<(string ResourceName, string Amount, Position Position)> Resources { get; } 
+        public IReadOnlyList<(string ResourceName, string Amount, Position Position)> Resources { get; }
             = ImmutableList<(string, string, Position)>.Empty;
         public IReadOnlyList<(string ProvinceId, Position Position)> Provinces { get; } = ImmutableList<(string, Position)>.Empty;
-        public IReadOnlyList<(IReadOnlyList<string> VictoryPoints, Position Position)> VictoryPoints { get; } 
+        public IReadOnlyList<(IReadOnlyList<string> VictoryPoints, Position Position)> VictoryPoints { get; }
             = ImmutableList<(IReadOnlyList<string>, Position)>.Empty;
         public bool IsEmptyFile { get; }
 
@@ -43,7 +43,7 @@ public partial class StateFileAnalyzer
             Manpowers = ParseHelper.GetLeavesValue(ScriptKeyWords.Manpower, stateNode).ToList();
             Names = ParseHelper.GetLeavesValue(ScriptKeyWords.Name, stateNode).ToList();
             StateCategories = ParseHelper.GetLeavesValue(ScriptKeyWords.StateCategory, stateNode).ToList();
-            
+
             if (stateNode.Has(ScriptKeyWords.Resources))
             {
                 var resourcesNode = stateNode.Child(ScriptKeyWords.Resources).Value;
@@ -87,7 +87,7 @@ public partial class StateFileAnalyzer
         {
             var victoryPoints = new List<(IReadOnlyList<string>, Position)>();
             var victoryPointsNodes = historyNode.Childs("victory_points");
-            
+
             foreach (var victoryPointsNode in victoryPointsNodes)
             {
                 var builder = victoryPointsNode.LeafValues.Select(leafValue => leafValue.Key).ToList();

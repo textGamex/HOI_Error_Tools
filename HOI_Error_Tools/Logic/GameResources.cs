@@ -1,17 +1,17 @@
-﻿using System.Collections.Concurrent;
-using CsvHelper;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using CsvHelper;
 using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers;
 using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.HOIParser;
 using NLog;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace HOI_Error_Tools.Logic;
 
@@ -42,7 +42,7 @@ public class GameResources
     {
         _gameResourcesPath = paths;
         _registeredProvinces = ImmutableHashSet.CreateRange(GetRegisteredProvinceSet());
-        _buildingInfos = GetRegisteredBuildings();  
+        _buildingInfos = GetRegisteredBuildings();
         ResourcesType = GetResourcesType();
         RegisteredStateCategories = GetRegisteredStateCategories();
         RegisteredCountriesTag = GetCountriesTag();
@@ -205,7 +205,7 @@ public class GameResources
         return set.Select(x => x.Key).ToImmutableHashSet();
     }
 
-    
+
 
     private IReadOnlySet<string> GetCountriesTag()
     {
@@ -301,20 +301,20 @@ public class GameResources
             var map = ParseBuildingInfosToMap(filePath, buildingsNode);
             builder.AddRange(map);
         }
-        
+
         return builder.ToImmutable();
     }
 
     private static IDictionary<string, BuildingInfo> ParseBuildingInfosToMap(string filePath, Node buildingsNode)
-    {   
+    {
         var map = new Dictionary<string, BuildingInfo>();
         foreach (var buildingNode in buildingsNode.Nodes)
         {
             var buildingTypeName = buildingNode.Key;
 
             // 排除特殊值, fuel_silo 类型没有最大等级
-            const string fuelSilo = "fuel_silo";            
-            if (buildingNode.Has(fuelSilo) 
+            const string fuelSilo = "fuel_silo";
+            if (buildingNode.Has(fuelSilo)
                 && buildingNode.Leafs(fuelSilo).First().ValueText == "yes")
             {
                 map.Add(buildingTypeName, new BuildingInfo(buildingTypeName, 1));
@@ -370,7 +370,7 @@ public class GameResources
         using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
         while (csv.Read())
         {
-            var line = csv.GetField(0) ?? string.Empty;            
+            var line = csv.GetField(0) ?? string.Empty;
             string id = line[0..line.IndexOf(';')];
             set.Add(uint.Parse(id));
         }

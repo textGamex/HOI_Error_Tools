@@ -1,11 +1,6 @@
 ﻿using HOI_Error_Tools.Logic.Analyzers.Error;
 using NLog;
-using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Globalization;
-using System.Linq;
-using System.Windows.Data;
 
 namespace HOI_Error_Tools.View;
 

@@ -1,7 +1,8 @@
-﻿using HOI_Error_Tools.Logic.Analyzers.Error;
+﻿using HOI_Error_Tools.Logic.Analyzers.Common;
+using HOI_Error_Tools.Logic.Analyzers.Error;
 using System.Collections.Generic;
 using System.Linq;
-using HOI_Error_Tools.Logic.Analyzers.Common;
+using System.Windows.Forms;
 
 namespace HOI_Error_Tools.Logic.Analyzers.Util;
 
@@ -14,9 +15,11 @@ public sealed class AnalyzerHelper
         _filePath = filePath;
     }
 
-    public ErrorMessage? AssertExistKeyword<T>(IEnumerable<T> enumerable, string keyword)
+    public ErrorMessage? AssertExistKeyword<T>(IEnumerable<T> enumerable, string keyword, ErrorLevel level = ErrorLevel.Error)
     {
-        return enumerable.Any() ? null : ErrorMessageFactory.CreateSingleFileError(_filePath, $"缺少 '{keyword}' 关键字");
+        return enumerable.Any()
+            ? null
+            : ErrorMessageFactory.CreateSingleFileError(_filePath, $"缺少 '{keyword}' 关键字", level);
     }
 
     /// <summary>
@@ -30,5 +33,17 @@ public sealed class AnalyzerHelper
         return enumerable.Count > 1
             ? new[] { new ErrorMessage(enumerable.Select(item => new ParameterFileInfo(_filePath, item.Item2)), $"重复的 '{keyword}' 关键字", ErrorLevel.Error) }
             : Enumerable.Empty<ErrorMessage>();
+    }
+
+    public IEnumerable<ErrorMessage> AssertKeywordsIsValid(LeavesNode node, IReadOnlySet<string> keywords)
+    {
+        foreach (var leaf in node.Leaves)
+        {
+            if (!keywords.Contains(leaf.Key))
+            {
+                yield return ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                    _filePath, leaf.Position, $"不应出现的关键字 '{leaf.Key}'");
+            }
+        }
     }
 }

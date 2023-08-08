@@ -1,5 +1,5 @@
-﻿using System;
-using HOI_Error_Tools.Logic.Analyzers.Error;
+﻿using HOI_Error_Tools.Logic.Analyzers.Error;
+using System;
 
 namespace HOI_Error_Tools.Logic.Analyzers.Common;
 

@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using HOI_Error_Tools.Logic.Analyzers.Common;
+using System.Collections.Generic;
 
 namespace HOI_Error_Tools.ViewModels;
 
 public partial class ErrorFileInfoViewModel : ObservableObject
 {
-    [ObservableProperty] 
+    [ObservableProperty]
     private List<FileInfoVO> _data;
 
     public ErrorFileInfoViewModel(IEnumerable<ParameterFileInfo> fileInfoEnumerable)
@@ -22,5 +18,5 @@ public partial class ErrorFileInfoViewModel : ObservableObject
         }
     }
 
-    public record FileInfoVO (string FilePath, long ErrorLine);
+    public record FileInfoVO(string FilePath, long ErrorLine);
 }

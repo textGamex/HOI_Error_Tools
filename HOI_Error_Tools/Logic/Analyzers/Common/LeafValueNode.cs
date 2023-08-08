@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using HOI_Error_Tools.Logic.Analyzers.Error;
+﻿using HOI_Error_Tools.Logic.Analyzers.Error;
+using System.Collections.Generic;
 
 namespace HOI_Error_Tools.Logic.Analyzers.Common;
 

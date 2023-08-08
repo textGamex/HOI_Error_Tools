@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using CWTools.Process;
+using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.Util;
 using HOI_Error_Tools.Logic.HOIParser;
@@ -36,8 +39,67 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
         
         errorList.AddRange(AnalyzePopularities(model));
         errorList.AddRange(AnalyzeIdeas(model));
+        errorList.AddRange(AnalyzePolitics(model));
 
         return errorList;
+    }
+
+    private IEnumerable<ErrorMessage> AnalyzePolitics(CountryDefineFileModel model)
+    {
+        var errorList = new List<ErrorMessage>();
+        var keySet = new HashSet<string>(4)
+        {
+            "ruling_party",
+            "last_election",
+            "election_frequency",
+            "elections_allowed"
+        };
+        var errorMessage = _helper.AssertExistKeyword(model.SetPoliticsList, "set_politics", ErrorLevel.Warn);
+        if (errorMessage is not null)
+        {
+            errorList.Add(errorMessage);
+            return errorList;
+        }
+
+        foreach (var leavesNode in model.SetPoliticsList)
+        {
+            errorList.AddRange(_helper.AssertKeywordsIsValid(leavesNode, keySet));
+            var rulingParty = TryGetLeafContent(leavesNode, "ruling_party");
+            if (rulingParty is null)
+            {
+                continue;
+            }
+            if (!_registeredIdeologies.Contains(rulingParty.Value))
+            {
+                errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                    _filePath, rulingParty.Position, $"意识形态 '{rulingParty.Value}' 未定义"));
+            }
+
+            if (!model.SetPopularitiesList.Any(node => node.Leaves.Any(leaf => leaf.Key == rulingParty.Value)))
+            {
+                errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                    _filePath, rulingParty.Position, $"执政党 '{rulingParty.Value}' 未在 'set_popularities' 中设置支持率"));
+            }
+        }
+        return errorList;
+    }
+
+    private static LeafContent? TryGetLeafContent(LeavesNode node, string key)
+    {
+        return node.Leaves.FirstOrDefault(leafContent => leafContent.Key == key);
+    }
+
+    private IEnumerable<ErrorMessage> AnalyzePoliticsKeywords(LeavesNode node, IEnumerable<string> keywords)
+    {
+        foreach (var keyword in keywords)
+        {
+            var leaf = node.Leaves.FirstOrDefault(l => l.Key == keyword);
+            if (leaf is null)
+            {
+                yield return ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                    _filePath, node.Position, $"缺少关键字 '{keyword}'");
+            }
+        }
     }
 
     private IEnumerable<ErrorMessage> AnalyzeIdeas(CountryDefineFileModel model)
@@ -71,7 +133,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
         foreach (var popularities in model.SetPopularitiesList)
         {
             uint sum = 0;
-            foreach (var popularity in popularities.Popularity)
+            foreach (var popularity in popularities.Leaves)
             {
                 var ideologiesName = popularity.Key;
                 var proportionText = popularity.Value;

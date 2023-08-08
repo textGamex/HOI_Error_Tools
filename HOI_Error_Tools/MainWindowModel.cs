@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using HOI_Error_Tools.Logic;
 using HOI_Error_Tools.Logic.Analyzers;
+using HOI_Error_Tools.Logic.Analyzers.CountryDefine;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.State;
 using NLog;
@@ -14,7 +15,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using HOI_Error_Tools.Logic.Analyzers.CountryDefine;
 using MessageBox = HandyControl.Controls.MessageBox;
 
 namespace HOI_Error_Tools;
@@ -125,7 +125,7 @@ public partial class MainWindowModel : ObservableObject
             errorList.AddRange(error);
         }
         errorList.AddRange(GameResources.ErrorMessages);
-        
+
         WeakReferenceMessenger.Default.Send(new ValueChangedMessage<IImmutableList<ErrorMessage>>(errorList.ToImmutable()));
     }
 }

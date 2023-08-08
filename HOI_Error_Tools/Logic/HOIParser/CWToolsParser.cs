@@ -1,8 +1,8 @@
-﻿using System;
+﻿using CWTools.CSharp;
+using CWTools.Process;
+using System;
 using System.IO;
 using System.Text;
-using CWTools.CSharp;
-using CWTools.Process;
 
 namespace HOI_Error_Tools.Logic.HOIParser;
 
@@ -25,7 +25,7 @@ public class CWToolsParser
     /// <exception cref="FileNotFoundException">如果文件不存在</exception>
     public CWToolsParser(string filePath)
     {
-        FilePath = File.Exists(filePath) ? filePath : throw new FileNotFoundException($"找不到文件: {filePath}" , filePath);
+        FilePath = File.Exists(filePath) ? filePath : throw new FileNotFoundException($"找不到文件: {filePath}", filePath);
         var fileName = Path.GetFileName(filePath);
         var result = Parsers.ParseScriptFile(fileName, File.ReadAllText(filePath));
         IsSuccess = result.IsSuccess;

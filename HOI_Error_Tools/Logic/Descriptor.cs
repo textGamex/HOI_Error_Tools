@@ -1,10 +1,10 @@
-﻿using System.IO;
+﻿using HOI_Error_Tools.Logic.Analyzers;
+using HOI_Error_Tools.Logic.CustomException;
+using HOI_Error_Tools.Logic.HOIParser;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
-using HOI_Error_Tools.Logic.HOIParser;
-using HOI_Error_Tools.Logic.CustomException;
-using HOI_Error_Tools.Logic.Analyzers;
 
 namespace HOI_Error_Tools.Logic;
 
@@ -44,7 +44,7 @@ public class Descriptor
         }
 
         var replacePathsBuilder = ImmutableHashSet.CreateBuilder<string>();
-        
+
         var root = parser.GetResult();
         var result = root.Leaves;
 

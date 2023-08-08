@@ -111,6 +111,7 @@ public sealed class GameResourcesPath
     /// <exception cref="DirectoryNotFoundException"></exception>
     private IEnumerable<string> GetAllFilePriorModByRelativePathForFolder(string folderRelativePath)
     {
+        Logger.Debug("正在加载文件夹: {Path}", folderRelativePath);
         var modFolder = Path.Combine(ModRootPath, folderRelativePath);
         var gameFolder = Path.Combine(GameRootPath, folderRelativePath);
 

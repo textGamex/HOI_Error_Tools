@@ -8,7 +8,7 @@ public class LeafValueContent
     public string Value { get; }
     public Position Position { get; }
 
-    private LeafValueContent(string value, Position position)
+    public LeafValueContent(string value, Position position)
     {
         Value = value;
         Position = position;

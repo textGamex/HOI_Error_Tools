@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using HOI_Error_Tools.Logic.Analyzers.Common;
+using System.Collections.Generic;
 using System.Windows;
-using HOI_Error_Tools.Logic.Analyzers.Common;
-using HOI_Error_Tools.Logic.Analyzers.Error;
 
 namespace HOI_Error_Tools.View;
 

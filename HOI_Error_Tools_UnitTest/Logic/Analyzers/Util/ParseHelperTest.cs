@@ -26,5 +26,5 @@ public class ParseHelperTest
             That(result, Is.EqualTo(enumerable));
         });
     }
-    
+
 }
