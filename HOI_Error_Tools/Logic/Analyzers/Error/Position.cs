@@ -55,6 +55,6 @@ public class Position : IEquatable<Position>
 
     public override string ToString()
     {
-        return $"{nameof(Line)}: {Line}";
+        return $"{nameof(Line)}={Line}";
     }
 }

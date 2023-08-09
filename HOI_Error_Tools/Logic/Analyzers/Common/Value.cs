@@ -101,6 +101,6 @@ public class Value : IEquatable<Value>
 
     public override string ToString()
     {
-        return $"{nameof(Text)}={Text}, Type={_type}";
+        return $"[{nameof(Text)}={Text}, Type={_type}]";
     }
 }

@@ -27,6 +27,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
     private readonly IReadOnlySet<string> _resourcesTypeSet;
     private readonly IReadOnlySet<string> _registeredStateCategories;
     private readonly IReadOnlySet<string> _registeredCountriesTag;
+    private string FileName => Path.GetFileNameWithoutExtension(_filePath);
 
     private static readonly ConcurrentDictionary<uint, ParameterFileInfo> ExistingIds = new();
 
@@ -34,7 +35,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
     /// 已经分配的 Provinces, 用于检查重复分配错误
     /// </summary>
     private static readonly ConcurrentDictionary<uint, ParameterFileInfo> ExistingProvinces = new();
-
+        
     public StateFileAnalyzer(string filePath, GameResources resources) 
     {
         _filePath = filePath;
@@ -119,7 +120,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                     _filePath, 
                     provinceIdLeafValue.Position,
-                    $"Province '{provinceIdLeafValue}' 未分配在 State '{Path.GetFileNameWithoutExtension(_filePath)}' 中, 但却在此地有 VictoryPoints", 
+                    $"Province '{provinceIdLeafValue.ValueText}' 未分配在 State '{FileName}' 中, 但却在此地有 VictoryPoints", 
                     ErrorLevel.Warn));
             }
         }
@@ -150,7 +151,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
             if (!provinceInStateSet.Contains(provinceIdText))
             {
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    _filePath, position, $"Province '{provinceId}' 未分配在此 State 中, 但却在此地有 Province 建筑"));
+                    _filePath, position, $"Province '{provinceId}' 未分配在 State '{FileName}' 中, 但却在此地有 Province 建筑"));
             }
         }
         return errorList;
@@ -376,7 +377,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
                 new (_filePath, position),
                 new (infoOfExistingValue.FilePath, infoOfExistingValue.Position)
             };
-            errorList.Add(new ErrorMessage(fileInfo, "Province 在文件中重复分配", ErrorLevel.Error));
+            errorList.Add(new ErrorMessage(fileInfo, $"Province '{provinceId}' 在不同文件中重复分配", ErrorLevel.Error));
         }
         
         return errorList;
@@ -430,7 +431,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
             if (buildingInfo != null && level > buildingInfo.MaxLevel)
             {
                 errorMessages.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    _filePath, building.Position, $"建筑等级 '{level}' 超出范围 [{buildingInfo.MaxLevel}]"));
+                    _filePath, building.Position, $"建筑物 '{buildingType}' 等级 [{level}] 超出范围 [{buildingInfo.MaxLevel}]"));
             }
         }
         errorMessages.AddRange(GetErrorOfRepeatedBuildingsType(existingBuildings));

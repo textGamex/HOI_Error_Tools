@@ -47,7 +47,8 @@ public partial class MainWindowModel : ObservableObject
         PropertyChanged += MainWindowModel_OnPropertyChanged;
 #if DEBUG
         GameRootPath = @"D:\STEAM\steamapps\common\Hearts of Iron IV";
-        ModRootPath = @"D:\STEAM\steamapps\workshop\content\394360\2171092591";
+        //ModRootPath = @"D:\STEAM\steamapps\workshop\content\394360\2171092591"; // 碧蓝航线
+        ModRootPath = @"D:\STEAM\steamapps\workshop\content\394360\2820469328"; // 明日方舟
 #endif
     }
 
@@ -92,7 +93,7 @@ public partial class MainWindowModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task ClickStartButton()
+    private void ClickStartButton()
     {
         if (string.IsNullOrEmpty(GameRootPath) || string.IsNullOrEmpty(ModRootPath))
         {
@@ -103,7 +104,7 @@ public partial class MainWindowModel : ObservableObject
         StartParseButtonText = "分析中, 请稍等...";
         LoadingCircleIsRunning = true;
 
-        await StartAnalyzersAsync().ConfigureAwait(false);
+        StartAnalyzersAsync();
     }
 
     private async Task StartAnalyzersAsync()
