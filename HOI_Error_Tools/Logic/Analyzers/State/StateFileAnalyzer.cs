@@ -465,6 +465,11 @@ public partial class StateFileAnalyzer : AnalyzerBase
         }
         var errorList = new List<ErrorMessage>();
 
+        if (model.ResourceNodes.Count > 1)
+        {
+            errorList.Add(ErrorMessageFactory.CreateSingleFileError(_filePath, "战略资源应在同一个块中声明", ErrorLevel.Tip));
+        }
+
         foreach (var resourceNode in model.ResourceNodes)
         {
             foreach (var resourceLeaf in resourceNode.Leaves)
