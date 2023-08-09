@@ -2,7 +2,6 @@
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Forms;
 
 namespace HOI_Error_Tools.Logic.Analyzers.Util;
 
@@ -28,10 +27,10 @@ public sealed class AnalyzerHelper
     /// <param name="enumerable"></param>
     /// <param name="keyword"></param>
     /// <returns></returns>
-    public IEnumerable<ErrorMessage> AssertKeywordIsOnly<T>(IReadOnlyCollection<(T, Position)> enumerable, string keyword)
+    public IEnumerable<ErrorMessage> AssertKeywordIsOnly(IReadOnlyCollection<LeafContent> enumerable, string keyword)
     {
         return enumerable.Count > 1
-            ? new[] { new ErrorMessage(enumerable.Select(item => new ParameterFileInfo(_filePath, item.Item2)), $"重复的 '{keyword}' 关键字", ErrorLevel.Error) }
+            ? new[] { new ErrorMessage(enumerable.Select(item => new ParameterFileInfo(_filePath, item.Position)), $"重复的 '{keyword}' 关键字", ErrorLevel.Error) }
             : Enumerable.Empty<ErrorMessage>();
     }
 

@@ -66,7 +66,9 @@ public partial class StateFileAnalyzer : AnalyzerBase
             return errorList;
         }
 
-        var provinceInStateSet = stateModel.Provinces.Select(x => x.ProvinceId).ToHashSet();
+        var provinceInStateSet = stateModel.Provinces
+            .SelectMany(leafNode => leafNode.LeafValueContents.Select(leafValue => leafValue.ValueText))
+            .ToHashSet();
 
         errorList.AddRange(AnalyzeId(stateModel));
         errorList.AddRange(AnalyzeName(stateModel));
@@ -87,35 +89,37 @@ public partial class StateFileAnalyzer : AnalyzerBase
     {
         var errorList = new List<ErrorMessage>();
         
-        foreach (var (victoryPoints, position) in model.VictoryPoints)
+        foreach (var node in model.VictoryPointNodes)
         {
+            var victoryPoints = node.LeafValueContents.ToList();
             if (victoryPoints.Count != 2)
             {
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    _filePath, position, "VictoryPoints 格式不正确"));
+                    _filePath, node.Position, "VictoryPoints 格式不正确"));
                 continue;
             }
 
-            if (!uint.TryParse(victoryPoints[1], out _))
+            var victoryPointValue = victoryPoints[1];
+            if (!victoryPointValue.Value.IsNumber || victoryPointValue.Value.IsNegativeNumber)
             {
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    _filePath, position, $"胜利点价值 '{victoryPoints[1]}' 无法转换为正整数"));
+                    _filePath, victoryPointValue.Position, $"胜利点价值 '{victoryPointValue.ValueText}' 无法转换为正整数"));
             }
 
-            var provinceIdText = victoryPoints[0];
-            if (!uint.TryParse(provinceIdText, out _))
+            var provinceIdLeafValue = victoryPoints[0];
+            if (!provinceIdLeafValue.Value.IsNumber || provinceIdLeafValue.Value.IsNegativeNumber)
             {
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    _filePath, position, $"ProvinceId '{provinceIdText}' 无法转换为正整数"));
+                    _filePath, provinceIdLeafValue.Position, $"ProvinceId '{provinceIdLeafValue.ValueText}' 无法转换为正整数"));
                 continue;
             }
 
-            if (!provinceInStateSet.Contains(provinceIdText))
+            if (!provinceInStateSet.Contains(provinceIdLeafValue.ValueText))
             {
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                     _filePath, 
-                    position, 
-                    $"Province '{provinceIdText}' 未分配在 State '{Path.GetFileNameWithoutExtension(_filePath)}' 中, 但却在此地有 VictoryPoints", 
+                    provinceIdLeafValue.Position,
+                    $"Province '{provinceIdLeafValue}' 未分配在 State '{Path.GetFileNameWithoutExtension(_filePath)}' 中, 但却在此地有 VictoryPoints", 
                     ErrorLevel.Warn));
             }
         }
@@ -156,12 +160,13 @@ public partial class StateFileAnalyzer : AnalyzerBase
     {
         var errorList = new List<ErrorMessage>(3);
 
-        foreach (var (tag, position) in model.HasCoreTags)
+        foreach (var leaf in model.HasCoreTags)
         {
+            var tag = leaf.ValueText;
             if (!_registeredCountriesTag.Contains(tag))
             {
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    _filePath, position, $"国家Tag '{tag}' 未注册"));
+                    _filePath, leaf.Position, $"国家Tag '{tag}' 未注册"));
             }
         }
 
@@ -179,12 +184,13 @@ public partial class StateFileAnalyzer : AnalyzerBase
             return errorList;
         }
 
-        foreach (var (owner, position) in model.Owners)
+        foreach (var ownerLeaf in model.Owners)
         {
+            var owner = ownerLeaf.ValueText;
             if (!_registeredCountriesTag.Contains(owner))
             {
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    _filePath, position, $"国家Tag '{owner}' 未注册"));
+                    _filePath, ownerLeaf.Position, $"国家Tag '{owner}' 未注册"));
             }
         }
 
@@ -203,12 +209,12 @@ public partial class StateFileAnalyzer : AnalyzerBase
             return errorList;
         }
 
-        foreach (var (idText, position) in model.Ids)
+        foreach (var idLeaf in model.Ids)
         {
+            var idText = idLeaf.ValueText;
             if (!uint.TryParse(idText, out var id))
             {
-                errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    _filePath, position, $"Id '{idText}' 无法转换为正整数"));
+                errorList.Add(ErrorMessageFactory.CreateFailedStringToIntErrorMessage(_filePath, idLeaf));
                 continue;
             }
 
@@ -217,14 +223,14 @@ public partial class StateFileAnalyzer : AnalyzerBase
                 var fileInfo = new List<ParameterFileInfo>()
                 {
                     existingIdOfFileInfo,
-                    new (_filePath, position)
+                    new (_filePath, idLeaf.Position)
                 };
                 
                 errorList.Add(new ErrorMessage(fileInfo, $"Id '{id}' 重复定义", ErrorLevel.Error));
             }
             else
             {
-                bool result = ExistingIds.TryAdd(id, new ParameterFileInfo(_filePath, position));
+                bool result = ExistingIds.TryAdd(id, new ParameterFileInfo(_filePath, idLeaf.Position));
                 Debug.Assert(result, $"{nameof(ExistingIds)} 添加元素失败");
             }
         }
@@ -258,13 +264,13 @@ public partial class StateFileAnalyzer : AnalyzerBase
             return errorList;
         }
 
-        foreach (var (manpowerText, position) in model.Manpowers)
+        foreach (var manpowerLeaf in model.Manpowers)
         {
+            var manpowerText = manpowerLeaf.ValueText;
             //TODO: manpower 的最大值是多少?
-            if (!uint.TryParse(manpowerText, out _))
+            if (!manpowerLeaf.Value.IsInt)
             {
-                errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    _filePath, position, $"Manpower '{manpowerText}' 无法转换为正整数"));
+                errorList.Add(ErrorMessageFactory.CreateFailedStringToIntErrorMessage(_filePath, manpowerLeaf));
             }
         }
 
@@ -282,12 +288,13 @@ public partial class StateFileAnalyzer : AnalyzerBase
             return errorList;
         }
 
-        foreach (var (type, position) in model.StateCategories)
+        foreach (var stateCategoryLeaf in model.StateCategories)
         {
+            var type = stateCategoryLeaf.ValueText;
             if (!_registeredStateCategories.Contains(type))
             {
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    _filePath, position, $"StateCategory 类型 '{type}' 未注册"));
+                    _filePath, stateCategoryLeaf.Position, $"StateCategory 类型 '{type}' 未注册"));
             }
         }
 
@@ -312,16 +319,20 @@ public partial class StateFileAnalyzer : AnalyzerBase
             return errorList;
         }
 
-        var provinces = new List<(uint, Position)>();
-        foreach (var (provinceIdText, position) in model.Provinces)
+        var provinces = new List<(uint, Position)>(16);
+        foreach (var leafValueNode in model.Provinces)
         {
-            if (!uint.TryParse(provinceIdText, out var provinceId))
+            foreach (var provinceIdLeafValue in leafValueNode.LeafValueContents)
             {
-                errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                                       _filePath, position, $"Province '{provinceIdText}' 无法转换为正整数"));
-                continue;
+                var provinceIdText = provinceIdLeafValue.ValueText;
+                if (!provinceIdLeafValue.Value.IsInt)
+                {
+                    errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                        _filePath, provinceIdLeafValue.Position, $"Province '{provinceIdText}' 无法转换为正整数"));
+                    continue;
+                }
+                provinces.Add((uint.Parse(provinceIdText), provinceIdLeafValue.Position));
             }
-            provinces.Add((provinceId, position));
         }
         errorList.AddRange(AssertProvincesIsRegistered(provinces));
         errorList.AddRange(AssertProvincesNotRepeat(provinces));
@@ -390,7 +401,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
         foreach (var building in buildings)
         {
             var buildingType = building.Key;
-            var levelText = building.Value;
+            var levelText = building.ValueText;
             if (existingBuildings.TryGetValue(buildingType, out var list))
             {
                 list.Add(building.Position);
@@ -448,28 +459,32 @@ public partial class StateFileAnalyzer : AnalyzerBase
     /// <returns></returns>
     private IEnumerable<ErrorMessage> AssertResourcesTypeIsRegistered(StateModel model)
     {
-        if (model.Resources.Count == 0)
+        if (model.ResourceNodes.Count == 0)
         {
             return Enumerable.Empty<ErrorMessage>();
         }
-        var errorMessages = new List<ErrorMessage>();
+        var errorList = new List<ErrorMessage>();
 
-        foreach (var (resourceType, amountText, position) in model.Resources)
+        foreach (var resourceNode in model.ResourceNodes)
         {
-            if (!_resourcesTypeSet.Contains(resourceType))
+            foreach (var resourceLeaf in resourceNode.Leaves)
             {
-                errorMessages.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                                       _filePath, position, $"战略资源类型 '{resourceType}' 不存在"));
-            }
+                var resourceType = resourceLeaf.Key;
+                var amount = resourceLeaf.ValueText;
+                if (!_resourcesTypeSet.Contains(resourceType))
+                {
+                    errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                        _filePath, resourceLeaf.Position, $"战略资源类型 '{resourceType}' 不存在"));
+                }
 
-            if (!uint.TryParse(amountText, out _))
-            {
-                errorMessages.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    _filePath, position, $"战略资源数量 '{amountText}' 无法转换为整数"));
+                if (!resourceLeaf.Value.IsNumber || resourceLeaf.Value.IsNegativeNumber)
+                {
+                    errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                        _filePath, resourceLeaf.Position, $"战略资源数量 '{amount}' 无法转换为非负整数"));
+                }
             }
         }
-
-        return errorMessages;
+        return errorList;
     }
 
     public static void Clear()

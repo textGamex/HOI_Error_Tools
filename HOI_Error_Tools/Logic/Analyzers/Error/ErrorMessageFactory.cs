@@ -20,4 +20,9 @@ public static class ErrorMessageFactory
     {
         return CreateSingleFileErrorWithPosition(filePath, new Position(error), $"文件 '{Path.GetFileNameWithoutExtension(filePath)}' 解析错误");
     }
+
+    public static ErrorMessage CreateFailedStringToIntErrorMessage(string filePath, LeafContent leaf)
+    {
+        return CreateSingleFileErrorWithPosition(filePath, leaf.Position, $"{leaf.Key} '{leaf.ValueText}' 无法转换为整数");
+    }
 }

@@ -6,15 +6,23 @@ namespace HOI_Error_Tools.Logic.Analyzers.Common;
 public class LeafContent : IEquatable<LeafContent>
 {
     public string Key { get; }
-    public string Value { get; }
+    public Value Value { get; }
+    public string ValueText => Value.Text;
     public Position Position { get; }
 
     public static LeafContent FromCWToolsLeaf(CWTools.Process.Leaf leaf)
     {
-        return new LeafContent(leaf.Key, leaf.ValueText, new Position(leaf.Position));
+        return new LeafContent(leaf.Key, Value.FromCWToolsValue(leaf.Value), new Position(leaf.Position));
     }
 
-    public LeafContent(string key, string value, Position position)
+    public LeafContent(string key, string valueText, Position position)
+    {
+        Key = key;
+        Value = Value.FromString(valueText);
+        Position = position;
+    }
+
+    private LeafContent(string key, Value value, Position position)
     {
         Key = key;
         Value = value;
@@ -25,7 +33,7 @@ public class LeafContent : IEquatable<LeafContent>
     {
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;
-        return Key == other.Key && Value == other.Value && Position.Equals(other.Position);
+        return Key == other.Key && Value == other.Value && Position == other.Position;
     }
 
     public override bool Equals(object? obj)
@@ -53,6 +61,6 @@ public class LeafContent : IEquatable<LeafContent>
 
     public override string ToString()
     {
-        return $"{nameof(Key)}={Key}, {nameof(Value)}={Value}, {nameof(Position)}={Position}";
+        return $"{nameof(Key)}={Key}, {nameof(ValueText)}={ValueText}, {nameof(Position)}={Position}";
     }
 }

@@ -5,10 +5,11 @@ namespace HOI_Error_Tools.Logic.Analyzers.Common;
 
 public class LeafValueContent
 {
-    public string Value { get; }
+    public Value Value { get; }
+    public string ValueText => Value.Text;
     public Position Position { get; }
 
-    public LeafValueContent(string value, Position position)
+    private LeafValueContent(Value value, Position position)
     {
         Value = value;
         Position = position;
@@ -16,7 +17,7 @@ public class LeafValueContent
 
     public static LeafValueContent FromCWToolsLeafValue(LeafValue leafValue)
     {
-        return new LeafValueContent(leafValue.Key, new Position(leafValue.Position));
+        return new LeafValueContent(Value.FromCWToolsValue(leafValue.Value), new Position(leafValue.Position));
     }
 
     public override string ToString()

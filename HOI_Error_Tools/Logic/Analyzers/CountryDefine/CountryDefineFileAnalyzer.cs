@@ -69,16 +69,24 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
             {
                 continue;
             }
-            if (!_registeredIdeologies.Contains(rulingParty.Value))
+
+            if (!rulingParty.Value.IsString)
             {
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    _filePath, rulingParty.Position, $"意识形态 '{rulingParty.Value}' 未定义"));
+                    _filePath, rulingParty.Position, $"'ruling_party' 的值 '{rulingParty.ValueText}' 不是预期的"));
+                continue;
             }
 
-            if (!model.SetPopularitiesList.Any(node => node.Leaves.Any(leaf => leaf.Key == rulingParty.Value)))
+            if (!_registeredIdeologies.Contains(rulingParty.ValueText))
             {
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    _filePath, rulingParty.Position, $"执政党 '{rulingParty.Value}' 未在 'set_popularities' 中设置支持率"));
+                    _filePath, rulingParty.Position, $"意识形态 '{rulingParty.ValueText}' 未定义"));
+            }
+
+            if (!model.SetPopularitiesList.Any(node => node.Leaves.Any(leaf => leaf.Key == rulingParty.ValueText)))
+            {
+                errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                    _filePath, rulingParty.Position, $"执政党 '{rulingParty.ValueText}' 未在 'set_popularities' 中设置支持率"));
             }
         }
         return errorList;
@@ -109,10 +117,10 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
         {
             foreach (var idea in ideasNode.LeafValueContents)
             {
-                if (!_registeredIdeas.Contains(idea.Value))
+                if (!_registeredIdeas.Contains(idea.ValueText))
                 {
                     errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                        _filePath, idea.Position, $"Idea '{idea.Value}' 未定义"));
+                        _filePath, idea.Position, $"Idea '{idea.ValueText}' 未定义"));
                 }
             }
         }
@@ -136,7 +144,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
             foreach (var popularity in popularities.Leaves)
             {
                 var ideologiesName = popularity.Key;
-                var proportionText = popularity.Value;
+                var proportionText = popularity.ValueText;
                 if (!_registeredIdeologies.Contains(ideologiesName))
                 {
                     errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(

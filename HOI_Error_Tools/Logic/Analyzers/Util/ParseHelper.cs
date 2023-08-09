@@ -9,30 +9,30 @@ namespace HOI_Error_Tools.Logic.Analyzers.Util;
 public static class ParseHelper
 {
     /// <summary>
-    /// 获得当前 Node 所有指定 LeafContent 的 ValueText.
+    /// 获得当前 Node 所有拥有指定 key 的 LeafContent
     /// </summary>
     /// <param name="key"></param>
     /// <param name="node"></param>
     /// <returns></returns>
-    public static IEnumerable<(string ValueOfLeaf, Position)> GetLeavesValue(string key, Node node)
+    public static IEnumerable<LeafContent> GetLeavesValue(Node node, string key)
     {
         return node.Leafs(key)
-            .Select(leaf => (leaf.ValueText, new Position(leaf.Position)));
+            .Select(LeafContent.FromCWToolsLeaf);
     }
 
     /// <summary>
-    /// 获得当前 Node 所有 Leaf 的 Key 和 ValueText.
+    /// 获得当前 Node 所有 LeafContent.
     /// </summary>
     /// <param name="node"></param>
     /// <returns></returns>
-    public static IEnumerable<LeafContent> GetLeavesKeyValuePairs(Node node)
+    public static IEnumerable<LeafContent> GetLeavesKeyValuePairsInNode(Node node)
     {
         return node.Leaves
             .Select(LeafContent.FromCWToolsLeaf);
     }
 
     /// <summary>
-    /// 获得 root Node 中所有指定 Node 的所有 Leaf 的 Key 和 ValueText, 包括 If 语句中的 Node.
+    /// 获得 root Node 中所有指定 Node 的所有 LeafContent, 包括 If 语句中的 Node.
     /// </summary>
     /// <param name="rootNode"></param>
     /// <param name="nodeKey"></param>
@@ -40,7 +40,7 @@ public static class ParseHelper
     public static IEnumerable<LeavesNode> GetAllLeafKeyAndValueInAllNode(Node rootNode, string nodeKey)
     {
         var nodeList = GetAllNodeInAll(rootNode, nodeKey);
-        return nodeList.Select(node => new LeavesNode(GetLeavesKeyValuePairs(node), new Position(node.Position))).ToList();
+        return nodeList.Select(node => new LeavesNode(GetLeavesKeyValuePairsInNode(node), new Position(node.Position))).ToList();
     }
 
     private static IEnumerable<Node> GetAllNodeInAll(Node rootNode, string keyword)
@@ -79,6 +79,12 @@ public static class ParseHelper
         return result;
     }
 
+    /// <summary>
+    /// 获得所有指定 Node 的所有 LeafValueContent, 包括 If 语句中的 Node.
+    /// </summary>
+    /// <param name="rootNode"></param>
+    /// <param name="keyword"></param>
+    /// <returns></returns>
     public static IEnumerable<LeafValueNode> GetLeafValueNodesInAllNode(Node rootNode, string keyword)
     {
         var list = new List<LeafValueNode>(16);
@@ -89,7 +95,10 @@ public static class ParseHelper
             {
                 continue;
             }
-            list.Add(new LeafValueNode(node.LeafValues.Select(LeafValueContent.FromCWToolsLeafValue), new Position(node.Position)));
+            list.Add(new LeafValueNode(
+                node.Key, 
+                node.LeafValues.Select(LeafValueContent.FromCWToolsLeafValue),
+                new Position(node.Position)));
         }
         return list;
     }
