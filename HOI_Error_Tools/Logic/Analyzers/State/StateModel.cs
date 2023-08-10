@@ -64,10 +64,10 @@ public partial class StateFileAnalyzer
                 var buildingsNode = historyNode.Child(ScriptKeyWords.Buildings).Value;
                 foreach (var provinceNode in buildingsNode.Nodes)
                 {
-                    var provinceBuildings = ParseHelper.GetLeavesKeyValuePairsInNode(provinceNode).ToList();
+                    var provinceBuildings = ParseHelper.GetAllLeafContentInCurrentNode(provinceNode).ToList();
                     buildingsByProvince.Add((provinceNode.Key, provinceBuildings, new Position(provinceNode.Position)));
                 }
-                Buildings = ParseHelper.GetLeavesKeyValuePairsInNode(buildingsNode).ToList();
+                Buildings = ParseHelper.GetAllLeafContentInCurrentNode(buildingsNode).ToList();
             }
 
             BuildingsByProvince = buildingsByProvince;

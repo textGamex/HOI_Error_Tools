@@ -14,7 +14,6 @@ public class Value : IEquatable<Value>
     public bool IsNegativeNumber => IsNumber && Text.StartsWith('-');
     public Types Type { get; }
 
-
     private Value(string text, Types type)
     {
         Text = text;

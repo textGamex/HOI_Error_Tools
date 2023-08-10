@@ -15,13 +15,15 @@ public partial class CountryDefineFileAnalyzer
 
         public IReadOnlyList<LeavesNode> SetPoliticsList { get; }
         public IReadOnlyList<LeafContent> Capitals { get; }
+        public IReadOnlyList<LeafContent> Puppets { get; }
 
         public CountryDefineFileModel(Node rootNode)
         {
             SetPopularitiesList = ParseHelper.GetAllLeafKeyAndValueInAllNode(rootNode, "set_popularities").ToList();
             OwnIdeaNodes = ParseHelper.GetLeafValueNodesInAllNode(rootNode, "add_ideas").ToList();
             SetPoliticsList = ParseHelper.GetAllLeafKeyAndValueInAllNode(rootNode, "set_politics").ToList();
-            Capitals = ParseHelper.GetLeafContents(rootNode, "capital").ToList();
+            Capitals = ParseHelper.GetLeafContentsInAllChildren(rootNode, "capital").ToList();
+            Puppets = ParseHelper.GetLeafContentsInAllChildren(rootNode, "puppet").ToList();
         }
     }
 }
