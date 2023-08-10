@@ -25,4 +25,9 @@ public static class ErrorMessageFactory
     {
         return CreateSingleFileErrorWithPosition(filePath, leaf.Position, $"{leaf.Key} '{leaf.ValueText}' 无法转换为整数");
     }
+
+    public static ErrorMessage CreateInvalidValueErrorMessage(string filePath, LeafContent leaf, string expectedValueType)
+    {
+        return CreateSingleFileErrorWithPosition(filePath, leaf.Position, $"{leaf.Key}的值 '{leaf.ValueText}' 不是有效的, 应该是 '{expectedValueType}' 类型");
+    }
 }

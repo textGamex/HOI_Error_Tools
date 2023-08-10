@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.Util;
@@ -47,12 +47,12 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
     private IEnumerable<ErrorMessage> AnalyzePolitics(CountryDefineFileModel model)
     {
         var errorList = new List<ErrorMessage>();
-        var keySet = new HashSet<string>(4)
+        var keyMap = new Dictionary<string, Value.Types>(4)
         {
-            "ruling_party",
-            "last_election",
-            "election_frequency",
-            "elections_allowed"
+            { "ruling_party", Value.Types.String },
+            { "last_election", Value.Types.Date },
+            { "election_frequency", Value.Types.Integer },
+            { "elections_allowed", Value.Types.Boolean }
         };
         var errorMessage = _helper.AssertExistKeyword(model.SetPoliticsList, "set_politics", ErrorLevel.Warn);
         if (errorMessage is not null)
@@ -63,17 +63,18 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
 
         foreach (var leavesNode in model.SetPoliticsList)
         {
-            errorList.AddRange(_helper.AssertKeywordsIsValid(leavesNode, keySet));
+            errorList.AddRange(_helper.AssertKeywordsIsValid(leavesNode, keyMap.Keys.ToHashSet()));
+            errorList.AddRange(_helper.AssertValueTypeIsExpected(leavesNode, keyMap));
+
             var rulingParty = TryGetLeafContent(leavesNode, "ruling_party");
             if (rulingParty is null)
             {
                 continue;
             }
-
             if (!rulingParty.Value.IsString)
             {
-                errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    _filePath, rulingParty.Position, $"'ruling_party' 的值 '{rulingParty.ValueText}' 不是预期的"));
+                errorList.Add(ErrorMessageFactory.CreateInvalidValueErrorMessage(
+                    _filePath, rulingParty, Enum.GetName(Value.Types.String) ?? string.Empty));
                 continue;
             }
 
@@ -97,18 +98,18 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
         return node.Leaves.FirstOrDefault(leafContent => leafContent.Key == key);
     }
 
-    private IEnumerable<ErrorMessage> AnalyzePoliticsKeywords(LeavesNode node, IEnumerable<string> keywords)
-    {
-        foreach (var keyword in keywords)
-        {
-            var leaf = node.Leaves.FirstOrDefault(l => l.Key == keyword);
-            if (leaf is null)
-            {
-                yield return ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    _filePath, node.Position, $"缺少关键字 '{keyword}'");
-            }
-        }
-    }
+    //private IEnumerable<ErrorMessage> AnalyzePoliticsKeywords(LeavesNode node, IEnumerable<string> keywords)
+    //{
+    //    foreach (var keyword in keywords)
+    //    {
+    //        var leaf = node.Leaves.FirstOrDefault(l => l.Key == keyword);
+    //        if (leaf is null)
+    //        {
+    //            yield return ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+    //                _filePath, node.Position, $"缺少关键字 '{keyword}'");
+    //        }
+    //    }
+    //}
 
     private IEnumerable<ErrorMessage> AnalyzeIdeas(CountryDefineFileModel model)
     {
@@ -151,12 +152,13 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
                         _filePath, popularity.Position, $"未注册的意识形态 '{ideologiesName}'"));
                 }
 
-                if (!uint.TryParse(proportionText, out var proportion))
+                if (!popularity.Value.IsInt)
                 {
                     errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                         _filePath, popularity.Position, $"'{proportionText}' 无法转化为整数"));
+                    continue;
                 }
-                sum += proportion;
+                sum += uint.Parse(proportionText);
             }
 
             if (sum != 100)

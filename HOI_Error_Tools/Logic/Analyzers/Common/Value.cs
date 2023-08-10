@@ -5,24 +5,31 @@ namespace HOI_Error_Tools.Logic.Analyzers.Common;
 public class Value : IEquatable<Value>
 {
     public string Text { get; }
-    public bool IsInt => _type == ValueType.Int;
-    public bool IsBoolean => _type == ValueType.Boolean;
-    public bool IsString => _type == ValueType.String;
-    public bool IsFloat => _type == ValueType.Float;
-    public bool IsNumber => _type is ValueType.Int or ValueType.Float;
+    public bool IsInt => Type == Types.Integer;
+    public bool IsBoolean => Type == Types.Boolean;
+    public bool IsString => Type == Types.String;
+    public bool IsFloat => Type == Types.Float;
+    public bool IsDate => Type == Types.Date;
+    public bool IsNumber => Type is Types.Integer or Types.Float;
     public bool IsNegativeNumber => IsNumber && Text.StartsWith('-');
+    public Types Type { get; }
 
-    private readonly ValueType _type;
 
-    private Value(string text, ValueType type)
+    private Value(string text, Types type)
     {
         Text = text;
-        _type = type;
+        Type = type;
     }
 
     public static Value FromCWToolsValue(CWTools.Parser.Types.Value value)
     {
-        return new Value(value.ToRawString(), GetValueTypeFromValueTag(value.Tag));
+        var valueType = GetValueTypeFromValueTag(value.Tag);
+        var text = value.ToRawString();
+        if (valueType == Types.String)
+        {
+            valueType = IsDateString(text) ? Types.Date : valueType;
+        }
+        return new Value(text, valueType);
     }
 
     public static Value FromString(string text)
@@ -30,50 +37,60 @@ public class Value : IEquatable<Value>
         return new Value(text, GetValueTypeFromString(text));
     }
 
-    private static ValueType GetValueTypeFromString(string text)
+    private static Types GetValueTypeFromString(string text)
     {
         if (int.TryParse(text, out _))
         {
-            return ValueType.Int;
+            return Types.Integer;
         }
         else if (float.TryParse(text, out _))
         {
-            return ValueType.Float;
+            return Types.Float;
         }
         else if (text is "yes" or "no")
         {
-            return ValueType.Boolean;
+            return Types.Boolean;
+        }
+        else if (IsDateString(text))
+        {
+            return Types.Date;
         }
         else
         {
-            return ValueType.String;
+            return Types.String;
         }
     }
 
-    private static ValueType GetValueTypeFromValueTag(int valueTag) => valueTag switch
+    private static Types GetValueTypeFromValueTag(int valueTag) => valueTag switch
     {
-       0 => ValueType.String,
-       1 => ValueType.String,
-       2 => ValueType.Float,
-       3 => ValueType.Int,
-       4 => ValueType.Boolean,
+       0 => Types.String,
+       1 => Types.String,
+       2 => Types.Float,
+       3 => Types.Integer,
+       4 => Types.Boolean,
        _ => throw new ArgumentOutOfRangeException(nameof(valueTag), valueTag, null)
     };
     
 
-    private enum ValueType : byte
+    public enum Types : byte
     {
-        Int,
+        Integer,
         Boolean,
         String,
-        Float
+        Float,
+        Date
+    }
+
+    private static bool IsDateString(string text)
+    {
+        return DateTime.TryParse(text, out _);
     }
 
     public bool Equals(Value? other)
     {
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;
-        return _type == other._type && Text == other.Text;
+        return Type == other.Type && Text == other.Text;
     }
 
     public override bool Equals(object? obj)
@@ -86,7 +103,7 @@ public class Value : IEquatable<Value>
 
     public override int GetHashCode()
     {
-        return HashCode.Combine((int)_type, Text);
+        return HashCode.Combine((int)Type, Text);
     }
 
     public static bool operator ==(Value? left, Value? right)
@@ -101,6 +118,6 @@ public class Value : IEquatable<Value>
 
     public override string ToString()
     {
-        return $"[{nameof(Text)}={Text}, Type={_type}]";
+        return $"[{nameof(Text)}={Text}, Type={Type}]";
     }
 }

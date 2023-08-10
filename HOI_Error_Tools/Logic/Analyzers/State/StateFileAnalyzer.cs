@@ -86,6 +86,47 @@ public partial class StateFileAnalyzer : AnalyzerBase
         return errorList;
     }
 
+    private IEnumerable<ErrorMessage> AnalyzeId(StateModel model)
+    {
+        var errorList = new List<ErrorMessage>();
+        var errorMessage = _helper.AssertExistKeyword(model.Ids, ScriptKeyWords.Id);
+
+        if (errorMessage is not null)
+        {
+            errorList.Add(errorMessage);
+            return errorList;
+        }
+
+        foreach (var idLeaf in model.Ids)
+        {
+            var idText = idLeaf.ValueText;
+            if (!uint.TryParse(idText, out var id))
+            {
+                errorList.Add(ErrorMessageFactory.CreateFailedStringToIntErrorMessage(_filePath, idLeaf));
+                continue;
+            }
+
+            if (ExistingIds.TryGetValue(id, out var existingIdOfFileInfo))
+            {
+                var fileInfo = new List<ParameterFileInfo>()
+                {
+                    existingIdOfFileInfo,
+                    new (_filePath, idLeaf.Position)
+                };
+
+                errorList.Add(new ErrorMessage(fileInfo, $"Id '{id}' 重复定义", ErrorLevel.Error));
+            }
+            else
+            {
+                bool result = ExistingIds.TryAdd(id, new ParameterFileInfo(_filePath, idLeaf.Position));
+                Debug.Assert(result, $"{nameof(ExistingIds)} 添加元素失败");
+            }
+        }
+
+        errorList.AddRange(_helper.AssertKeywordIsOnly(model.Ids, ScriptKeyWords.Id));
+        return errorList;
+    }
+
     private IEnumerable<ErrorMessage> AnalyzeVictoryPoints(StateModel model, IReadOnlySet<string> provinceInStateSet)
     {
         var errorList = new List<ErrorMessage>();
@@ -199,47 +240,6 @@ public partial class StateFileAnalyzer : AnalyzerBase
         return errorList;
     }
 
-    private IEnumerable<ErrorMessage> AnalyzeId(StateModel model)
-    {
-        var errorList = new List<ErrorMessage>();
-        var errorMessage = _helper.AssertExistKeyword(model.Ids, ScriptKeyWords.Id);
-
-        if (errorMessage is not null)
-        {
-            errorList.Add(errorMessage);
-            return errorList;
-        }
-
-        foreach (var idLeaf in model.Ids)
-        {
-            var idText = idLeaf.ValueText;
-            if (!uint.TryParse(idText, out var id))
-            {
-                errorList.Add(ErrorMessageFactory.CreateFailedStringToIntErrorMessage(_filePath, idLeaf));
-                continue;
-            }
-
-            if (ExistingIds.TryGetValue(id, out var existingIdOfFileInfo))
-            {
-                var fileInfo = new List<ParameterFileInfo>()
-                {
-                    existingIdOfFileInfo,
-                    new (_filePath, idLeaf.Position)
-                };
-                
-                errorList.Add(new ErrorMessage(fileInfo, $"Id '{id}' 重复定义", ErrorLevel.Error));
-            }
-            else
-            {
-                bool result = ExistingIds.TryAdd(id, new ParameterFileInfo(_filePath, idLeaf.Position));
-                Debug.Assert(result, $"{nameof(ExistingIds)} 添加元素失败");
-            }
-        }
-
-        errorList.AddRange(_helper.AssertKeywordIsOnly(model.Ids, ScriptKeyWords.Id));
-        return errorList;
-    }
-
     private IEnumerable<ErrorMessage> AnalyzeName(StateModel model)
     {
         var errorList = new List<ErrorMessage>();
@@ -251,6 +251,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
             return errorList;
         }
 
+        errorList.AddRange(_helper.AssertValueTypeIsExpected(model.Names, Value.Types.String));
         errorList.AddRange(_helper.AssertKeywordIsOnly(model.Names, ScriptKeyWords.Name));
         return errorList;
     }
@@ -267,7 +268,6 @@ public partial class StateFileAnalyzer : AnalyzerBase
 
         foreach (var manpowerLeaf in model.Manpowers)
         {
-            var manpowerText = manpowerLeaf.ValueText;
             //TODO: manpower 的最大值是多少?
             if (!manpowerLeaf.Value.IsInt)
             {
@@ -297,6 +297,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                     _filePath, stateCategoryLeaf.Position, $"StateCategory 类型 '{type}' 未注册"));
             }
+            errorList.AddRange(_helper.AssertValueTypeIsExpected(stateCategoryLeaf, Value.Types.String));
         }
 
         errorList.AddRange(_helper.AssertKeywordIsOnly(model.StateCategories, ScriptKeyWords.StateCategory));

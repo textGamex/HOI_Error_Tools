@@ -1,4 +1,5 @@
-﻿using HOI_Error_Tools.Logic.Analyzers.Common;
+﻿using System;
+using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,5 +45,45 @@ public sealed class AnalyzerHelper
                     _filePath, leaf.Position, $"不应出现的关键字 '{leaf.Key}'");
             }
         }
+    }
+
+
+    public IEnumerable<ErrorMessage> AssertValueTypeIsExpected(LeavesNode node, IReadOnlyDictionary<string, Value.Types> map)
+    {
+        var errorList = new List<ErrorMessage>();
+
+        foreach (var (keyword, valueType) in map)
+        {
+            var leafContent = node.Leaves.FirstOrDefault(leaf => leaf.Key == keyword);
+            if (leafContent is not null && leafContent.Value.Type != valueType)
+            {
+                errorList.Add(ErrorMessageFactory.CreateInvalidValueErrorMessage(
+                    _filePath, leafContent, Enum.GetName(valueType) ?? string.Empty));
+            }
+        }
+
+        return errorList;
+    }
+
+    public IEnumerable<ErrorMessage> AssertValueTypeIsExpected(IEnumerable<LeafContent> leaves, Value.Types expectedType)
+    {
+        var list = new List<ErrorMessage>(3);
+        foreach (var leaf in leaves)
+        {
+            if (leaf.Value.Type != expectedType)
+            {
+                 list.Add(ErrorMessageFactory.CreateInvalidValueErrorMessage(
+                     _filePath, leaf, Enum.GetName(expectedType) ?? string.Empty));
+            }
+        }
+        return list;
+    }
+
+    public IEnumerable<ErrorMessage> AssertValueTypeIsExpected(LeafContent leaf, Value.Types expectedType)
+    {
+        return leaf.Value.Type == expectedType
+            ? Enumerable.Empty<ErrorMessage>()
+            : new[] { ErrorMessageFactory.CreateInvalidValueErrorMessage(
+                _filePath, leaf, Enum.GetName(expectedType) ?? string.Empty) };
     }
 }
