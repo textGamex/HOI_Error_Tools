@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
@@ -40,7 +42,25 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
         errorList.AddRange(AnalyzePopularities(model));
         errorList.AddRange(AnalyzeIdeas(model));
         errorList.AddRange(AnalyzePolitics(model));
+        errorList.AddRange(AnalyzeCapitals(model));
 
+        return errorList;
+    }
+
+    private IEnumerable<ErrorMessage> AnalyzeCapitals(CountryDefineFileModel model)
+    {
+        var errorList = new List<ErrorMessage>();
+        var errorMessage = _helper.AssertExistKeyword(model.Capitals, "capital");
+        if (errorMessage is not null)
+        {
+            errorList.Add(errorMessage);
+            return errorList;
+        }
+
+        // TODO: 未定义的首都 State
+
+        errorList.AddRange(_helper.AssertValueTypeIsExpected(model.Capitals, Value.Types.Integer));
+        errorList.AddRange(_helper.AssertKeywordIsOnly(model.Capitals, "capital"));
         return errorList;
     }
 

@@ -9,12 +9,12 @@ namespace HOI_Error_Tools.Logic.Analyzers.Util;
 public static class ParseHelper
 {
     /// <summary>
-    /// 获得当前 Node 所有拥有指定 key 的 LeafContent
+    /// 获得当前 Node 所有拥有指定 key 的 LeafContent.
     /// </summary>
     /// <param name="key"></param>
     /// <param name="node"></param>
     /// <returns></returns>
-    public static IEnumerable<LeafContent> GetLeavesValue(Node node, string key)
+    public static IEnumerable<LeafContent> GetLeafContents(Node node, string key)
     {
         return node.Leafs(key)
             .Select(LeafContent.FromCWToolsLeaf);

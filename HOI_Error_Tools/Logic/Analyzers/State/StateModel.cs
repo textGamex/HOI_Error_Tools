@@ -36,10 +36,10 @@ public partial class StateFileAnalyzer
             }
             var stateNode = rootNode.Child(ScriptKeyWords.State).Value;
 
-            Ids = ParseHelper.GetLeavesValue(stateNode, ScriptKeyWords.Id).ToList();
-            Manpowers = ParseHelper.GetLeavesValue(stateNode, ScriptKeyWords.Manpower).ToList();
-            Names = ParseHelper.GetLeavesValue(stateNode, ScriptKeyWords.Name).ToList();
-            StateCategories = ParseHelper.GetLeavesValue(stateNode, ScriptKeyWords.StateCategory).ToList();
+            Ids = ParseHelper.GetLeafContents(stateNode, ScriptKeyWords.Id).ToList();
+            Manpowers = ParseHelper.GetLeafContents(stateNode, ScriptKeyWords.Manpower).ToList();
+            Names = ParseHelper.GetLeafContents(stateNode, ScriptKeyWords.Name).ToList();
+            StateCategories = ParseHelper.GetLeafContents(stateNode, ScriptKeyWords.StateCategory).ToList();
 
             if (stateNode.Has(ScriptKeyWords.Resources))
             {
@@ -71,8 +71,8 @@ public partial class StateFileAnalyzer
             }
 
             BuildingsByProvince = buildingsByProvince;
-            Owners = ParseHelper.GetLeavesValue(historyNode, ScriptKeyWords.Owner).ToList();
-            HasCoreTags = ParseHelper.GetLeavesValue(historyNode, "add_core_of").ToList();
+            Owners = ParseHelper.GetLeafContents(historyNode, ScriptKeyWords.Owner).ToList();
+            HasCoreTags = ParseHelper.GetLeafContents(historyNode, "add_core_of").ToList();
             VictoryPointNodes = ParseHelper.GetLeafValueNodesInAllNode(historyNode, "victory_points").ToList();
         }
     }
