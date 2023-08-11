@@ -41,33 +41,54 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
         errorList.AddRange(AnalyzeIdeas(model));
         errorList.AddRange(AnalyzePolitics(model));
         errorList.AddRange(AnalyzeCapitals(model));
+        errorList.AddRange(AnalyzePuppets(model));
+        errorList.AddRange(AnalyzeCountriesTagOfAddToFaction(model));
+        errorList.AddRange(AnalyzeSetAutonomys(model));
 
         return errorList;
     }
 
-    private IEnumerable<ErrorMessage> AnalyzeCapitals(CountryDefineFileModel model)
+    private IEnumerable<ErrorMessage> AnalyzeSetAutonomys(CountryDefineFileModel model)
     {
-        var errorList = new List<ErrorMessage>();
-        var errorMessage = _helper.AssertExistKeyword(model.Capitals, "capital");
-        if (errorMessage is not null)
+        if (model.SetAutonomies.Count == 0)
         {
-            errorList.Add(errorMessage);
-            return errorList;
+            return Enumerable.Empty<ErrorMessage>();
         }
 
-        // TODO: 未定义的首都 State
+        var errorList = new List<ErrorMessage>();
+        const string targetKey = "target";
+        var keywordMap = new Dictionary<string, Value.Types>(3)
+        {
+            { targetKey, Value.Types.String },
+            { "autonomous_state", Value.Types.String },
+            { "freedom_level", Value.Types.Float }
+        };
+        
+        foreach (var setAutonomyNode in model.SetAutonomies)
+        {
+            errorList.AddRange(_helper.AssertValueTypeIsExpected(setAutonomyNode, keywordMap));
+            var target = TryGetLeafContent(setAutonomyNode, targetKey);
+            if (target is null)
+            {
+                continue;
+            }
 
-        errorList.AddRange(_helper.AssertValueTypeIsExpected(model.Capitals, Value.Types.Integer));
-        errorList.AddRange(_helper.AssertKeywordIsOnly(model.Capitals, "capital"));
+            if (!_registeredCountriesTag.Contains(target.ValueText))
+            {
+                errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                    _filePath, target.Position, $"国家Tag '{target.ValueText}' 不存在"));
+            }
+        }
         return errorList;
     }
 
     private IEnumerable<ErrorMessage> AnalyzePolitics(CountryDefineFileModel model)
     {
         var errorList = new List<ErrorMessage>();
+        const string rulingPartyKey = "ruling_party";
         var keyMap = new Dictionary<string, Value.Types>(4)
         {
-            { "ruling_party", Value.Types.String },
+            { rulingPartyKey, Value.Types.String },
             { "last_election", Value.Types.Date },
             { "election_frequency", Value.Types.Integer },
             { "elections_allowed", Value.Types.Boolean }
@@ -84,7 +105,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
             errorList.AddRange(_helper.AssertKeywordsIsValid(leavesNode, keyMap.Keys.ToHashSet()));
             errorList.AddRange(_helper.AssertValueTypeIsExpected(leavesNode, keyMap));
 
-            var rulingParty = TryGetLeafContent(leavesNode, "ruling_party");
+            var rulingParty = TryGetLeafContent(leavesNode, rulingPartyKey);
             if (rulingParty is null)
             {
                 continue;
@@ -185,6 +206,63 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
                     _filePath, popularities.Position, "政党支持率总和不为100"));
             }
         }
+        return errorList;
+    }
+
+    private IEnumerable<ErrorMessage> AnalyzeCapitals(CountryDefineFileModel model)
+    {
+        var errorList = new List<ErrorMessage>();
+        const string capitalKey = "capital";
+        var errorMessage = _helper.AssertExistKeyword(model.Capitals, capitalKey);
+        if (errorMessage is not null)
+        {
+            errorList.Add(errorMessage);
+            return errorList;
+        }
+
+        // TODO: 未定义的首都 State
+
+        errorList.AddRange(_helper.AssertValueTypeIsExpected(model.Capitals, Value.Types.Integer));
+        errorList.AddRange(_helper.AssertKeywordIsOnly(model.Capitals, capitalKey));
+        return errorList;
+    }
+
+    private IEnumerable<ErrorMessage> AnalyzePuppets(CountryDefineFileModel model)
+    {
+        if (model.Puppets.Count == 0)
+        {
+            return Enumerable.Empty<ErrorMessage>();
+        }
+
+        var errorList = new List<ErrorMessage>();
+        foreach (var puppet in model.Puppets)
+        {
+            if (!_registeredCountriesTag.Contains(puppet.ValueText))
+            {
+                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                     _filePath, puppet.Position, $"国家Tag '{puppet.ValueText}' 未定义, 却在 '{puppet.Key}' 中使用"));
+            }
+        }
+        return errorList;
+    }
+
+    private IEnumerable<ErrorMessage> AnalyzeCountriesTagOfAddToFaction(CountryDefineFileModel model)
+    {
+        if (model.CountriesTagOfAddToFaction.Count == 0)
+        {
+            return Enumerable.Empty<ErrorMessage>();
+        }
+
+        var errorList = new List<ErrorMessage>();
+        foreach (var leafContent in model.CountriesTagOfAddToFaction)
+        {
+            if (!_registeredCountriesTag.Contains(leafContent.ValueText))
+            {
+                errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                    _filePath, leafContent.Position, $"国家 Tag '{leafContent.ValueText}' 未注册, 却在 '{leafContent.Key}' 中使用"));
+            }
+        }
+
         return errorList;
     }
 }
