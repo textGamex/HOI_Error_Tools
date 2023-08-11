@@ -14,6 +14,8 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
     private readonly IReadOnlySet<string> _registeredCountriesTag;
     private readonly IReadOnlySet<string> _registeredIdeas;
     private readonly IReadOnlySet<string> _registeredIdeologies;
+    private readonly IReadOnlySet<string> _registeredTechnologies;
+    //private readonly IReadOnlySet<string> _registeredEquipments;
     private readonly AnalyzerHelper _helper;
 
     public CountryDefineFileAnalyzer(string filePath, GameResources resources)
@@ -23,6 +25,8 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
         _registeredCountriesTag = resources.RegisteredCountriesTag;
         _registeredIdeologies = resources.RegisteredIdeologies;
         _registeredIdeas = resources.RegisteredIdeas;
+        _registeredTechnologies = resources.RegisteredTechnologiesSet;
+        //_registeredEquipments = resources.RegisteredEquipmentSet;
     }
 
     public override IEnumerable<ErrorMessage> GetErrorMessages()
@@ -44,7 +48,25 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
         errorList.AddRange(AnalyzePuppets(model));
         errorList.AddRange(AnalyzeCountriesTagOfAddToFaction(model));
         errorList.AddRange(AnalyzeSetAutonomys(model));
+        errorList.AddRange(AnalyzeSetTechnologies(model));
 
+        return errorList;
+    }
+
+    private IEnumerable<ErrorMessage> AnalyzeSetTechnologies(CountryDefineFileModel model)
+    {
+        var errorList = new List<ErrorMessage>();
+        foreach (var leavesNode in model.SetTechnologies)
+        {
+            foreach (var leafContent in leavesNode.Leaves)
+            {
+                if (!_registeredTechnologies.Contains(leafContent.Key))
+                {
+                    errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                        _filePath, leafContent.Position, $"科技 '{leafContent.Key}' 不存在"));
+                }
+            }
+        }
         return errorList;
     }
 

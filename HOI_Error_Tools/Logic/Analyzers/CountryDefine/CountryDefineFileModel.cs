@@ -17,7 +17,7 @@ public partial class CountryDefineFileAnalyzer
         public IReadOnlyList<LeafContent> Puppets { get; }
         public IReadOnlyList<LeafContent> CountriesTagOfAddToFaction { get; }
         public IReadOnlyList<LeavesNode> SetAutonomies { get; }
-
+        public IReadOnlyList<LeavesNode> SetTechnologies { get; }
         public CountryDefineFileModel(Node rootNode)
         {
             SetPopularitiesList = ParseHelper.GetAllLeafKeyAndValueInAllNode(rootNode, "set_popularities").ToList();
@@ -27,6 +27,7 @@ public partial class CountryDefineFileAnalyzer
             Puppets = ParseHelper.GetLeafContentsInAllChildren(rootNode, "puppet").ToList();
             CountriesTagOfAddToFaction = ParseHelper.GetLeafContentsInAllChildren(rootNode, "add_to_faction").ToList();
             SetAutonomies = ParseHelper.GetAllLeafKeyAndValueInAllNode(rootNode, "set_autonomy").ToList();
+            SetTechnologies = ParseHelper.GetAllLeafKeyAndValueInAllNode(rootNode, "set_technology").ToList();
         }
     }
 }

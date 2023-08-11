@@ -22,6 +22,8 @@ public sealed class GameResourcesPath
     public IEnumerable<string> CountriesDefineFilePath { get; }
     public IEnumerable<string> IdeaFilesPath { get; }
     public IEnumerable<string> IdeaTagsFilePath { get; }
+    public IEnumerable<string> EquipmentFilesPath { get; }
+    public IEnumerable<string> TechnologyFilesPath { get; }
     public IReadOnlyList<string> CountriesTagFilePath { get; }
     public IReadOnlyList<string> IdeologiesFilePath { get; }
     public IReadOnlyList<string> BuildingsFilePathList => _buildingsFilePathList;
@@ -60,6 +62,9 @@ public sealed class GameResourcesPath
         CountriesDefineFilePath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(ScriptKeyWords.History, "countries"));
         IdeaFilesPath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.Ideas));
         IdeaTagsFilePath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "idea_tags"));
+        EquipmentFilesPath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "units", "equipment"))
+            .Where(path => path.EndsWith(".txt"));
+        TechnologyFilesPath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "technologies"));
 
         CountriesTagFilePath = ImmutableList.CreateRange(GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "country_tags")));
         IdeologiesFilePath = ImmutableList.CreateRange(GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.Ideologies)));

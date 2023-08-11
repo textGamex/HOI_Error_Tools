@@ -25,6 +25,8 @@ public class GameResources
     public IReadOnlySet<string> RegisteredCountriesTag { get; }
     public IReadOnlySet<string> RegisteredIdeologies { get; }
     public IReadOnlySet<string> RegisteredIdeas { get; }
+    //public IReadOnlySet<string> RegisteredEquipmentSet { get; }
+    public IReadOnlySet<string> RegisteredTechnologiesSet { get; }
 
     private readonly ImmutableDictionary<string, BuildingInfo> _buildingInfos;
     private readonly ImmutableHashSet<uint> _registeredProvinces;
@@ -49,6 +51,58 @@ public class GameResources
         RegisteredIdeologies = GetRegisteredIdeologies();
         _registeredIdeaTag = GetRegisteredIdeaTags();
         RegisteredIdeas = GetRegisteredIdeas(_registeredIdeaTag.ToList());
+        //RegisteredEquipmentSet = GetRegisteredEquipment();
+        RegisteredTechnologiesSet = GetRegisteredTechnologies();
+    }
+
+    private IReadOnlySet<string> GetRegisteredTechnologies()
+    {
+        return GetAllKeyOfLeaf(_gameResourcesPath.TechnologyFilesPath, "technologies");
+    }
+
+    private IReadOnlySet<string> GetRegisteredEquipment()
+    {
+        return GetAllKeyOfLeaf(_gameResourcesPath.EquipmentFilesPath, "equipments");
+    }
+
+    private static IReadOnlySet<string> GetAllKeyOfLeaf(IEnumerable<string> paths, string keyword)
+    {
+        var dictionary = new Dictionary<string, ParameterFileInfo>();
+        foreach (var path in paths)
+        {
+            var parser = new CWToolsParser(path);
+            if (parser.IsFailure)
+            {
+                errorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(path, parser.GetError()));
+                continue;
+            }
+
+            var rootNode = parser.GetResult();
+            if (rootNode.HasNot(keyword))
+            {
+                errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(path, $"空文件 '{Path.GetFileName(path)}'", ErrorLevel.Tip));
+                continue;
+            }
+            var keywordNode = rootNode.Child(keyword).Value;
+
+            foreach (var node in keywordNode.Nodes)
+            {
+                if (dictionary.TryGetValue(node.Key, out var fileInfo))
+                {
+                    var fileInfos = new ParameterFileInfo[]
+                    {
+                        fileInfo,
+                        new(path, new Position(node.Position))
+                    };
+                    errorMessageCache.Add(new ErrorMessage(fileInfos, $"重复的 '{keyword}' 定义 '{node.Key}'", ErrorLevel.Error));
+                }
+                else
+                {
+                    dictionary.Add(node.Key, new ParameterFileInfo(path, new Position(node.Position)));
+                }
+            }
+        }
+        return dictionary.Keys.ToImmutableHashSet();
     }
 
     private IEnumerable<string> GetRegisteredIdeaTags()
@@ -66,7 +120,8 @@ public class GameResources
             var rootNode = parser.GetResult();
             if (rootNode.HasNot("idea_categories"))
             {
-                errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(path, "空文件", ErrorLevel.Tip));
+                errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(path, $"空文件 '{Path.GetFileName(path)}'", ErrorLevel.Tip));
+                continue;
             }
             var ideaCategoriesNode = rootNode.Child("idea_categories").Value;
 
