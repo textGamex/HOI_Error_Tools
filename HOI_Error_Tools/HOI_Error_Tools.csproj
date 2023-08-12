@@ -8,6 +8,7 @@
     <UseWindowsForms>True</UseWindowsForms>
     <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
     <AnalysisLevel>6.0-recommended</AnalysisLevel>
+    <EnableNETAnalyzers>True</EnableNETAnalyzers>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
@@ -29,10 +30,6 @@
     <PackageReference Include="FSharp.Core" Version="7.0.400" />
     <PackageReference Include="HandyControl" Version="3.4.0" />
     <PackageReference Include="Jot" Version="2.1.17" />
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.3">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="NLog" Version="5.2.3" />
     <PackageReference Include="System.Collections.Immutable" Version="7.0.0" />
   </ItemGroup>
