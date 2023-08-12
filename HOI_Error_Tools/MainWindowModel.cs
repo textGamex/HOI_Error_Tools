@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
@@ -136,5 +137,11 @@ public partial class MainWindowModel : ObservableObject
         errorList.AddRange(GameResources.ErrorMessages);
 
         WeakReferenceMessenger.Default.Send(new ValueChangedMessage<IImmutableList<ErrorMessage>>(errorList.ToImmutable()));
+    }
+
+    [RelayCommand]
+    private static void ClickAboutButton()
+    {
+        MessageBox.Info($".NET: {Environment.Version}\n 作者: textGamex");
     }
 }
