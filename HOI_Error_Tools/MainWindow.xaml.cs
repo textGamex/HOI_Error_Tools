@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
+﻿using System;
+using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using HOI_Error_Tools.Logic;
 using HOI_Error_Tools.Logic.Analyzers.Error;

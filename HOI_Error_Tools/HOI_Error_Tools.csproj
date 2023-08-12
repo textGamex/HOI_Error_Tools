@@ -28,6 +28,7 @@
     <PackageReference Include="CWTools_Plus" Version="1.0.3" />
     <PackageReference Include="FSharp.Core" Version="7.0.300" />
     <PackageReference Include="HandyControl" Version="3.4.0" />
+    <PackageReference Include="Jot" Version="2.1.17" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

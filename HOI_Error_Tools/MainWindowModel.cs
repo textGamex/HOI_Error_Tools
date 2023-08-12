@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
@@ -38,6 +39,7 @@ public partial class MainWindowModel : ObservableObject
 
     [ObservableProperty]
     private string _modTags = string.Empty;
+    
 
     private Descriptor? _descriptor;
     private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
@@ -45,10 +47,17 @@ public partial class MainWindowModel : ObservableObject
     public MainWindowModel()
     {
         PropertyChanged += MainWindowModel_OnPropertyChanged;
+
+        App.Tracker.Configure<MainWindowModel>()
+            .Id(w => "MainUI")
+            .Properties(w => new { w.GameRootPath, w.ModRootPath })
+            .PersistOn(nameof(PropertyChanged));
+        App.Tracker.Track(this);
+
 #if DEBUG
-        GameRootPath = @"D:\STEAM\steamapps\common\Hearts of Iron IV";
+        //GameRootPath = @"D:\STEAM\steamapps\common\Hearts of Iron IV";
         //ModRootPath = @"D:\STEAM\steamapps\workshop\content\394360\2171092591"; // 碧蓝航线
-        ModRootPath = @"D:\STEAM\steamapps\workshop\content\394360\2820469328"; // 明日方舟
+        //ModRootPath = @"D:\STEAM\steamapps\workshop\content\394360\2820469328"; // 明日方舟
 #endif
     }
 
