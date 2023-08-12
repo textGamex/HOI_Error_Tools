@@ -179,14 +179,14 @@ public partial class StateFileAnalyzer : AnalyzerBase
             if (!uint.TryParse(provinceIdText, out var provinceId))
             {
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    _filePath, position, $"ProvinceId '{provinceIdText}' 无法转换为正整数"));
+                    _filePath, position, $"Province '{provinceIdText}' 无法转换为正整数"));
                 continue;
             }
 
             if (!_registeredProvince.Contains(provinceId))
             {
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    _filePath, position, $"ProvinceId '{provinceId}' 未注册"));
+                    _filePath, position, $"Province '{provinceId}' 未注册"));
             }
 
             if (!provinceInStateSet.Contains(provinceIdText))
