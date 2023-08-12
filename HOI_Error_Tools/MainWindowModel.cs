@@ -102,7 +102,7 @@ public partial class MainWindowModel : ObservableObject
     }
 
     [RelayCommand]
-    private void ClickStartButton()
+    private async Task ClickStartButton()
     {
         if (string.IsNullOrEmpty(GameRootPath) || string.IsNullOrEmpty(ModRootPath))
         {
@@ -113,7 +113,14 @@ public partial class MainWindowModel : ObservableObject
         StartParseButtonText = "分析中, 请稍等...";
         LoadingCircleIsRunning = true;
 
-        StartAnalyzersAsync();
+        var oTime = new Stopwatch();
+        _logger.Info("开始分析");
+        oTime.Start();
+        await StartAnalyzersAsync();
+        oTime.Stop();
+        var elapsedTime = oTime.Elapsed;
+        _logger.Info("分析完成, 用时: {Second:F1} s, {Millisecond:F0} ms",
+            elapsedTime.TotalSeconds, elapsedTime.TotalMilliseconds);
     }
 
     private async Task StartAnalyzersAsync()
