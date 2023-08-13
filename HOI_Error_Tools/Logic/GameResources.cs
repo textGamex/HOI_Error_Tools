@@ -225,7 +225,7 @@ public class GameResources
 
     private IReadOnlySet<string> GetRegisteredIdeologies()
     {
-        var set = ImmutableDictionary.CreateBuilder<string, ParameterFileInfo>();
+        var set = new Dictionary<string, ParameterFileInfo>(64);
 
         foreach (var path in _gameResourcesPath.IdeologiesFilePath)
         {
@@ -261,7 +261,7 @@ public class GameResources
             }
         }
 
-        return set.Select(x => x.Key).ToImmutableHashSet();
+        return set.Keys.ToImmutableHashSet();
     }
 
 
@@ -282,7 +282,7 @@ public class GameResources
             builder.UnionWith(GetCountriesTagFromFile(path, parser.GetResult()));
         }
 
-        return builder.ToImmutableHashSet();
+        return builder.ToImmutable();
     }
 
     private static IReadOnlySet<string> GetCountriesTagFromFile(string filePath, Node result)
@@ -302,7 +302,7 @@ public class GameResources
                     filePath, new Position(leaf.Position), $"重复的国家标签 '{leaf.Key}'"));
             }
         }
-        return separateBuilder.ToImmutableHashSet();
+        return separateBuilder.ToImmutable();
     }
 
     private IReadOnlySet<string> GetRegisteredStateCategories()
@@ -332,7 +332,7 @@ public class GameResources
             }
         }
 
-        return builder.ToImmutableHashSet();
+        return builder.ToImmutable();
     }
 
     private ImmutableDictionary<string, BuildingInfo> GetRegisteredBuildings()
@@ -480,7 +480,7 @@ public class GameResources
 
     private static IEnumerable<string> ParseResourcesType(string filePath, Node resourcesNode)
     {
-        var set = new HashSet<string>();
+        var set = new HashSet<string>(8);
 
         foreach (var node in resourcesNode.Nodes)
         {
