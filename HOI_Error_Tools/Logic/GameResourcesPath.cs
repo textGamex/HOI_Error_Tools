@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Diagnostics;
@@ -63,7 +64,7 @@ public sealed class GameResourcesPath
         IdeaFilesPath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.Ideas));
         IdeaTagsFilePath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "idea_tags"));
         EquipmentFilesPath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "units", "equipment"))
-            .Where(path => path.EndsWith(".txt"));
+            .Where(path => Path.GetExtension(path) == ".txt");
         TechnologyFilesPath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "technologies"));
 
         CountriesTagFilePath = ImmutableList.CreateRange(GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "country_tags")));
