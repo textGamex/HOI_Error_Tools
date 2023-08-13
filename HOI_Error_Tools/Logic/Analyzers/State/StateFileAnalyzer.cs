@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using HOI_Error_Tools.Logic.Analyzers.Util;
@@ -333,7 +334,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
                         _filePath, provinceIdLeafValue.Position, $"Province '{provinceIdText}' 无法转换为正整数"));
                     continue;
                 }
-                provinces.Add((uint.Parse(provinceIdText), provinceIdLeafValue.Position));
+                provinces.Add((uint.Parse(provinceIdText, CultureInfo.InvariantCulture), provinceIdLeafValue.Position));
             }
         }
         errorList.AddRange(AssertProvincesIsRegistered(provinces));

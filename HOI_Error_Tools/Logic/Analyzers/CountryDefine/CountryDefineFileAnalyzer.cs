@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
@@ -219,7 +220,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
                         _filePath, popularity.Position, $"'{proportionText}' 无法转化为整数"));
                     continue;
                 }
-                sum += uint.Parse(proportionText);
+                sum += uint.Parse(proportionText, CultureInfo.InvariantCulture);
             }
 
             if (sum != 100)

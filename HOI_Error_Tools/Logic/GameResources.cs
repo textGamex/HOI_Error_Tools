@@ -431,7 +431,7 @@ public class GameResources
         {
             var line = csv.GetField(0) ?? string.Empty;
             string id = line[0..line.IndexOf(';')];
-            set.Add(uint.Parse(id));
+            set.Add(uint.Parse(id, CultureInfo.InvariantCulture));
         }
 
         // 去除 ID 为 0 的未知省份
