@@ -46,7 +46,7 @@ public class Value : IEquatable<Value>
         {
             return Types.Float;
         }
-        else if (text is "yes" or "no")
+        else if (text is ScriptKeyWords.Yes or ScriptKeyWords.No)
         {
             return Types.Boolean;
         }

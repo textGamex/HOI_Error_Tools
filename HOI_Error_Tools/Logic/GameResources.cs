@@ -108,6 +108,10 @@ public class GameResources
     private IEnumerable<string> GetRegisteredIdeaTags()
     {
         var ideaTagList = new List<string>();
+        const string ideaCategoriesKey = "idea_categories";
+        const string characterSlotKey = "character_slot"; 
+        const string slotKey = "slot";
+
         foreach (var path in _gameResourcesPath.IdeaTagsFilePath)
         {
             var parser = new CWToolsParser(path);
@@ -118,19 +122,19 @@ public class GameResources
             }
 
             var rootNode = parser.GetResult();
-            if (rootNode.HasNot("idea_categories"))
+            if (rootNode.HasNot(ideaCategoriesKey))
             {
                 errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(path, $"空文件 '{Path.GetFileName(path)}'", ErrorLevel.Tip));
                 continue;
             }
-            var ideaCategoriesNode = rootNode.Child("idea_categories").Value;
 
+            var ideaCategoriesNode = rootNode.Child(ideaCategoriesKey).Value;
             foreach (var node in ideaCategoriesNode.Nodes)
             {
-                if (node.Has("slot") || node.Has("character_slot"))
+                if (node.Has(slotKey) || node.Has(characterSlotKey))
                 {
-                    var slot = node.Leafs("slot");
-                    ideaTagList.AddRange(node.Leafs("character_slot").Union(slot).Select(leaf => leaf.ValueText));
+                    var slot = node.Leafs(slotKey);
+                    ideaTagList.AddRange(node.Leafs(characterSlotKey).Union(slot).Select(leaf => leaf.ValueText));
                 }
                 else
                 {
@@ -286,7 +290,7 @@ public class GameResources
         var separateBuilder = ImmutableHashSet.CreateBuilder<string>();
         foreach (var leaf in result.Leaves)
         {
-            if (leaf.Key == "dynamic_tags" && leaf.ValueText == "yes")
+            if (leaf.Key == "dynamic_tags" && leaf.ValueText == ScriptKeyWords.Yes)
             {
                 separateBuilder.Clear();
                 break;
@@ -370,7 +374,7 @@ public class GameResources
             // 排除特殊值, fuel_silo 类型没有最大等级
             const string fuelSilo = "fuel_silo";
             if (buildingNode.Has(fuelSilo)
-                && buildingNode.Leafs(fuelSilo).First().ValueText == "yes")
+                && buildingNode.Leafs(fuelSilo).First().ValueText == ScriptKeyWords.Yes)
             {
                 map.Add(buildingTypeName, new BuildingInfo(buildingTypeName, 1));
                 continue;

@@ -19,4 +19,6 @@ public static class ScriptKeyWords
     public const string Resources = "resources";
     public const string Ideologies = "ideologies";
     public const string Ideas = "ideas";
+    public const string Yes = "yes";
+    public const string No = "no";
 }
