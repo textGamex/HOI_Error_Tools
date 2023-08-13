@@ -80,7 +80,7 @@ public class Value : IEquatable<Value>
         Date
     }
 
-    private static bool IsDateString(string text)
+    public static bool IsDateString(string text)
     {
         return DateTime.TryParse(text, out _);
     }

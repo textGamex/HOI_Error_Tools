@@ -65,27 +65,13 @@ public static class ParseHelper
     /// <returns></returns>
     private static IEnumerable<Node> GetAllNodeInAll(Node rootNode, string keyword)
     {
-        var nodeList = new List<Node>();
-        nodeList.AddRange(rootNode.Childs(keyword));
-        nodeList.AddRange(GetAllNodeInIfStatement(rootNode, keyword));
-        return nodeList;
-    }
-
-    /// <summary>
-    /// 根据<c>keyword</c>获得 if else 语句中的所有符合条件的 <see cref="Node"/>.
-    /// </summary>
-    /// <param name="rootNode"></param>
-    /// <param name="keyword"></param>
-    /// <returns></returns>
-    private static IEnumerable<Node> GetAllNodeInIfStatement(Node rootNode, string keyword)
-    {
-        var list = GetAllIfAndElseNode(rootNode);
-        var result = new List<Node>();
-        foreach (var nodes in list.Where(node => node.Has(keyword)).Select(node => node.Childs(keyword)))
-        {
-            result.AddRange(nodes);
-        }
-        return result;
+        var nodeList = new List<Node>(8);
+        nodeList.AddRange(GetAllScriptNode(rootNode));
+        nodeList.AddRange(GetAllIfAndElseNode(rootNode));
+        return nodeList
+            .Where(node => node.Has(keyword))
+            .SelectMany(node => node.Childs(keyword))
+            .Concat(rootNode.Childs(keyword));
     }
 
     /// <summary>
@@ -111,14 +97,20 @@ public static class ParseHelper
         var ifStatement = rootNode.Childs("if");
         foreach (var node in ifStatement)
         {
-            if (node.Has("else"))
+            const string elseKey = "else";
+            if (node.Has(elseKey))
             {
-                var elseNode = node.Child("else").Value;
+                var elseNode = node.Child(elseKey).Value;
                 nodeList.Add(elseNode);
             }
             nodeList.Add(node);
         }
         return nodeList;
+    }
+
+    private static IReadOnlyList<Node> GetAllScriptNode(Node rootNode)
+    {
+        return rootNode.Nodes.Where(node => Value.IsDateString(node.Key)).ToList();
     }
 
     /// <summary>
