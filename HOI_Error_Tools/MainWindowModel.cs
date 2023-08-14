@@ -129,7 +129,7 @@ public partial class MainWindowModel : ObservableObject
 
         var gameResourcesPath = new GameResourcesPath(GameRootPath, ModRootPath, _descriptor);
         var gameResources = new GameResources(gameResourcesPath);
-        var analyzers = new List<AnalyzerBase>(1024);
+        var analyzers = new List<AnalyzerBase>(2048);
 
         analyzers.AddRange(gameResourcesPath.StatesFilePathList.Select(path => new StateFileAnalyzer(path, gameResources)));
         analyzers.AddRange(gameResourcesPath.CountriesDefineFilePath.Select(path => new CountryDefineFileAnalyzer(path, gameResources)));
