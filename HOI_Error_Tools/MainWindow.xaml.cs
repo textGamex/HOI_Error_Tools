@@ -1,5 +1,4 @@
-﻿using System;
-using CommunityToolkit.Mvvm.Messaging;
+﻿using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using HOI_Error_Tools.Logic;
 using HOI_Error_Tools.Logic.Analyzers.Error;
@@ -8,8 +7,6 @@ using HOI_Error_Tools.View;
 using NLog;
 using System.Collections.Immutable;
 using System.Windows;
-using System.Windows.Threading;
-
 namespace HOI_Error_Tools;
 
 public partial class MainWindow : Window
@@ -34,8 +31,8 @@ public partial class MainWindow : Window
                 StateFileAnalyzer.Clear();
                 GameResources.ClearErrorMessagesCache();
 #if RELEASE
-                    this.Close();
-#endif  
+                this.Close();
+#endif
             });
         });
     }

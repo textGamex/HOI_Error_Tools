@@ -31,6 +31,7 @@
 
         <DataGrid
             Grid.Row="1"
+            hc:DataGridAttach.ShowRowNumber="True"
             AutoGenerateColumns="False"
             IsReadOnly="True"
             ItemsSource="{Binding ErrorMessage}"

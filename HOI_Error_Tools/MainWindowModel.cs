@@ -151,4 +151,15 @@ public partial class MainWindowModel : ObservableObject
     {
         MessageBox.Info($".NET: {Environment.Version}\n 作者: textGamex");
     }
+
+    [RelayCommand]
+    private static void ClickProjectLinkButton()
+    {
+        var info = new ProcessStartInfo()
+        {
+            FileName = @"https://github.com/textGamex/HOI_Error_Tools",
+            UseShellExecute = true,
+        };
+        _ = Process.Start(info);
+    }
 }

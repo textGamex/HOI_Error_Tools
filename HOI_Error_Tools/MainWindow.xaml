@@ -25,6 +25,10 @@
                 Width="80"
                 Command="{Binding ClickAboutButtonCommand, Mode=Default}"
                 Content="关于" />
+            <Button
+                Width="80"
+                Command="{Binding ClickProjectLinkButtonCommand, Mode=Default}"
+                Content="GitHub" />
         </ToolBar>
 
         <Button
@@ -86,7 +90,7 @@
             IsRunning="{Binding LoadingCircleIsRunning, Mode=Default}" />
         <TextBox
             Grid.Row="1"
-            Width="180"
+            Width="185"
             Margin="10,233,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
@@ -97,7 +101,7 @@
             TextWrapping="NoWrap" />
         <TextBox
             Grid.Row="1"
-            Width="180"
+            Width="185"
             Margin="10,295,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
