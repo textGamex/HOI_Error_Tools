@@ -107,7 +107,7 @@ public class GameResources
 
     private IEnumerable<string> GetRegisteredIdeaTags()
     {
-        var ideaTagList = new List<string>();
+        var ideaTagList = new List<string>(64);
         const string ideaCategoriesKey = "idea_categories";
         const string characterSlotKey = "character_slot"; 
         const string slotKey = "slot";
@@ -147,7 +147,7 @@ public class GameResources
 
     private IReadOnlySet<string> GetRegisteredIdeas(IReadOnlyList<string> registeredIdeaTag)
     {
-        var map = new Dictionary<string, ParameterFileInfo>();
+        var map = new Dictionary<string, ParameterFileInfo>(8);
 
         foreach (var path in _gameResourcesPath.IdeaFilesPath)
         {
@@ -174,7 +174,7 @@ public class GameResources
 
     private static IReadOnlyDictionary<string, ParameterFileInfo> TryGetIdeas(Node rootNode, string filePath, IEnumerable<string> keywords)
     {
-        var map = new Dictionary<string, ParameterFileInfo>();
+        var map = new Dictionary<string, ParameterFileInfo>(64);
         foreach (var keyword in keywords)
         {
             if (rootNode.HasNot(keyword))
@@ -366,7 +366,7 @@ public class GameResources
 
     private static IDictionary<string, BuildingInfo> ParseBuildingInfosToMap(string filePath, Node buildingsNode)
     {
-        var map = new Dictionary<string, BuildingInfo>();
+        var map = new Dictionary<string, BuildingInfo>(16);
         foreach (var buildingNode in buildingsNode.Nodes)
         {
             var buildingTypeName = buildingNode.Key;
