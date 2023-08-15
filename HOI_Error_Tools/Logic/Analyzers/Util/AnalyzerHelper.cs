@@ -19,7 +19,8 @@ public sealed class AnalyzerHelper
     {
         return enumerable.Any()
             ? null
-            : ErrorMessageFactory.CreateSingleFileError(_filePath, $"缺少 '{keyword}' 关键字", level);
+            : ErrorMessageFactory.CreateSingleFileError(ErrorCode.KeywordIsMissing,
+                _filePath, $"缺少 '{keyword}' 关键字", level);
     }
 
     /// <summary>
@@ -31,7 +32,7 @@ public sealed class AnalyzerHelper
     public IEnumerable<ErrorMessage> AssertKeywordIsOnly(IReadOnlyCollection<LeafContent> enumerable, string keyword)
     {
         return enumerable.Count > 1
-            ? new[] { new ErrorMessage(enumerable.Select(item => new ParameterFileInfo(_filePath, item.Position)), $"重复的 '{keyword}' 关键字", ErrorLevel.Error) }
+            ? new[] { new ErrorMessage(ErrorCode.KeywordIsRepeated, enumerable.Select(item => new ParameterFileInfo(_filePath, item.Position)), $"重复的 '{keyword}' 关键字", ErrorLevel.Error) }
             : Enumerable.Empty<ErrorMessage>();
     }
 
@@ -42,7 +43,7 @@ public sealed class AnalyzerHelper
             if (!keywords.Contains(leaf.Key))
             {
                 yield return ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    _filePath, leaf.Position, $"不应出现的关键字 '{leaf.Key}'");
+                    ErrorCode.InvalidValue, _filePath, leaf.Position, $"不应出现的关键字 '{leaf.Key}'");
             }
         }
     }

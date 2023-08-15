@@ -80,7 +80,7 @@ public class GameResources
             var rootNode = parser.GetResult();
             if (rootNode.HasNot(keyword))
             {
-                errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(path, $"空文件 '{Path.GetFileName(path)}'", ErrorLevel.Tip));
+                errorMessageCache.Add(ErrorMessageFactory.CreateEmptyFileErrorMessage(path));
                 continue;
             }
             var keywordNode = rootNode.Child(keyword).Value;
@@ -94,7 +94,7 @@ public class GameResources
                         fileInfo,
                         new(path, new Position(node.Position))
                     };
-                    errorMessageCache.Add(new ErrorMessage(fileInfos, $"重复的 '{keyword}' 定义 '{node.Key}'", ErrorLevel.Error));
+                    errorMessageCache.Add(new ErrorMessage(ErrorCode.UniqueValueIsRepeated, fileInfos, $"重复的 '{keyword}' 定义 '{node.Key}'", ErrorLevel.Error));
                 }
                 else
                 {
@@ -124,7 +124,7 @@ public class GameResources
             var rootNode = parser.GetResult();
             if (rootNode.HasNot(ideaCategoriesKey))
             {
-                errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(path, $"空文件 '{Path.GetFileName(path)}'", ErrorLevel.Tip));
+                errorMessageCache.Add(ErrorMessageFactory.CreateEmptyFileErrorMessage(path));
                 continue;
             }
 
@@ -192,7 +192,9 @@ public class GameResources
                         new(value.FilePath, value.Position),
                         new(value.FilePath, new Position(item.Position))
                     };
-                    errorMessageCache.Add(new ErrorMessage(fileInfo, $"重复的定义 Ideas '{item.Key}'", ErrorLevel.Error));
+                    errorMessageCache.Add(new ErrorMessage(
+                        ErrorCode.UniqueValueIsRepeated,
+                        fileInfo, $"重复的定义 Ideas '{item.Key}'", ErrorLevel.Error));
                 }
                 else
                 {
@@ -214,7 +216,9 @@ public class GameResources
                     fileInfo,
                     mainFilePath
                 };
-                errorMessageCache.Add(new ErrorMessage(fileInfoList, $"重复的定义 Ideas '{ideaKey}'", ErrorLevel.Error));
+                errorMessageCache.Add(new ErrorMessage(
+                    ErrorCode.UniqueValueIsRepeated,
+                    fileInfoList, $"重复的定义 Ideas '{ideaKey}'", ErrorLevel.Error));
             }
             else
             {
@@ -252,7 +256,9 @@ public class GameResources
                         new (path, new Position(ideology.Position)),
                         new (ideologyPosition.FilePath, ideologyPosition.Position)
                     };
-                    errorMessageCache.Add(new ErrorMessage(fileInfoList, "重复定义 ideology", ErrorLevel.Warn));
+                    errorMessageCache.Add(new ErrorMessage(
+                        ErrorCode.UniqueValueIsRepeated,
+                        fileInfoList, "重复定义 ideology", ErrorLevel.Warn));
                 }
                 else
                 {
@@ -299,6 +305,7 @@ public class GameResources
             if (!separateBuilder.Add(leaf.Key))
             {
                 errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                    ErrorCode.UniqueValueIsRepeated,
                     filePath, new Position(leaf.Position), $"重复的国家标签 '{leaf.Key}'"));
             }
         }
@@ -322,7 +329,7 @@ public class GameResources
             if (result.HasNot(Key.StateCategories))
             {
                 errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(
-                    path, $"缺少 '{Key.StateCategories}' 关键字"));
+                    ErrorCode.KeywordIsMissing, path, $"缺少 '{Key.StateCategories}' 关键字"));
                 continue;
             }
             var stateCategoriesNode = result.Child(Key.StateCategories).Value;
@@ -353,7 +360,7 @@ public class GameResources
             if (node.HasNot(ScriptKeyWords.Buildings))
             {
                 errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(
-                    filePath, $"缺少 '{ScriptKeyWords.Buildings}' 关键字"));
+                    ErrorCode.KeywordIsMissing, filePath, $"缺少 '{ScriptKeyWords.Buildings}' 关键字"));
                 continue;
             }
             var buildingsNode = node.Child(ScriptKeyWords.Buildings).Value;
@@ -397,6 +404,7 @@ public class GameResources
         if (maxLevelLeafs.Count > 1)
         {
             errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                ErrorCode.UniqueValueIsRepeated,
                 filePath, new Position(maxLevelLeafs[0].Position), "重复的 Key"));
         }
 
@@ -406,6 +414,7 @@ public class GameResources
             return true;
         }
         errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+            ErrorCode.ValueIsOutOfRange,
             filePath,
             new Position(maxLevelLeaf.Position),
             $"建筑物最大等级超过最大值 {ushort.MaxValue}",
@@ -456,7 +465,7 @@ public class GameResources
             if (rootNode.HasNot(ScriptKeyWords.Resources))
             {
                 errorMessageCache.Add(
-                    ErrorMessageFactory.CreateSingleFileError(path, "资源类型文件为空"));
+                    ErrorMessageFactory.CreateEmptyFileErrorMessage(path));
                 continue;
             }
 
@@ -472,7 +481,8 @@ public class GameResources
                     continue;
                 }
                 errorMessageCache.Add(
-                    ErrorMessageFactory.CreateSingleFileError(path, $"重复定义的资源类型: '{type}'"));
+                    ErrorMessageFactory.CreateSingleFileError(ErrorCode.DuplicateRegistration,
+                        path, $"重复定义的资源类型: '{type}'"));
             }
         }
         return builder.ToImmutable();
@@ -488,6 +498,7 @@ public class GameResources
             {
                 errorMessageCache.Add(
                     ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                        ErrorCode.DuplicateRegistration,
                         filePath, new Position(node.Position), $"重复定义的资源类型: '{node.Key}'", ErrorLevel.Warn));
                 continue;
             }

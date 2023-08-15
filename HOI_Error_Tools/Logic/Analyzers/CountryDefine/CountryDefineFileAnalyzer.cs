@@ -64,6 +64,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
                 if (!_registeredTechnologies.Contains(leafContent.Key))
                 {
                     errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                        ErrorCode.TechnologyNotExists,
                         _filePath, leafContent.Position, $"科技 '{leafContent.Key}' 不存在"));
                 }
             }
@@ -99,6 +100,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
             if (!_registeredCountriesTag.Contains(target.ValueText))
             {
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                    ErrorCode.CountryTagNotExists,
                     _filePath, target.Position, $"国家Tag '{target.ValueText}' 不存在"));
             }
         }
@@ -143,12 +145,13 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
             if (!_registeredIdeologies.Contains(rulingParty.ValueText))
             {
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    _filePath, rulingParty.Position, $"意识形态 '{rulingParty.ValueText}' 未定义"));
+                    ErrorCode.InvalidValue, _filePath, rulingParty.Position, $"意识形态 '{rulingParty.ValueText}' 未定义"));
             }
 
             if (!model.SetPopularitiesList.Any(node => node.Leaves.Any(leaf => leaf.Key == rulingParty.ValueText)))
             {
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                    ErrorCode.InvalidValue,
                     _filePath, rulingParty.Position, $"执政党 '{rulingParty.ValueText}' 未在 'set_popularities' 中设置支持率"));
             }
         }
@@ -183,7 +186,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
                 if (!_registeredIdeas.Contains(idea.ValueText))
                 {
                     errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                        _filePath, idea.Position, $"Idea '{idea.ValueText}' 未定义"));
+                        ErrorCode.InvalidValue, _filePath, idea.Position, $"Idea '{idea.ValueText}' 未定义"));
                 }
             }
         }
@@ -211,13 +214,12 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
                 if (!_registeredIdeologies.Contains(ideologiesName))
                 {
                     errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                        _filePath, popularity.Position, $"未注册的意识形态 '{ideologiesName}'"));
+                        ErrorCode.InvalidValue, _filePath, popularity.Position, $"未注册的意识形态 '{ideologiesName}'"));
                 }
 
                 if (!popularity.Value.IsInt)
                 {
-                    errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                        _filePath, popularity.Position, $"'{proportionText}' 无法转化为整数"));
+                    errorList.Add(ErrorMessageFactory.CreateFailedStringToIntErrorMessage(_filePath, popularity));
                     continue;
                 }
                 sum += uint.Parse(proportionText, CultureInfo.InvariantCulture);
@@ -226,7 +228,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
             if (sum != 100)
             {
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    _filePath, popularities.Position, "政党支持率总和不为100"));
+                    ErrorCode.InvalidValue, _filePath, popularities.Position, "政党支持率总和不为100"));
             }
         }
         return errorList;
@@ -263,6 +265,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
             if (!_registeredCountriesTag.Contains(puppet.ValueText))
             {
                  errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                     ErrorCode.CountryTagNotExists,
                      _filePath, puppet.Position, $"国家Tag '{puppet.ValueText}' 未定义, 却在 '{puppet.Key}' 中使用"));
             }
         }
@@ -282,6 +285,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
             if (!_registeredCountriesTag.Contains(leafContent.ValueText))
             {
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                    ErrorCode.CountryTagNotExists,
                     _filePath, leafContent.Position, $"国家 Tag '{leafContent.ValueText}' 未注册, 却在 '{leafContent.Key}' 中使用"));
             }
         }
