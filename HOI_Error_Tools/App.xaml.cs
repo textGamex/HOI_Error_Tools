@@ -3,6 +3,7 @@ using Jot;
 using System;
 using System.IO;
 using System.Windows;
+using HOI_Error_Tools.Logic;
 
 namespace HOI_Error_Tools;
 
@@ -11,5 +12,5 @@ namespace HOI_Error_Tools;
 /// </summary>
 public partial class App : Application
 {
-    public static readonly Tracker Tracker = new(new JsonFileStore(Path.Combine(Environment.CurrentDirectory, "Settings")));
+    public static readonly Tracker Tracker = new(new JsonFileStore(GlobalSettings.SettingsFolderPath));
 }

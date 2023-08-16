@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
+using HOI_Error_Tools.Logic;
 
 namespace HOI_Error_Tools.ViewModels;
 
@@ -21,8 +22,10 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
 
     public ErrorMessageWindowViewModel(IReadOnlyList<ErrorMessage> errors)
     {
-        ErrorMessage = errors;
-        StatisticsInfo = $"错误 {ErrorMessage.Count}";
+        var settings = GlobalSettings.Settings;
+        var rawCount = errors.Count;
+        ErrorMessage = errors.Where(item => !settings.InhibitedErrorCodes.Contains(item.Code)).ToList();
+        StatisticsInfo = $"错误 {ErrorMessage.Count}, 忽略 {rawCount - ErrorMessage.Count}";
     }
 
     //[RelayCommand]
@@ -35,9 +38,9 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
     //}
 
     [RelayCommand]
-    private static void ShowErrorFileInfo(object obj)
+    private static void ShowErrorFileInfo(IEnumerable<ParameterFileInfo> obj)
     {
-        var errorFileInfoWindow = new ErrorFileInfoView((IEnumerable<ParameterFileInfo>)obj);
+        var errorFileInfoWindow = new ErrorFileInfoView(obj);
         errorFileInfoWindow.Show();
     }
 }

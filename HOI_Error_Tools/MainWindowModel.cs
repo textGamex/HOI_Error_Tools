@@ -143,7 +143,7 @@ public partial class MainWindowModel : ObservableObject
         }
         errorList.AddRange(GameResources.ErrorMessages);
 
-        WeakReferenceMessenger.Default.Send(new ValueChangedMessage<IImmutableList<ErrorMessage>>(errorList.ToImmutable()));
+        WeakReferenceMessenger.Default.Send(new ValueChangedMessage<IReadOnlyList<ErrorMessage>>(errorList.ToImmutable()));
     }
 
     [RelayCommand]
@@ -161,5 +161,11 @@ public partial class MainWindowModel : ObservableObject
             UseShellExecute = true,
         };
         _ = Process.Start(info);
+    }
+
+    [RelayCommand]
+    private static void ClickSettingsButton()
+    {
+        WeakReferenceMessenger.Default.Send(GlobalSettings.Settings);
     }
 }

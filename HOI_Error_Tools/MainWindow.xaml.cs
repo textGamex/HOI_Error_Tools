@@ -5,7 +5,7 @@ using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.State;
 using HOI_Error_Tools.View;
 using NLog;
-using System.Collections.Immutable;
+using System.Collections.Generic;
 using System.Windows;
 namespace HOI_Error_Tools;
 
@@ -19,7 +19,7 @@ public partial class MainWindow : Window
 
         this.DataContext = new MainWindowModel();
 
-        WeakReferenceMessenger.Default.Register<MainWindow, ValueChangedMessage<IImmutableList<ErrorMessage>>>(this, (_, list) =>
+        WeakReferenceMessenger.Default.Register<MainWindow, ValueChangedMessage<IReadOnlyList<ErrorMessage>>>(this, (_, list) =>
         {
             Dispatcher.InvokeAsync(() =>
             {
@@ -34,6 +34,12 @@ public partial class MainWindow : Window
                 this.Close();
 #endif
             });
+        });
+
+        WeakReferenceMessenger.Default.Register<MainWindow, GlobalSettings>(this, (_, settings) =>
+        {
+            var settingsWindow = new SettingsWindowView(settings); 
+            settingsWindow.ShowDialog();
         });
     }
 }

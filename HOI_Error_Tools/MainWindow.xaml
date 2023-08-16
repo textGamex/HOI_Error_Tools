@@ -23,6 +23,12 @@
         <ToolBar Grid.Row="0">
             <Button
                 Width="80"
+                Margin="5,0,0,0"
+                Command="{Binding ClickSettingsButtonCommand, Mode=Default}"
+                Content="设置" />
+            <Button
+                Width="80"
+                Margin="5,0,5,0"
                 Command="{Binding ClickAboutButtonCommand, Mode=Default}"
                 Content="关于" />
             <Button
@@ -97,7 +103,7 @@
             hc:InfoElement.Title="Mod名称"
             IsReadOnly="True"
             Style="{StaticResource TextBoxExtend}"
-            Text="{Binding ModName}"
+            Text="{Binding ModName, Mode=Default}"
             TextWrapping="NoWrap" />
         <TextBox
             Grid.Row="1"
@@ -108,7 +114,7 @@
             hc:InfoElement.Title="Mod标签"
             IsReadOnly="True"
             Style="{StaticResource TextBoxExtend}"
-            Text="{Binding ModTags}"
+            Text="{Binding ModTags, Mode=Default}"
             TextWrapping="NoWrap" />
     </Grid>
 </Window>

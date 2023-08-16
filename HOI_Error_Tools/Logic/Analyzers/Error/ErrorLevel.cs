@@ -2,7 +2,7 @@
 
 public enum ErrorLevel : byte
 {
-    None,
+    Ignore,
     Tip,
     Warn,
     Error,

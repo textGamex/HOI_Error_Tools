@@ -40,9 +40,9 @@
             VirtualizingPanel.VirtualizationMode="Recycling">
 
             <DataGrid.Columns>
-
-                <DataGridTextColumn Binding="{Binding Path=Level}" Header="等级" />
-                <DataGridTextColumn Binding="{Binding Path=Message}" Header="错误信息" />
+                <DataGridTextColumn Binding="{Binding Code, StringFormat=D, Mode=OneWay}" Header="代码" />
+                <DataGridTextColumn Binding="{Binding Path=Level, Mode=OneWay}" Header="等级" />
+                <DataGridTextColumn Binding="{Binding Path=Message, Mode=OneWay}" Header="错误信息" />
                 <DataGridTemplateColumn Header="错误位置">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
