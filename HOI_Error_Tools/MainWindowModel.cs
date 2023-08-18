@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -41,8 +42,9 @@ public partial class MainWindowModel : ObservableObject
     [ObservableProperty]
     private string _modTags = string.Empty;
     
-
     private Descriptor? _descriptor;
+    private int _fileSum;
+
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
     public MainWindowModel()
@@ -72,7 +74,8 @@ public partial class MainWindowModel : ObservableObject
 
             _descriptor = descriptor;
         }
-        Log.Debug("Property changed: {PropertyName}", e.PropertyName);
+        Log.Debug(CultureInfo.InvariantCulture,
+            "Property changed: {PropertyName}", e.PropertyName);
     }
 
     [RelayCommand]
@@ -124,7 +127,7 @@ public partial class MainWindowModel : ObservableObject
 
         new ToastContentBuilder()
             .AddText("解析完成")
-            .AddText($"共用时 {elapsedTime.TotalSeconds:F1} 秒")
+            .AddText($"共解析 {_fileSum} 文件, 用时 {elapsedTime.TotalSeconds:F1} 秒")
             .Show();
 
         Log.Info("分析完成, 用时: {Second:F1} s, {Millisecond:F0} ms",
@@ -137,10 +140,13 @@ public partial class MainWindowModel : ObservableObject
 
         var gameResourcesPath = new GameResourcesPath(GameRootPath, ModRootPath, _descriptor);
         var gameResources = new GameResources(gameResourcesPath);
-        var analyzers = new List<AnalyzerBase>(2048);
+        _fileSum = gameResourcesPath.FileSum;
 
+        var analyzers = 
+            new List<AnalyzerBase>(gameResourcesPath.StatesFilePathList.Count + gameResourcesPath.CountriesDefineFilePath.Count);
         analyzers.AddRange(gameResourcesPath.StatesFilePathList.Select(path => new StateFileAnalyzer(path, gameResources)));
         analyzers.AddRange(gameResourcesPath.CountriesDefineFilePath.Select(path => new CountryDefineFileAnalyzer(path, gameResources)));
+
         var errorsTask = analyzers.Select(analyzer => Task.Run(analyzer.GetErrorMessages)).ToList();
         await Task.WhenAll(errorsTask);
 

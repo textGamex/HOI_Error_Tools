@@ -9,9 +9,14 @@
     <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
     <AnalysisLevel>6.0-recommended</AnalysisLevel>
     <EnableNETAnalyzers>True</EnableNETAnalyzers>
+    <ApplicationIcon>AppIcon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
+
+  <ItemGroup>
+    <Content Include="AppIcon.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Logic\Analyzers\Util\" />
