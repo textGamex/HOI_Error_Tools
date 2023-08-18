@@ -18,7 +18,7 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
     public IReadOnlyList<ErrorMessage> ErrorMessage { get; }
     public string StatisticsInfo { get; }
 
-    private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+    private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
     public ErrorMessageWindowViewModel(IReadOnlyList<ErrorMessage> errors)
     {
@@ -40,6 +40,7 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
     [RelayCommand]
     private static void ShowErrorFileInfo(IEnumerable<ParameterFileInfo> obj)
     {
+        Log.Debug("ErrorFileInfoView 窗口启动");
         var errorFileInfoWindow = new ErrorFileInfoView(obj);
         errorFileInfoWindow.Show();
     }

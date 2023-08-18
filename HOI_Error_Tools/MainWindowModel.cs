@@ -17,6 +17,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using MessageBox = HandyControl.Controls.MessageBox;
+using Microsoft.Toolkit.Uwp.Notifications;
 
 namespace HOI_Error_Tools;
 
@@ -42,7 +43,7 @@ public partial class MainWindowModel : ObservableObject
     
 
     private Descriptor? _descriptor;
-    private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+    private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
     public MainWindowModel()
     {
@@ -71,6 +72,7 @@ public partial class MainWindowModel : ObservableObject
 
             _descriptor = descriptor;
         }
+        Log.Debug("Property changed: {PropertyName}", e.PropertyName);
     }
 
     [RelayCommand]
@@ -114,12 +116,18 @@ public partial class MainWindowModel : ObservableObject
         LoadingCircleIsRunning = true;
 
         var oTime = new Stopwatch();
-        _logger.Info("开始分析");
+        Log.Info("开始分析");
         oTime.Start();
         await StartAnalyzersAsync();
         oTime.Stop();
         var elapsedTime = oTime.Elapsed;
-        _logger.Info("分析完成, 用时: {Second:F1} s, {Millisecond:F0} ms",
+
+        new ToastContentBuilder()
+            .AddText("解析完成")
+            .AddText($"共用时 {elapsedTime.TotalSeconds:F1} 秒")
+            .Show();
+
+        Log.Info("分析完成, 用时: {Second:F1} s, {Millisecond:F0} ms",
             elapsedTime.TotalSeconds, elapsedTime.TotalMilliseconds);
     }
 
@@ -167,5 +175,12 @@ public partial class MainWindowModel : ObservableObject
     private static void ClickSettingsButton()
     {
         WeakReferenceMessenger.Default.Send(GlobalSettings.Settings);
+    }
+
+    [RelayCommand]
+    private static void WindowClosing()
+    {
+        ToastNotificationManagerCompat.Uninstall();
+        Log.Info("Main Window Closing");
     }
 }

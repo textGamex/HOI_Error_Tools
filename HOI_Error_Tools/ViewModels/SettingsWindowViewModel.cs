@@ -7,6 +7,7 @@ using EnumsNET;
 using HOI_Error_Tools.Logic;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using Humanizer;
+using Microsoft.Toolkit.Uwp.Notifications;
 using NLog;
 using MessageBox = HandyControl.Controls.MessageBox;
 
@@ -60,16 +61,23 @@ public partial class SettingsWindowViewModel : ObservableObject
             }
         }
         Log.Debug(CultureInfo.InvariantCulture, 
-            "Changed error codes: {ChangedErrorCodes}", string.Join(", ", _changedErrorCodes));
+            "Changed codes: {ChangedErrorCodes}", string.Join(", ", _changedErrorCodes));
         _changedErrorCodes.Clear();
     }
 
     [RelayCommand]
     private void SaveButton()
     {
+        if (_changedErrorCodes.Count == 0)
+        {
+            return;
+        }
         ProcessChangedErrorCodes();
         _settings.Save();
-        MessageBox.Success("保存成功");
+
+        new ToastContentBuilder()
+            .AddText("设置已保存")
+            .Show();
     }
 
     [RelayCommand]
@@ -77,6 +85,7 @@ public partial class SettingsWindowViewModel : ObservableObject
     {
         _changedErrorCodes.Clear();
         Data = GetViewVOs();
+        Log.Debug("Reset button clicked");
     }
 
     private List<SettingsWindowViewVO> GetViewVOs()
@@ -95,7 +104,7 @@ public partial class SettingsWindowViewModel : ObservableObject
     [RelayCommand]
     private void WindowClosing()
     {
-        Log.Debug("Window closing event");
+        Log.Debug("Settings window closing event");
         if (_changedErrorCodes.Count == 0)
         {
             return;

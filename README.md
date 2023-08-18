@@ -1,20 +1,20 @@
 # HOI Error Tools
 
-## ½éÉÜ
+## ä»‹ç»
 
-> ±¾ÏîÄ¿ÊÇÒ»¸öÓÃÓÚ·ÖÎöHOI4´úÂë´íÎóµÄ¹¤¾ß.
-> Ê¹ÓÃ`C#`±àÐ´, »ùÓÚ`.NET 6`, Ê¹ÓÃ`WPF`×÷ÎªGUI¿ò¼Ü, ²ÉÓÃ MVVM Ä£Ê½.
+> æœ¬é¡¹ç›®æ˜¯ä¸€ä¸ªç”¨äºŽåˆ†æžHOI4ä»£ç é”™è¯¯çš„å·¥å…·.
+> ä½¿ç”¨`C#`ç¼–å†™, åŸºäºŽ`.NET 6`, ä½¿ç”¨`WPF`ä½œä¸ºGUIæ¡†æž¶, é‡‡ç”¨ MVVM æ¨¡å¼.
 
-## ¹¦ÄÜ
+## åŠŸèƒ½
 
-- [x] ·ÖÎö´úÂëÎÄ¼þ, Éú²ú´íÎóÐÅÏ¢.
-- [ ] ¶àÓïÑÔÖ§³Ö
-- [ ] Ò»¼üÐÞ¸´²¿·Ö´íÎó
-- [x] ÒÖÖÆ´íÎó
+- [x] åˆ†æžä»£ç æ–‡ä»¶, ç”Ÿäº§é”™è¯¯ä¿¡æ¯.
+- [ ] å¤šè¯­è¨€æ”¯æŒ
+- [ ] ä¸€é”®ä¿®å¤éƒ¨åˆ†é”™è¯¯
+- [x] æŠ‘åˆ¶é”™è¯¯
 
-## ¼¼ÊõÕ»
+## æŠ€æœ¯æ ˆ
 
-- ÈÕÖ¾¿ò¼Ü: `NLog`
-- MVVM¹¤¾ß°ü: `CommunityToolkit.Mvvm`
-- HOI4½âÎö¿â: ¾­¹ý¶¨ÏòÓÅ»¯µÄ`CWTools_Plus` (Ô­ÏîÄ¿: `CWTools`)
-- WPFÖ÷Ìâ: `HandyControl`
+- æ—¥å¿—æ¡†æž¶: `NLog`
+- MVVMå·¥å…·åŒ…: `CommunityToolkit.Mvvm`
+- HOI4è§£æžåº“: ç»è¿‡å®šå‘ä¼˜åŒ–çš„`CWTools_Plus` (åŽŸé¡¹ç›®: `CWTools`)
+- WPFä¸»é¢˜: `HandyControl`
