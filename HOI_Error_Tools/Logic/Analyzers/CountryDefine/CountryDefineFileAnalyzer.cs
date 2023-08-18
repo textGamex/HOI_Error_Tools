@@ -12,6 +12,7 @@ namespace HOI_Error_Tools.Logic.Analyzers.CountryDefine;
 public partial class CountryDefineFileAnalyzer : AnalyzerBase
 {
     private readonly string _filePath;
+    private string CountryTag => _filePath[..3];
     private readonly IReadOnlySet<string> _registeredCountriesTag;
     private readonly IReadOnlySet<string> _registeredIdeas;
     private readonly IReadOnlySet<string> _registeredIdeologies;
@@ -50,7 +51,23 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
         errorList.AddRange(AnalyzeCountriesTagOfAddToFaction(model));
         errorList.AddRange(AnalyzeSetAutonomys(model));
         errorList.AddRange(AnalyzeSetTechnologies(model));
+        errorList.AddRange(AnalyzeGiveGuaranteeCountriesTag(model));
 
+        return errorList;
+    }
+
+    private IEnumerable<ErrorMessage> AnalyzeGiveGuaranteeCountriesTag(CountryDefineFileModel model)
+    {
+        var errorList = new List<ErrorMessage>();
+        foreach (var leafContent in model.GiveGuaranteeCountriesTag)
+        {
+            if (!_registeredCountriesTag.Contains(leafContent.Key))
+            {
+                errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                                       ErrorCode.CountryTagNotExists, _filePath, 
+                                       leafContent.Position, $"被 '{CountryTag}' 保障的国家 '{leafContent.Key}' 不存在"));
+            }
+        }
         return errorList;
     }
 
