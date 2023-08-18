@@ -21,6 +21,10 @@
         </i:EventTrigger>
     </i:Interaction.Triggers>
 
+    <Window.InputBindings>
+        <KeyBinding Key="Enter" Command="{Binding StartParseCommand, Mode=Default}" />
+    </Window.InputBindings>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="0.08*" />
@@ -89,7 +93,7 @@
             Margin="311,200,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
-            Command="{Binding ClickStartButtonCommand, Mode=Default}"
+            Command="{Binding StartParseCommand, Mode=Default}"
             Content="{Binding StartParseButtonText, Mode=Default}" />
         <hc:LoadingCircle
             x:Name="LoadingCircle"
