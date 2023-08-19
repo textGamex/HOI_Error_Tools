@@ -17,7 +17,7 @@ namespace HOI_Error_Tools.Logic;
 
 public class GameResources
 {
-    public static IReadOnlyCollection<ErrorMessage> ErrorMessages => errorMessageCache;
+    public static IReadOnlyCollection<ErrorMessage> ErrorMessages => ErrorMessageCache;
     public IReadOnlySet<uint> RegisteredProvinceSet => _registeredProvinces;
     public IReadOnlyDictionary<string, BuildingInfo> BuildingInfoMap => _buildingInfos;
     public IReadOnlySet<string> ResourcesType { get; }
@@ -31,10 +31,9 @@ public class GameResources
     private readonly ImmutableDictionary<string, BuildingInfo> _buildingInfos;
     private readonly ImmutableHashSet<uint> _registeredProvinces;
     private readonly GameResourcesPath _gameResourcesPath;
-    private readonly IEnumerable<string> _registeredIdeaTag;
 
-    private static readonly ConcurrentBag<ErrorMessage> errorMessageCache = new();
-    private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+    private static readonly ConcurrentBag<ErrorMessage> ErrorMessageCache = new();
+    private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
     public GameResources(string gameRootPath, string modRootPath) : this(new GameResourcesPath(gameRootPath, modRootPath))
     {
@@ -49,8 +48,8 @@ public class GameResources
         RegisteredStateCategories = GetRegisteredStateCategories();
         RegisteredCountriesTag = GetCountriesTag();
         RegisteredIdeologies = GetRegisteredIdeologies();
-        _registeredIdeaTag = GetRegisteredIdeaTags();
-        RegisteredIdeas = GetRegisteredIdeas(_registeredIdeaTag.ToList());
+        var registeredIdeaTag = GetRegisteredIdeaTags();
+        RegisteredIdeas = GetRegisteredIdeas(registeredIdeaTag.ToList());
         //RegisteredEquipmentSet = GetRegisteredEquipment();
         RegisteredTechnologiesSet = GetRegisteredTechnologies();
     }
@@ -73,14 +72,14 @@ public class GameResources
             var parser = new CWToolsParser(path);
             if (parser.IsFailure)
             {
-                errorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(path, parser.GetError()));
+                ErrorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(path, parser.GetError()));
                 continue;
             }
 
             var rootNode = parser.GetResult();
             if (rootNode.HasNot(keyword))
             {
-                errorMessageCache.Add(ErrorMessageFactory.CreateEmptyFileErrorMessage(path));
+                ErrorMessageCache.Add(ErrorMessageFactory.CreateEmptyFileErrorMessage(path));
                 continue;
             }
             var keywordNode = rootNode.Child(keyword).Value;
@@ -94,7 +93,7 @@ public class GameResources
                         fileInfo,
                         new(path, new Position(node.Position))
                     };
-                    errorMessageCache.Add(new ErrorMessage(ErrorCode.UniqueValueIsRepeated, fileInfos, $"重复的 '{keyword}' 定义 '{node.Key}'", ErrorLevel.Error));
+                    ErrorMessageCache.Add(new ErrorMessage(ErrorCode.UniqueValueIsRepeated, fileInfos, $"重复的 '{keyword}' 定义 '{node.Key}'", ErrorLevel.Error));
                 }
                 else
                 {
@@ -117,14 +116,14 @@ public class GameResources
             var parser = new CWToolsParser(path);
             if (parser.IsFailure)
             {
-                errorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(path, parser.GetError()));
+                ErrorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(path, parser.GetError()));
                 continue;
             }
 
             var rootNode = parser.GetResult();
             if (rootNode.HasNot(ideaCategoriesKey))
             {
-                errorMessageCache.Add(ErrorMessageFactory.CreateEmptyFileErrorMessage(path));
+                ErrorMessageCache.Add(ErrorMessageFactory.CreateEmptyFileErrorMessage(path));
                 continue;
             }
 
@@ -154,7 +153,7 @@ public class GameResources
             var parser = new CWToolsParser(path);
             if (parser.IsFailure)
             {
-                errorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(path, parser.GetError()));
+                ErrorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(path, parser.GetError()));
                 continue;
             }
 
@@ -192,7 +191,7 @@ public class GameResources
                         new(value.FilePath, value.Position),
                         new(value.FilePath, new Position(item.Position))
                     };
-                    errorMessageCache.Add(new ErrorMessage(
+                    ErrorMessageCache.Add(new ErrorMessage(
                         ErrorCode.UniqueValueIsRepeated,
                         fileInfo, $"重复的定义 Ideas '{item.Key}'", ErrorLevel.Error));
                 }
@@ -216,7 +215,7 @@ public class GameResources
                     fileInfo,
                     mainFilePath
                 };
-                errorMessageCache.Add(new ErrorMessage(
+                ErrorMessageCache.Add(new ErrorMessage(
                     ErrorCode.UniqueValueIsRepeated,
                     fileInfoList, $"重复的定义 Ideas '{ideaKey}'", ErrorLevel.Error));
             }
@@ -236,7 +235,7 @@ public class GameResources
             var parser = new CWToolsParser(path);
             if (parser.IsFailure)
             {
-                errorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(path, parser.GetError()));
+                ErrorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(path, parser.GetError()));
                 continue;
             }
 
@@ -256,7 +255,7 @@ public class GameResources
                         new (path, new Position(ideology.Position)),
                         new (ideologyPosition.FilePath, ideologyPosition.Position)
                     };
-                    errorMessageCache.Add(new ErrorMessage(
+                    ErrorMessageCache.Add(new ErrorMessage(
                         ErrorCode.UniqueValueIsRepeated,
                         fileInfoList, "重复定义 ideology", ErrorLevel.Warn));
                 }
@@ -281,7 +280,7 @@ public class GameResources
             var parser = new CWToolsParser(path);
             if (parser.IsFailure)
             {
-                errorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(
+                ErrorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(
                     path, parser.GetError()));
                 continue;
             }
@@ -304,7 +303,7 @@ public class GameResources
 
             if (!separateBuilder.Add(leaf.Key))
             {
-                errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                ErrorMessageCache.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                     ErrorCode.UniqueValueIsRepeated,
                     filePath, new Position(leaf.Position), $"重复的国家标签 '{leaf.Key}'"));
             }
@@ -320,7 +319,7 @@ public class GameResources
             var parser = new CWToolsParser(path);
             if (parser.IsFailure)
             {
-                errorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(
+                ErrorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(
                     path, parser.GetError()));
                 continue;
             }
@@ -328,7 +327,7 @@ public class GameResources
             var result = parser.GetResult();
             if (result.HasNot(Key.StateCategories))
             {
-                errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(
+                ErrorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(
                     ErrorCode.KeywordIsMissing, path, $"缺少 '{Key.StateCategories}' 关键字"));
                 continue;
             }
@@ -351,7 +350,7 @@ public class GameResources
             if (parser.IsFailure)
             {
                 var error = parser.GetError();
-                errorMessageCache.Add(
+                ErrorMessageCache.Add(
                     ErrorMessageFactory.CreateParseErrorMessage(filePath, error));
                 continue;
             }
@@ -359,7 +358,7 @@ public class GameResources
             var node = parser.GetResult();
             if (node.HasNot(ScriptKeyWords.Buildings))
             {
-                errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(
+                ErrorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(
                     ErrorCode.KeywordIsMissing, filePath, $"缺少 '{ScriptKeyWords.Buildings}' 关键字"));
                 continue;
             }
@@ -403,7 +402,7 @@ public class GameResources
         var maxLevelLeafs = buildingNode.Leafs(Key.MaxLevel).ToList();
         if (maxLevelLeafs.Count > 1)
         {
-            errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+            ErrorMessageCache.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                 ErrorCode.UniqueValueIsRepeated,
                 filePath, new Position(maxLevelLeafs[0].Position), "重复的 Key"));
         }
@@ -413,7 +412,7 @@ public class GameResources
         {
             return true;
         }
-        errorMessageCache.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+        ErrorMessageCache.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
             ErrorCode.ValueIsOutOfRange,
             filePath,
             new Position(maxLevelLeaf.Position),
@@ -456,7 +455,7 @@ public class GameResources
             var parser = new CWToolsParser(path);
             if (parser.IsFailure)
             {
-                errorMessageCache.Add(
+                ErrorMessageCache.Add(
                     ErrorMessageFactory.CreateParseErrorMessage(path, parser.GetError()));
                 continue;
             }
@@ -464,7 +463,7 @@ public class GameResources
             var rootNode = parser.GetResult();
             if (rootNode.HasNot(ScriptKeyWords.Resources))
             {
-                errorMessageCache.Add(
+                ErrorMessageCache.Add(
                     ErrorMessageFactory.CreateEmptyFileErrorMessage(path));
                 continue;
             }
@@ -480,7 +479,7 @@ public class GameResources
                     builder.Add(type);
                     continue;
                 }
-                errorMessageCache.Add(
+                ErrorMessageCache.Add(
                     ErrorMessageFactory.CreateSingleFileError(ErrorCode.DuplicateRegistration,
                         path, $"重复定义的资源类型: '{type}'"));
             }
@@ -496,7 +495,7 @@ public class GameResources
         {
             if (set.Contains(node.Key))
             {
-                errorMessageCache.Add(
+                ErrorMessageCache.Add(
                     ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                         ErrorCode.DuplicateRegistration,
                         filePath, new Position(node.Position), $"重复定义的资源类型: '{node.Key}'", ErrorLevel.Warn));
@@ -510,7 +509,7 @@ public class GameResources
 
     public static void ClearErrorMessagesCache()
     {
-        errorMessageCache.Clear();
+        ErrorMessageCache.Clear();
     }
 
     private static class Key
