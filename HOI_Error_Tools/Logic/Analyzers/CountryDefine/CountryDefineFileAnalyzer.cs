@@ -11,34 +11,34 @@ namespace HOI_Error_Tools.Logic.Analyzers.CountryDefine;
 
 public partial class CountryDefineFileAnalyzer : AnalyzerBase
 {
-    private readonly string _filePath;
-    private string CountryTag => _filePath[..3];
+    private string CountryTag => FileName[..3];
     private readonly IReadOnlySet<string> _registeredCountriesTag;
     private readonly IReadOnlySet<string> _registeredIdeas;
     private readonly IReadOnlySet<string> _registeredIdeologies;
     private readonly IReadOnlySet<string> _registeredTechnologies;
+    private readonly IReadOnlySet<string> _registeredAutonomousState;
     //private readonly IReadOnlySet<string> _registeredEquipments;
     private readonly AnalyzerHelper _helper;
 
-    public CountryDefineFileAnalyzer(string filePath, GameResources resources)
+    public CountryDefineFileAnalyzer(string filePath, GameResources resources) : base(filePath)
     {
-        _filePath = filePath;
-        _helper = new AnalyzerHelper(_filePath);
+        _helper = new AnalyzerHelper(FilePath);
         _registeredCountriesTag = resources.RegisteredCountriesTag;
         _registeredIdeologies = resources.RegisteredIdeologies;
         _registeredIdeas = resources.RegisteredIdeas;
         _registeredTechnologies = resources.RegisteredTechnologiesSet;
         //_registeredEquipments = resources.RegisteredEquipmentSet;
+        _registeredAutonomousState = resources.RegisteredAutonomousState;
     }
 
     public override IEnumerable<ErrorMessage> GetErrorMessages()
     {
         var errorList = new List<ErrorMessage>();
 
-        var parser = new CWToolsParser(_filePath);
+        var parser = new CWToolsParser(FilePath);
         if (parser.IsFailure)
         {
-            errorList.Add(ErrorMessageFactory.CreateParseErrorMessage(_filePath, parser.GetError()));
+            errorList.Add(ErrorMessageFactory.CreateParseErrorMessage(FilePath, parser.GetError()));
             return errorList;
         }
         var model = new CountryDefineFileModel(parser.GetResult());
@@ -61,11 +61,11 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
         var errorList = new List<ErrorMessage>();
         foreach (var leafContent in model.GiveGuaranteeCountriesTag)
         {
-            if (!_registeredCountriesTag.Contains(leafContent.Key))
+            if (!_registeredCountriesTag.Contains(leafContent.ValueText))
             {
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                                       ErrorCode.CountryTagNotExists, _filePath, 
-                                       leafContent.Position, $"被 '{CountryTag}' 保障的国家 '{leafContent.Key}' 不存在"));
+                                       ErrorCode.CountryTagNotExists, FilePath, 
+                                       leafContent.Position, $"被 '{CountryTag}' 保障的国家 '{leafContent.ValueText}' 不存在"));
             }
         }
         return errorList;
@@ -82,7 +82,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
                 {
                     errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                         ErrorCode.TechnologyNotExists,
-                        _filePath, leafContent.Position, $"科技 '{leafContent.Key}' 不存在"));
+                        FilePath, leafContent.Position, $"科技 '{leafContent.Key}' 不存在"));
                 }
             }
         }
@@ -98,10 +98,11 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
 
         var errorList = new List<ErrorMessage>();
         const string targetKey = "target";
+        const string autonomousStateKey = "autonomous_state";
         var keywordMap = new Dictionary<string, Value.Types>(3)
         {
             { targetKey, Value.Types.String },
-            { "autonomous_state", Value.Types.String },
+            { autonomousStateKey, Value.Types.String },
             { "freedom_level", Value.Types.Float }
         };
         
@@ -111,6 +112,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
             var target = TryGetLeafContent(setAutonomyNode, targetKey);
             if (target is null)
             {
+                errorList.Add(ErrorMessageFactory.CreateKeywordIsMissingErrorMessage(FilePath, setAutonomyNode, targetKey));
                 continue;
             }
 
@@ -118,7 +120,19 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
             {
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                     ErrorCode.CountryTagNotExists,
-                    _filePath, target.Position, $"国家Tag '{target.ValueText}' 不存在"));
+                    FilePath, target.Position, $"国家Tag '{target.ValueText}' 不存在"));
+            }
+
+            var autonomousState = TryGetLeafContent(setAutonomyNode, autonomousStateKey);
+            if (autonomousState is null)
+            {
+                errorList.Add(ErrorMessageFactory.CreateKeywordIsMissingErrorMessage(FilePath, setAutonomyNode, autonomousStateKey));
+                continue;
+            }
+            if (!_registeredAutonomousState.Contains(autonomousState.ValueText))
+            {
+                errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                    ErrorCode.InvalidValue, FilePath, autonomousState.Position, $"自治等级 '{autonomousState.ValueText}' 未注册"));
             }
         }
         return errorList;
@@ -127,6 +141,13 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
     private IEnumerable<ErrorMessage> AnalyzePolitics(CountryDefineFileModel model)
     {
         var errorList = new List<ErrorMessage>();
+        var errorMessage = _helper.AssertExistKeyword(model.SetPoliticsList, "set_politics", ErrorLevel.Warn);
+        if (errorMessage is not null)
+        {
+            errorList.Add(errorMessage);
+            return errorList;
+        }
+
         const string rulingPartyKey = "ruling_party";
         var keyMap = new Dictionary<string, Value.Types>(4)
         {
@@ -135,13 +156,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
             { "election_frequency", Value.Types.Integer },
             { "elections_allowed", Value.Types.Boolean }
         };
-        var errorMessage = _helper.AssertExistKeyword(model.SetPoliticsList, "set_politics", ErrorLevel.Warn);
-        if (errorMessage is not null)
-        {
-            errorList.Add(errorMessage);
-            return errorList;
-        }
-
+        
         foreach (var leavesNode in model.SetPoliticsList)
         {
             errorList.AddRange(_helper.AssertKeywordsIsValid(leavesNode, keyMap.Keys.ToHashSet()));
@@ -155,21 +170,21 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
             if (!rulingParty.Value.IsString)
             {
                 errorList.Add(ErrorMessageFactory.CreateInvalidValueErrorMessage(
-                    _filePath, rulingParty, Enum.GetName(Value.Types.String) ?? string.Empty));
+                    FilePath, rulingParty, Enum.GetName(Value.Types.String) ?? string.Empty));
                 continue;
             }
 
             if (!_registeredIdeologies.Contains(rulingParty.ValueText))
             {
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    ErrorCode.InvalidValue, _filePath, rulingParty.Position, $"意识形态 '{rulingParty.ValueText}' 未定义"));
+                    ErrorCode.InvalidValue, FilePath, rulingParty.Position, $"意识形态 '{rulingParty.ValueText}' 未定义"));
             }
 
             if (!model.SetPopularitiesList.Any(node => node.Leaves.Any(leaf => leaf.Key == rulingParty.ValueText)))
             {
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                     ErrorCode.InvalidValue,
-                    _filePath, rulingParty.Position, $"执政党 '{rulingParty.ValueText}' 未在 'set_popularities' 中设置支持率"));
+                    FilePath, rulingParty.Position, $"执政党 '{rulingParty.ValueText}' 未在 'set_popularities' 中设置支持率"));
             }
         }
         return errorList;
@@ -179,19 +194,6 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
     {
         return node.Leaves.FirstOrDefault(leafContent => leafContent.Key == key);
     }
-
-    //private IEnumerable<ErrorMessage> AnalyzePoliticsKeywords(LeavesNode node, IEnumerable<string> keywords)
-    //{
-    //    foreach (var keyword in keywords)
-    //    {
-    //        var leaf = node.Leaves.FirstOrDefault(l => l.Key == keyword);
-    //        if (leaf is null)
-    //        {
-    //            yield return ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-    //                _filePath, node.Position, $"缺少关键字 '{keyword}'");
-    //        }
-    //    }
-    //}
 
     private IEnumerable<ErrorMessage> AnalyzeIdeas(CountryDefineFileModel model)
     {
@@ -203,7 +205,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
                 if (!_registeredIdeas.Contains(idea.ValueText))
                 {
                     errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                        ErrorCode.InvalidValue, _filePath, idea.Position, $"Idea '{idea.ValueText}' 未定义"));
+                        ErrorCode.InvalidValue, FilePath, idea.Position, $"Idea '{idea.ValueText}' 未定义"));
                 }
             }
         }
@@ -231,12 +233,12 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
                 if (!_registeredIdeologies.Contains(ideologiesName))
                 {
                     errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                        ErrorCode.InvalidValue, _filePath, popularity.Position, $"未注册的意识形态 '{ideologiesName}'"));
+                        ErrorCode.InvalidValue, FilePath, popularity.Position, $"未注册的意识形态 '{ideologiesName}'"));
                 }
 
                 if (!popularity.Value.IsInt)
                 {
-                    errorList.Add(ErrorMessageFactory.CreateFailedStringToIntErrorMessage(_filePath, popularity));
+                    errorList.Add(ErrorMessageFactory.CreateFailedStringToIntErrorMessage(FilePath, popularity));
                     continue;
                 }
                 sum += uint.Parse(proportionText, CultureInfo.InvariantCulture);
@@ -245,7 +247,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
             if (sum != 100)
             {
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    ErrorCode.InvalidValue, _filePath, popularities.Position, "政党支持率总和不为100"));
+                    ErrorCode.InvalidValue, FilePath, popularities.Position, "政党支持率总和不为100"));
             }
         }
         return errorList;
@@ -283,7 +285,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
             {
                  errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                      ErrorCode.CountryTagNotExists,
-                     _filePath, puppet.Position, $"国家Tag '{puppet.ValueText}' 未定义, 却在 '{puppet.Key}' 中使用"));
+                     FilePath, puppet.Position, $"国家Tag '{puppet.ValueText}' 未定义, 却在 '{puppet.Key}' 中使用"));
             }
         }
         return errorList;
@@ -303,7 +305,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
             {
                 errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                     ErrorCode.CountryTagNotExists,
-                    _filePath, leafContent.Position, $"国家 Tag '{leafContent.ValueText}' 未注册, 却在 '{leafContent.Key}' 中使用"));
+                    FilePath, leafContent.Position, $"国家 Tag '{leafContent.ValueText}' 未注册, 却在 '{leafContent.Key}' 中使用"));
             }
         }
 

@@ -53,7 +53,7 @@ public static class ParseHelper
     {
         var nodeList = GetAllNodeInAll(rootNode, nodeKey);
         return nodeList
-            .Select(node => new LeavesNode(GetAllLeafContentInCurrentNode(node), new Position(node.Position)))
+            .Select(node => new LeavesNode(node.Key, GetAllLeafContentInCurrentNode(node), new Position(node.Position)))
             .ToList();
     }
 

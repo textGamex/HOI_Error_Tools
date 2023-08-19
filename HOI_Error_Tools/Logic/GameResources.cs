@@ -27,6 +27,7 @@ public class GameResources
     public IReadOnlySet<string> RegisteredIdeas { get; }
     //public IReadOnlySet<string> RegisteredEquipmentSet { get; }
     public IReadOnlySet<string> RegisteredTechnologiesSet { get; }
+    public IReadOnlySet<string> RegisteredAutonomousState { get; }
 
     private readonly ImmutableDictionary<string, BuildingInfo> _buildingInfos;
     private readonly ImmutableHashSet<uint> _registeredProvinces;
@@ -52,6 +53,45 @@ public class GameResources
         RegisteredIdeas = GetRegisteredIdeas(registeredIdeaTag.ToList());
         //RegisteredEquipmentSet = GetRegisteredEquipment();
         RegisteredTechnologiesSet = GetRegisteredTechnologies();
+        RegisteredAutonomousState = GetRegisteredAutonomousState();
+    }
+
+    private IReadOnlySet<string> GetRegisteredAutonomousState()
+    {
+        var set = ImmutableHashSet.CreateBuilder<string>();
+
+        foreach (var path in _gameResourcesPath.AutonomousStateFilesPath)
+        {
+            var parser = new CWToolsParser(path);
+            if (parser.IsFailure)
+            {
+                ErrorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(path, parser.GetError()));
+                continue;
+            }
+
+            var rootNode = parser.GetResult();
+            const string autonomyStateKeyword = "autonomy_state";
+            if (rootNode.HasNot(autonomyStateKeyword))
+            {
+                ErrorMessageCache.Add(ErrorMessageFactory.CreateEmptyFileErrorMessage(path));
+                continue;
+            }
+
+            var autonomousStatesNode = rootNode.Child(autonomyStateKeyword).Value;
+            if (autonomousStatesNode.HasNot("id"))
+            {
+                ErrorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(ErrorCode.KeywordIsMissing, path, "缺少 'id'"));
+                continue;
+            }
+            var idLeaf = autonomousStatesNode.Leafs("id").First();
+            if (!set.Add(idLeaf.ValueText))
+            {
+                ErrorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(
+                    ErrorCode.UniqueValueIsRepeated, path, $"重复的 autonomy_state id 定义 '{idLeaf.Value}'"));
+            }
+        }
+
+        return set.ToImmutable();
     }
 
     private IReadOnlySet<string> GetRegisteredTechnologies()

@@ -28,11 +28,12 @@ public sealed class GameResourcesPath
     public IReadOnlyList<string> TechnologyFilesPath { get; }
     public IReadOnlyList<string> CountriesTagFilePath { get; }
     public IReadOnlyList<string> IdeologiesFilePath { get; }
+    public IReadOnlyList<string> AutonomousStateFilesPath { get; }
     public IReadOnlyList<string> BuildingsFilePathList => _buildingsFilePathList;
     public IReadOnlyList<string> ResourcesTypeFilePathList => _resourcesTypeFilePathList;
     public IReadOnlyList<string> StatesFilePathList => _statesFilePathList;
 
-    public int FileSum { get; } // 这个 1 是 ProvincesDefinitionFilePath 文件
+    public int FileSum { get; }
 
     private readonly ImmutableList<string> _statesFilePathList;
     private readonly ImmutableList<string> _buildingsFilePathList;
@@ -49,11 +50,11 @@ public sealed class GameResourcesPath
     {
         if (!Directory.Exists(gameRootPath))
         {
-            throw new DirectoryNotFoundException($"文件夹不存在 {gameRootPath}");
+            throw new DirectoryNotFoundException($"文件夹不存在: {gameRootPath}");
         }
         if (!Directory.Exists(modRootPath))
         {
-            throw new DirectoryNotFoundException($"文件夹不存在 {modRootPath}");
+            throw new DirectoryNotFoundException($"文件夹不存在: {modRootPath}");
         }
 
         GameRootPath = gameRootPath;
@@ -62,6 +63,7 @@ public sealed class GameResourcesPath
         GameLocPath = GetLocPath(GameRootPath);
         ModLocPath = GetLocPath(ModRootPath);
         ProvincesDefinitionFilePath = GetFilePathPriorModByRelativePath(Path.Combine(Key.Map, "definition.csv"));
+
         StateCategoriesFilePath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.StateCategory)).ToList();
         CountriesDefineFilePath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(ScriptKeyWords.History, "countries")).ToList();
         IdeaFilesPath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.Ideas)).ToList();
@@ -69,6 +71,7 @@ public sealed class GameResourcesPath
         EquipmentFilesPath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "units", "equipment"))
             .Where(path => Path.GetExtension(path) == ".txt").ToList();
         TechnologyFilesPath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "technologies")).ToList();
+        AutonomousStateFilesPath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "autonomous_states")).ToList();
 
         CountriesTagFilePath = ImmutableList.CreateRange(GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "country_tags")));
         IdeologiesFilePath = ImmutableList.CreateRange(GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.Ideologies)));
@@ -85,7 +88,7 @@ public sealed class GameResourcesPath
                   EquipmentFilesPath.Count + TechnologyFilesPath.Count +
                   CountriesTagFilePath.Count + IdeologiesFilePath.Count +
                   BuildingsFilePathList.Count + ResourcesTypeFilePathList.Count +
-                  StatesFilePathList.Count + 1;
+                  StatesFilePathList.Count + AutonomousStateFilesPath.Count + 1; // 这个 1 是 ProvincesDefinitionFilePath 文件
     }
 
     private static string GetLocPath(string rootPath)
