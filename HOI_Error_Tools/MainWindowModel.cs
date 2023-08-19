@@ -14,9 +14,11 @@ using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Media.Imaging;
 using MessageBox = HandyControl.Controls.MessageBox;
 using Microsoft.Toolkit.Uwp.Notifications;
 
@@ -41,6 +43,8 @@ public partial class MainWindowModel : ObservableObject
 
     [ObservableProperty]
     private string _modTags = string.Empty;
+    [ObservableProperty]
+    private BitmapImage? _modImage;
     
     private Descriptor? _descriptor;
     private int _fileSum;
@@ -71,6 +75,23 @@ public partial class MainWindowModel : ObservableObject
             var descriptor = new Descriptor(ModRootPath);
             ModName = descriptor.Name;
             ModTags = string.Join(", ", descriptor.Tags);
+
+            var imagePath = Path.Combine(ModRootPath, "thumbnail.png");
+            if (File.Exists(imagePath))
+            {
+                var newImage = new BitmapImage();
+                using var ms = new MemoryStream(File.ReadAllBytes(imagePath));
+                newImage.BeginInit();
+                newImage.CacheOption = BitmapCacheOption.OnLoad;
+                newImage.StreamSource = ms;
+                newImage.EndInit();
+                newImage.Freeze();
+                ModImage = newImage;
+            }
+            else
+            {
+                ModImage = null;
+            }
 
             _descriptor = descriptor;
         }

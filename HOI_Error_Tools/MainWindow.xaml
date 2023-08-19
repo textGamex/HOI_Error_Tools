@@ -108,7 +108,7 @@
         <TextBox
             Grid.Row="1"
             Width="185"
-            Margin="10,233,0,0"
+            Margin="10,243,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
             hc:InfoElement.Title="Mod名称"
@@ -119,7 +119,7 @@
         <TextBox
             Grid.Row="1"
             Width="185"
-            Margin="10,295,0,0"
+            Margin="10,315,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
             hc:InfoElement.Title="Mod标签"
@@ -127,5 +127,13 @@
             Style="{StaticResource TextBoxExtend}"
             Text="{Binding ModTags, Mode=Default}"
             TextWrapping="NoWrap" />
+        <Image
+            Grid.Row="1"
+            Width="200"
+            Height="200"
+            Margin="635,285,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Source="{Binding ModImage, Mode=Default}" />
     </Grid>
 </Window>
