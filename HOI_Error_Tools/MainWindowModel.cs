@@ -19,6 +19,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
+using Jot;
+using Microsoft.Extensions.DependencyInjection;
 using MessageBox = HandyControl.Controls.MessageBox;
 using Microsoft.Toolkit.Uwp.Notifications;
 
@@ -49,17 +51,18 @@ public partial class MainWindowModel : ObservableObject
     private Descriptor? _descriptor;
     private int _fileSum;
 
-    private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+    private readonly ILogger _log;
 
-    public MainWindowModel()
+    public MainWindowModel(ILogger logger, Tracker tracker)
     {
+        _log = logger;
         PropertyChanged += MainWindowModel_OnPropertyChanged;
 
-        App.Tracker.Configure<MainWindowModel>()
+        tracker.Configure<MainWindowModel>()
             .Id(w => "MainUI")
             .Properties(w => new { w.GameRootPath, w.ModRootPath })
             .PersistOn(nameof(PropertyChanged));
-        App.Tracker.Track(this);
+        tracker.Track(this);
 
 #if DEBUG
         //GameRootPath = @"D:\STEAM\steamapps\common\Hearts of Iron IV";
@@ -95,7 +98,7 @@ public partial class MainWindowModel : ObservableObject
 
             _descriptor = descriptor;
         }
-        Log.Debug(CultureInfo.InvariantCulture,
+        _log.Debug(CultureInfo.InvariantCulture,
             "Property changed: {PropertyName}", e.PropertyName);
     }
 
@@ -140,7 +143,7 @@ public partial class MainWindowModel : ObservableObject
         LoadingCircleIsRunning = true;
 
         var oTime = new Stopwatch();
-        Log.Info("开始分析");
+        _log.Info("开始分析");
         oTime.Start();
         await StartAnalyzersAsync();
         oTime.Stop();
@@ -151,7 +154,7 @@ public partial class MainWindowModel : ObservableObject
             .AddText($"共解析 {_fileSum} 文件, 用时 {elapsedTime.TotalSeconds:F1} 秒")
             .Show();
 
-        Log.Info("分析完成, 用时: {Second:F1} s, {Millisecond:F0} ms",
+        _log.Info("分析完成, 用时: {Second:F1} s, {Millisecond:F0} ms",
             elapsedTime.TotalSeconds, elapsedTime.TotalMilliseconds);
     }
 
@@ -201,13 +204,13 @@ public partial class MainWindowModel : ObservableObject
     [RelayCommand]
     private static void ClickSettingsButton()
     {
-        WeakReferenceMessenger.Default.Send(GlobalSettings.Settings);
+        WeakReferenceMessenger.Default.Send(App.Current.Services.GetRequiredService<GlobalSettings>());
     }
 
     [RelayCommand]
-    private static void WindowClosing()
+    private void WindowClosing()
     {
         ToastNotificationManagerCompat.Uninstall();
-        Log.Info("Main Window Closing");
+        _log.Info("Main Window Closing");
     }
 }

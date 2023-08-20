@@ -9,7 +9,6 @@ namespace HOI_Error_Tools.View;
 /// </summary>
 public partial class ErrorMessageWindowView
 {
-    private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
     public ErrorMessageWindowView(IReadOnlyList<ErrorMessage> errors)
     {
         InitializeComponent();

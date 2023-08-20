@@ -7,17 +7,15 @@ using HOI_Error_Tools.View;
 using NLog;
 using System.Collections.Generic;
 using System.Windows;
+using Microsoft.Extensions.DependencyInjection;
+
 namespace HOI_Error_Tools;
 
 public partial class MainWindow : Window
 {
-    private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
-
     public MainWindow()
     {
         InitializeComponent();
-
-        this.DataContext = new MainWindowModel();
 
         WeakReferenceMessenger.Default.Register<MainWindow, ValueChangedMessage<IReadOnlyList<ErrorMessage>>>(this, (_, list) =>
         {
@@ -30,15 +28,17 @@ public partial class MainWindow : Window
 
                 StateFileAnalyzer.Clear();
                 GameResources.ClearErrorMessagesCache();
+                StartButton.Content = "开始分析";
+                //TODO: 用户可以自行设置是否关闭
 #if RELEASE
                 this.Close();
 #endif
             });
         });
 
-        WeakReferenceMessenger.Default.Register<MainWindow, GlobalSettings>(this, (_, settings) =>
+        WeakReferenceMessenger.Default.Register<MainWindow, GlobalSettings>(this, (_, _)=>
         {
-            var settingsWindow = new SettingsWindowView(settings); 
+            var settingsWindow = App.Current.Services.GetRequiredService<SettingsWindowView>(); 
             settingsWindow.ShowDialog();
         });
     }

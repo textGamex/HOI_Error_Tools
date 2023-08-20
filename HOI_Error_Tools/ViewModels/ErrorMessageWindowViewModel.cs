@@ -10,6 +10,7 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
 using HOI_Error_Tools.Logic;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HOI_Error_Tools.ViewModels;
 
@@ -18,11 +19,11 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
     public IReadOnlyList<ErrorMessage> ErrorMessage { get; }
     public string StatisticsInfo { get; }
 
-    private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+    private static readonly ILogger Log = App.Current.Services.GetRequiredService<ILogger>();
 
     public ErrorMessageWindowViewModel(IReadOnlyList<ErrorMessage> errors)
     {
-        var settings = GlobalSettings.Settings;
+        var settings = App.Current.Services.GetRequiredService<GlobalSettings>();
         var rawCount = errors.Count;
         ErrorMessage = errors.Where(item => !settings.InhibitedErrorCodes.Contains(item.Code)).ToList();
         StatisticsInfo = $"错误 {ErrorMessage.Count}, 忽略 {rawCount - ErrorMessage.Count}";

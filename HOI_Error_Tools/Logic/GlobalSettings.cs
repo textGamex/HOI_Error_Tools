@@ -10,10 +10,9 @@ public sealed class GlobalSettings
 {
     public static readonly string SettingsFolderPath = Path.Combine(Environment.CurrentDirectory, "Settings");
     private static readonly string SettingsFilePath = Path.Combine(SettingsFolderPath, "MainSettings.json");
-    public static GlobalSettings Settings { get; } = Load();
     public HashSet<ErrorCode> InhibitedErrorCodes { get; }
 
-    private static GlobalSettings Load()
+    public static GlobalSettings Load()
     {
         if (File.Exists(SettingsFilePath))
         {

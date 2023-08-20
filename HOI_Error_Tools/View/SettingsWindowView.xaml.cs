@@ -14,10 +14,8 @@ namespace HOI_Error_Tools.View;
 /// </summary>
 public partial class SettingsWindowView : Window
 {
-    public SettingsWindowView(GlobalSettings settings)
+    public SettingsWindowView()
     {
         InitializeComponent();
-
-        this.DataContext = new SettingsWindowViewModel(settings);
     }
 }

@@ -20,10 +20,11 @@ public partial class SettingsWindowViewModel : ObservableObject
 
     private readonly GlobalSettings _settings;
     private readonly List<ErrorCode> _changedErrorCodes;
-    private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+    private readonly ILogger _log;
 
-    public SettingsWindowViewModel(GlobalSettings settings)
+    public SettingsWindowViewModel(GlobalSettings settings, ILogger logger)
     {
+        _log = logger;
         _settings = settings;
         _changedErrorCodes = new List<ErrorCode>(8);
         _data = GetViewVOs();
@@ -60,7 +61,7 @@ public partial class SettingsWindowViewModel : ObservableObject
                 _settings.InhibitedErrorCodes.Add(code);
             }
         }
-        Log.Debug(CultureInfo.InvariantCulture, 
+        _log.Debug(CultureInfo.InvariantCulture, 
             "Changed codes: {ChangedErrorCodes}", string.Join(", ", _changedErrorCodes));
         _changedErrorCodes.Clear();
     }
@@ -85,7 +86,7 @@ public partial class SettingsWindowViewModel : ObservableObject
     {
         _changedErrorCodes.Clear();
         Data = GetViewVOs();
-        Log.Debug("Reset button clicked");
+        _log.Debug("Reset button clicked");
     }
 
     private List<SettingsWindowViewVO> GetViewVOs()
@@ -104,7 +105,7 @@ public partial class SettingsWindowViewModel : ObservableObject
     [RelayCommand]
     private void WindowClosing()
     {
-        Log.Debug("Settings window closing event");
+        _log.Debug("Settings window closing event");
         if (_changedErrorCodes.Count == 0)
         {
             return;
