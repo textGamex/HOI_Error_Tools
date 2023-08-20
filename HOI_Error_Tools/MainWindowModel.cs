@@ -14,7 +14,6 @@ using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -78,23 +77,7 @@ public partial class MainWindowModel : ObservableObject
             var descriptor = new Descriptor(ModRootPath);
             ModName = descriptor.Name;
             ModTags = string.Join(", ", descriptor.Tags);
-
-            var imagePath = Path.Combine(ModRootPath, "thumbnail.png");
-            if (File.Exists(imagePath))
-            {
-                var newImage = new BitmapImage();
-                using var ms = new MemoryStream(File.ReadAllBytes(imagePath));
-                newImage.BeginInit();
-                newImage.CacheOption = BitmapCacheOption.OnLoad;
-                newImage.StreamSource = ms;
-                newImage.EndInit();
-                newImage.Freeze();
-                ModImage = newImage;
-            }
-            else
-            {
-                ModImage = null;
-            }
+            ModImage = descriptor.Picture;
 
             _descriptor = descriptor;
         }

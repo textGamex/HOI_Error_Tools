@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Windows.Media.Imaging;
 
 namespace HOI_Error_Tools.Logic;
 
@@ -17,14 +18,16 @@ public class Descriptor
 
     public string SupportedVersion { get; } = string.Empty;
     public string Version { get; } = string.Empty;
-
     public IEnumerable<string> Tags { get; }
-
     public string PictureName { get; } = string.Empty;
+    public BitmapImage? Picture { get; }
 
     /// <summary>
     /// 保存着替换的文件夹相对路径的只读集合
     /// </summary>
+    /// <remarks>
+    /// 线程安全
+    /// </remarks>
     public IReadOnlySet<string> ReplacePaths => _replacePaths;
     private readonly ImmutableHashSet<string> _replacePaths;
 
@@ -75,11 +78,29 @@ public class Descriptor
         if (root.Has(ScriptKeyWords.Tags))
         {
             var tags = root.Child(ScriptKeyWords.Tags).Value;
-            Tags = ImmutableList.CreateRange(tags.LeafValues.Select(x => x.Key));
+            Tags = tags.LeafValues.Select(x => x.Key).ToList();
         }
         else
         {
             Tags = Enumerable.Empty<string>();
         }
+        Picture = TryGetBitmapImage(modRootPath);
+    }
+
+    private static BitmapImage? TryGetBitmapImage(string modRootPath)
+    {
+        var imagePath = Path.Combine(modRootPath, "thumbnail.png");
+        if (!File.Exists(imagePath))
+        {
+            return null;
+        }
+        var newImage = new BitmapImage();
+        using var ms = new MemoryStream(File.ReadAllBytes(imagePath));
+        newImage.BeginInit();
+        newImage.CacheOption = BitmapCacheOption.OnLoad;
+        newImage.StreamSource = ms;
+        newImage.EndInit();
+        newImage.Freeze();
+        return newImage;
     }
 }

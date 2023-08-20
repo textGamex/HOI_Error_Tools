@@ -41,7 +41,7 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
     [RelayCommand]
     private static void ShowErrorFileInfo(IEnumerable<ParameterFileInfo> obj)
     {
-        Log.Debug("ErrorFileInfoView 窗口启动");
+        Log.Debug("ErrorFileInfoView window start");
         var errorFileInfoWindow = new ErrorFileInfoView(obj);
         errorFileInfoWindow.Show();
     }
