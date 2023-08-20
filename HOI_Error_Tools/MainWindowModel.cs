@@ -192,7 +192,7 @@ public partial class MainWindowModel : ObservableObject
     {
         var info = new ProcessStartInfo()
         {
-            FileName = @"https://github.com/textGamex/HOI_Error_Tools",
+            FileName = "https://github.com/textGamex/HOI_Error_Tools",
             UseShellExecute = true,
         };
         _ = Process.Start(info);
