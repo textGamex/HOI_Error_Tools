@@ -11,6 +11,7 @@ public sealed class GlobalSettings
     public static readonly string SettingsFolderPath = Path.Combine(Environment.CurrentDirectory, "Settings");
     private static readonly string SettingsFilePath = Path.Combine(SettingsFolderPath, "MainSettings.json");
     public HashSet<ErrorCode> InhibitedErrorCodes { get; }
+    public HashSet<ErrorType> InhibitedErrorTypes { get; }
 
     public static GlobalSettings Load()
     {
@@ -27,6 +28,7 @@ public sealed class GlobalSettings
     private GlobalSettings()
     {
         InhibitedErrorCodes = new HashSet<ErrorCode>();
+        InhibitedErrorTypes = new HashSet<ErrorType>();
     }
 
     public void Save()

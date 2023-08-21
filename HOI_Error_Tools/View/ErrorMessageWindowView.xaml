@@ -55,7 +55,7 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTextColumn Binding="{Binding Path=FileInfo, Converter={x:Static vm:FilePathToErrorSourceTypeConverter.Instance}}" Header="错误来源" />
+                <DataGridTextColumn Binding="{Binding Type, Mode=Default}" Header="错误来源" />
             </DataGrid.Columns>
         </DataGrid>
 

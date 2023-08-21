@@ -56,24 +56,3 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
         Log.Debug("ErrorFileInfoView window start");
     }
 }
-
-public class FilePathToErrorSourceTypeConverter : IValueConverter
-{
-    public static FilePathToErrorSourceTypeConverter Instance { get; } = new();
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        if (value is IEnumerable<ParameterFileInfo> fileInfo)
-        {
-            return fileInfo.First().FilePath.Contains("Hearts of Iron IV") ? "游戏" : "Mod";
-        }
-        else
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        throw new NotImplementedException();
-    }
-}
