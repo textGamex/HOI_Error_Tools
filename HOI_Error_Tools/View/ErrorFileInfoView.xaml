@@ -11,14 +11,25 @@
     Height="450"
     d:DataContext="{d:DesignInstance vm:ErrorFileInfoViewModel}"
     mc:Ignorable="d">
+
+    <Window.InputBindings>
+        <MouseBinding
+            Command="{Binding OpenFolderCommand, Mode=Default}"
+            CommandParameter="{Binding ElementName=FileInfosDataGrid, Path=SelectedItem, Mode=Default}"
+            MouseAction="LeftDoubleClick" />
+    </Window.InputBindings>
+
     <Grid>
+
         <DataGrid
+            x:Name="FileInfosDataGrid"
             AutoGenerateColumns="False"
             IsReadOnly="True"
-            ItemsSource="{Binding Data}">
+            ItemsSource="{Binding Data, Mode=Default}"
+            SelectionMode="Single">
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding FilePath}" Header="文件路径" />
-                <DataGridTextColumn Binding="{Binding ErrorLine}" Header="行号" />
+                <DataGridTextColumn Binding="{Binding FilePath, Mode=Default}" Header="文件路径" />
+                <DataGridTextColumn Binding="{Binding ErrorLine, Mode=Default}" Header="行号" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

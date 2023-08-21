@@ -38,15 +38,6 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
         ParseDateTime = $"报告生成时间: {DateTime.Now.ToString(CultureInfo.CurrentCulture)}";
     }
 
-    //[RelayCommand]
-    //private static void OpenFolder(IList folderPathList)
-    //{
-    //    foreach (ErrorMessage errorMessage in folderPathList)
-    //    {
-    //        _ = Process.Start("Explorer.exe", $"/select, {errorMessage.FileInfo.First().FilePath}");
-    //    }
-    //}
-
     [RelayCommand]
     private void ShowErrorFileInfo(IEnumerable<ParameterFileInfo> obj)
     {
