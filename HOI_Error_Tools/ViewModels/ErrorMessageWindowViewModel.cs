@@ -19,6 +19,7 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
 {
     public IReadOnlyList<ErrorMessage> ErrorMessage { get; }
     public string StatisticsInfo { get; }
+    public string ParseDateTime { get; }
 
     private readonly IErrorFileInfoService _errorFileInfoService;
 
@@ -34,6 +35,7 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
         var rawCount = errors.Count;
         ErrorMessage = errors.Where(item => !settings.InhibitedErrorCodes.Contains(item.Code)).ToList();
         StatisticsInfo = $"错误 {ErrorMessage.Count}, 忽略 {rawCount - ErrorMessage.Count}";
+        ParseDateTime = $"报告生成时间: {DateTime.Now.ToString(CultureInfo.CurrentCulture)}";
     }
 
     //[RelayCommand]

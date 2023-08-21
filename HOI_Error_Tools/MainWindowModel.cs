@@ -168,6 +168,7 @@ public partial class MainWindowModel : ObservableObject
         errorList.AddRange(GameResources.ErrorMessages);
         var result = errorList.ToImmutable();
         _errorMessageService.SetErrorMessages(result);
+
         WeakReferenceMessenger.Default.Send(new ValueChangedMessage<IReadOnlyList<ErrorMessage>>(result));
     }
 

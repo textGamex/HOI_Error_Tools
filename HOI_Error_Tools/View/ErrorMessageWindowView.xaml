@@ -27,6 +27,7 @@
                 Height="Auto"
                 Content="{Binding StatisticsInfo, Mode=Default}"
                 FontSize="13" />
+            <Label HorizontalAlignment="Right" Content="{Binding ParseDateTime, Mode=Default}" />
         </StackPanel>
 
         <DataGrid
