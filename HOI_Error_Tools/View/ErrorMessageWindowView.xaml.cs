@@ -9,10 +9,8 @@ namespace HOI_Error_Tools.View;
 /// </summary>
 public partial class ErrorMessageWindowView
 {
-    public ErrorMessageWindowView(IReadOnlyList<ErrorMessage> errors)
+    public ErrorMessageWindowView()
     {
         InitializeComponent();
-
-        this.DataContext = new ViewModels.ErrorMessageWindowViewModel(errors);
     }
 }

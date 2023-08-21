@@ -1,6 +1,4 @@
-﻿using HOI_Error_Tools.Logic.Analyzers.Common;
-using System.Collections.Generic;
-using System.Windows;
+﻿using System.Windows;
 
 namespace HOI_Error_Tools.View;
 
@@ -9,10 +7,8 @@ namespace HOI_Error_Tools.View;
 /// </summary>
 public partial class ErrorFileInfoView : Window
 {
-    public ErrorFileInfoView(IEnumerable<ParameterFileInfo> fileErrorInfoList)
+    public ErrorFileInfoView()
     {
         InitializeComponent();
-
-        this.DataContext = new ViewModels.ErrorFileInfoViewModel(fileErrorInfoList);
     }
 }

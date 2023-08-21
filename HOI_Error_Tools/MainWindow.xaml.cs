@@ -4,9 +4,9 @@ using HOI_Error_Tools.Logic;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.State;
 using HOI_Error_Tools.View;
-using NLog;
 using System.Collections.Generic;
 using System.Windows;
+using HOI_Error_Tools.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HOI_Error_Tools;
@@ -23,8 +23,10 @@ public partial class MainWindow : Window
             {
                 StartButton.Content = "完成";
                 this.LoadingCircle.IsRunning = false;
-                var win = new ErrorMessageWindowView(list.Value);
+
+                var win = App.Current.Services.GetRequiredService<ErrorMessageWindowView>();
                 win.Show();
+                App.Current.Services.GetRequiredService<IErrorMessageService>().Clear();
 
                 StateFileAnalyzer.Clear();
                 GameResources.ClearErrorMessagesCache();

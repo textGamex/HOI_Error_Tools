@@ -3,6 +3,7 @@ using Jot;
 using System;
 using System.Windows;
 using HOI_Error_Tools.Logic;
+using HOI_Error_Tools.Services;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using HOI_Error_Tools.View;
@@ -25,6 +26,10 @@ public partial class App : Application
         var services = new ServiceCollection();
 
         services.AddTransient<ILogger, Logger>(_ => LogManager.GetCurrentClassLogger());
+        services.AddSingleton<IErrorMessageService, ErrorMessageService>();
+        services.AddSingleton<IErrorFileInfoService, ErrorFileInfoService>();
+        services.AddSingleton<Tracker>(_ => new Tracker(new JsonFileStore(GlobalSettings.SettingsFolderPath)));
+
         services.AddSingleton<MainWindow>(sp => 
             new MainWindow() { DataContext = sp.GetRequiredService<MainWindowModel>() });
         services.AddSingleton<MainWindowModel>();
@@ -32,7 +37,12 @@ public partial class App : Application
         services.AddTransient<SettingsWindowView>(sp => 
             new SettingsWindowView() { DataContext = sp.GetRequiredService<SettingsWindowViewModel>() });
         services.AddTransient<SettingsWindowViewModel>();
-        services.AddSingleton<Tracker>(_ => new Tracker(new JsonFileStore(GlobalSettings.SettingsFolderPath)));
+        services.AddTransient<ErrorMessageWindowView>(sp => 
+                       new ErrorMessageWindowView() { DataContext = sp.GetRequiredService<ErrorMessageWindowViewModel>() });
+        services.AddTransient<ErrorMessageWindowViewModel>();
+        services.AddTransient<ErrorFileInfoView>(sp => 
+            new ErrorFileInfoView() { DataContext = sp.GetRequiredService<ErrorFileInfoViewModel>() });
+        services.AddTransient<ErrorFileInfoViewModel>();
 
         return services.BuildServiceProvider();
     }

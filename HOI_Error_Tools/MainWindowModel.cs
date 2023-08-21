@@ -18,6 +18,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
+using HOI_Error_Tools.Services;
 using Jot;
 using Microsoft.Extensions.DependencyInjection;
 using MessageBox = HandyControl.Controls.MessageBox;
@@ -49,12 +50,14 @@ public partial class MainWindowModel : ObservableObject
     
     private Descriptor? _descriptor;
     private int _fileSum;
+    private IErrorMessageService _errorMessageService;
 
     private readonly ILogger _log;
 
-    public MainWindowModel(ILogger logger, Tracker tracker)
+    public MainWindowModel(ILogger logger, Tracker tracker, IErrorMessageService errorMessageService)
     {
         _log = logger;
+        _errorMessageService = errorMessageService;
         PropertyChanged += MainWindowModel_OnPropertyChanged;
 
         tracker.Configure<MainWindowModel>()
@@ -163,8 +166,9 @@ public partial class MainWindowModel : ObservableObject
             errorList.AddRange(error);
         }
         errorList.AddRange(GameResources.ErrorMessages);
-
-        WeakReferenceMessenger.Default.Send(new ValueChangedMessage<IReadOnlyList<ErrorMessage>>(errorList.ToImmutable()));
+        var result = errorList.ToImmutable();
+        _errorMessageService.SetErrorMessages(result);
+        WeakReferenceMessenger.Default.Send(new ValueChangedMessage<IReadOnlyList<ErrorMessage>>(result));
     }
 
     [RelayCommand]

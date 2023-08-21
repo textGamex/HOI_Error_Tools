@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using HOI_Error_Tools.Logic;
-using HOI_Error_Tools.ViewModels;
+﻿using System.Windows;
 
 namespace HOI_Error_Tools.View;
 
