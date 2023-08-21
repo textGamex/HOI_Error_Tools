@@ -21,7 +21,6 @@ using System.Windows.Media.Imaging;
 using HOI_Error_Tools.Services;
 using Jot;
 using Microsoft.Extensions.DependencyInjection;
-using MessageBox = HandyControl.Controls.MessageBox;
 using Microsoft.Toolkit.Uwp.Notifications;
 
 namespace HOI_Error_Tools;
@@ -50,7 +49,7 @@ public partial class MainWindowModel : ObservableObject
     
     private Descriptor? _descriptor;
     private int _fileSum;
-    private IErrorMessageService _errorMessageService;
+    private readonly IErrorMessageService _errorMessageService;
 
     private readonly ILogger _log;
 
@@ -121,7 +120,7 @@ public partial class MainWindowModel : ObservableObject
     {
         if (string.IsNullOrEmpty(GameRootPath) || string.IsNullOrEmpty(ModRootPath))
         {
-            MessageBox.Error("未选择资源路径", "错误");
+            MessageBox.Show("未选择资源路径", "错误");
             return;
         }
 
@@ -175,7 +174,7 @@ public partial class MainWindowModel : ObservableObject
     [RelayCommand]
     private static void ClickAboutButton()
     {
-        MessageBox.Info($".NET: {Environment.Version}\n 作者: textGamex");
+        MessageBox.Show($".NET: {Environment.Version}\n 作者: textGamex");
     }
 
     [RelayCommand]

@@ -20,7 +20,6 @@
     </Window.InputBindings>
 
     <Grid>
-
         <DataGrid
             x:Name="FileInfosDataGrid"
             AutoGenerateColumns="False"

@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Windows;
 using Humanizer;
-using MessageBox = HandyControl.Controls.MessageBox;
 
 namespace HOI_Error_Tools.ViewModels;
 
@@ -110,7 +109,7 @@ public partial class ErrorMessageSettingsControlViewModel : ObservableObject
         {
             return;
         }
-        if (MessageBox.Ask("您还没有保存更改, 是否现在保存?") == MessageBoxResult.OK)
+        if (MessageBox.Show("您还没有保存更改, 是否现在保存?", "提示", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
         {
             SaveButton();
         }
