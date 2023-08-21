@@ -39,7 +39,7 @@ public partial class App : Application
 
     private void App_OnStartup(object sender, StartupEventArgs e)
     {
-        var mainWindow = Services.GetRequiredService<MainWindow>();
-        mainWindow.Show();
+        MainWindow = Services.GetRequiredService<MainWindow>();
+        MainWindow.Show();
     }
 }
