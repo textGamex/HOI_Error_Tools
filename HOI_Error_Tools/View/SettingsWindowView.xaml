@@ -13,11 +13,5 @@
     d:DataContext="{d:DesignInstance vms:SettingsWindowViewModel}"
     mc:Ignorable="d">
 
-    <TabControl ItemsSource="{Binding Data, Mode=Default}">
-        <i:Interaction.Triggers>
-            <i:EventTrigger EventName="SelectionChanged">
-                <i:InvokeCommandAction Command="{Binding ControlSelectionChangedCommand, Mode=Default}" PassEventArgsToCommand="True" />
-            </i:EventTrigger>
-        </i:Interaction.Triggers>
-    </TabControl>
+    <TabControl ItemsSource="{Binding Data, Mode=Default}" />
 </Window>

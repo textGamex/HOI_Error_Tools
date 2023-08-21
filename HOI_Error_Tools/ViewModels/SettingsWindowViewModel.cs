@@ -34,10 +34,4 @@ public partial class SettingsWindowViewModel : ObservableObject
             }
         };
     }
-
-    [RelayCommand]
-    private void ControlSelectionChanged(SelectionChangedEventArgs args)
-    {
-        Log.Debug("SettingsWindowView selection changed: {Header}", args.AddedItems[0].As<TabItem>().Header);
-    }
 }
