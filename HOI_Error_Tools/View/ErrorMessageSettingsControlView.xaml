@@ -1,0 +1,70 @@
+﻿<UserControl
+    x:Class="HOI_Error_Tools.View.ErrorMessageSettingsControlView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:local="clr-namespace:HOI_Error_Tools.View"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vms="clr-namespace:HOI_Error_Tools.ViewModels"
+    d:DataContext="{d:DesignInstance vms:ErrorMessageSettingsControlViewModel}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Unloaded">
+            <i:InvokeCommandAction Command="{Binding ControlUnloadedCommand, Mode=Default}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <UserControl.InputBindings>
+        <KeyBinding Command="{Binding SaveButtonCommand, Mode=Default}" Gesture="CTRL+S" />
+    </UserControl.InputBindings>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="0.1*" />
+        </Grid.RowDefinitions>
+
+        <ListView
+            Grid.Row="0"
+            ItemsSource="{Binding Data, Mode=Default}"
+            SelectionMode="Single">
+
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn DisplayMemberBinding="{Binding Code, Mode=Default}" Header="Code" />
+                    <GridViewColumn
+                        Width="350"
+                        DisplayMemberBinding="{Binding Message, Mode=Default}"
+                        Header="描述" />
+
+                    <GridViewColumn Width="100" Header="忽略">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox
+                                    Command="{Binding DataContext.IgnoreErrorCheckBoxCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}"
+                                    CommandParameter="{Binding Code, Mode=Default}"
+                                    IsChecked="{Binding IsChecked, Mode=Default}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal">
+            <Button
+                Width="90"
+                Command="{Binding SaveButtonCommand, Mode=Default}"
+                Content="保存" />
+            <Button
+                Width="90"
+                Margin="3,0,0,0"
+                Command="{Binding ResetButtonCommand, Mode=Default}"
+                Content="重置" />
+        </StackPanel>
+    </Grid>
+</UserControl>

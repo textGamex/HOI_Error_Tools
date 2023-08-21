@@ -29,20 +29,27 @@ public partial class App : Application
         services.AddSingleton<IErrorMessageService, ErrorMessageService>();
         services.AddSingleton<IErrorFileInfoService, ErrorFileInfoService>();
         services.AddSingleton<Tracker>(_ => new Tracker(new JsonFileStore(GlobalSettings.SettingsFolderPath)));
+        services.AddTransient<GlobalSettings>(_ => GlobalSettings.Load());
 
         services.AddSingleton<MainWindow>(sp => 
             new MainWindow() { DataContext = sp.GetRequiredService<MainWindowModel>() });
         services.AddSingleton<MainWindowModel>();
-        services.AddTransient<GlobalSettings>(_ => GlobalSettings.Load());
+
         services.AddTransient<SettingsWindowView>(sp => 
             new SettingsWindowView() { DataContext = sp.GetRequiredService<SettingsWindowViewModel>() });
         services.AddTransient<SettingsWindowViewModel>();
+
         services.AddTransient<ErrorMessageWindowView>(sp => 
                        new ErrorMessageWindowView() { DataContext = sp.GetRequiredService<ErrorMessageWindowViewModel>() });
         services.AddTransient<ErrorMessageWindowViewModel>();
+
         services.AddTransient<ErrorFileInfoView>(sp => 
             new ErrorFileInfoView() { DataContext = sp.GetRequiredService<ErrorFileInfoViewModel>() });
         services.AddTransient<ErrorFileInfoViewModel>();
+
+        services.AddTransient<ErrorMessageSettingsControlView>(sp => 
+            new ErrorMessageSettingsControlView() { DataContext = sp.GetRequiredService<ErrorMessageSettingsControlViewModel>() });
+        services.AddTransient<ErrorMessageSettingsControlViewModel>();
 
         return services.BuildServiceProvider();
     }

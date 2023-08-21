@@ -17,7 +17,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        WeakReferenceMessenger.Default.Register<MainWindow, ValueChangedMessage<IReadOnlyList<ErrorMessage>>>(this, (_, list) =>
+        WeakReferenceMessenger.Default.Register<MainWindow, ValueChangedMessage<IReadOnlyList<ErrorMessage>>>(this, (_, _) =>
         {
             Dispatcher.InvokeAsync(() =>
             {
