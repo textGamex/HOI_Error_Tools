@@ -35,8 +35,7 @@ public partial class App : Application
             new MainWindow() { DataContext = sp.GetRequiredService<MainWindowModel>() });
         services.AddSingleton<MainWindowModel>();
 
-        services.AddTransient<SettingsWindowView>(sp => 
-            new SettingsWindowView() { DataContext = sp.GetRequiredService<SettingsWindowViewModel>() });
+        services.AddTransient<SettingsWindowView>();
         services.AddTransient<SettingsWindowViewModel>();
 
         services.AddTransient<ErrorMessageWindowView>(sp => 

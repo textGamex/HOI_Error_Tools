@@ -7,11 +7,31 @@
     xmlns:local="clr-namespace:HOI_Error_Tools.View"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vms="clr-namespace:HOI_Error_Tools.ViewModels"
+    x:Name="Window"
     Title="SettingsWindowView"
-    Width="800"
-    Height="450"
+    Width="950"
+    Height="650"
     d:DataContext="{d:DesignInstance vms:SettingsWindowViewModel}"
     mc:Ignorable="d">
 
-    <TabControl ItemsSource="{Binding Data, Mode=Default}" />
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.18*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <TreeView
+            x:Name="SideTreeView"
+            Grid.Column="0"
+            SelectedItemChanged="SideTreeView_OnSelectedItemChanged">
+
+            <TreeView.ItemTemplate>
+                <HierarchicalDataTemplate DataType="{x:Type vms:SideMenuItem}" ItemsSource="{Binding Items, Mode=Default}">
+                    <TextBlock Text="{Binding Title, Mode=Default}" />
+                </HierarchicalDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+
+        <ContentControl x:Name="ContentControlMain" Grid.Column="1" />
+    </Grid>
 </Window>

@@ -9,8 +9,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vms="clr-namespace:HOI_Error_Tools.ViewModels"
     d:DataContext="{d:DesignInstance vms:ErrorMessageSettingsControlViewModel}"
-    d:DesignHeight="550"
-    d:DesignWidth="850"
+    d:DesignHeight="450"
+    d:DesignWidth="750"
     mc:Ignorable="d">
 
     <i:Interaction.Triggers>
