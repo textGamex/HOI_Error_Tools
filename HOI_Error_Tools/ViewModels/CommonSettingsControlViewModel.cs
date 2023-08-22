@@ -17,10 +17,11 @@ public partial class CommonSettingsControlViewModel : ObservableObject
 
     public CommonSettingsControlViewModel(GlobalSettings globalSettings, ILogger log)
     {
-        PropertyChanged += CommonSettingsControlViewModel_PropertyChanged;
         _globalSettings = globalSettings;
-        _log = log;
         EnableParseCompletionPrompt = _globalSettings.EnableParseCompletionPrompt;
+        _log = log;
+
+        PropertyChanged += CommonSettingsControlViewModel_PropertyChanged;
     }
 
     private void CommonSettingsControlViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -29,8 +30,6 @@ public partial class CommonSettingsControlViewModel : ObservableObject
         {
             _globalSettings.EnableParseCompletionPrompt = EnableParseCompletionPrompt;
         }
-        _globalSettings.Save();
         _log.Debug(CultureInfo.InvariantCulture, "Changed value: {Value}", e.PropertyName);
-        _log.Info("保存全局设置");
     }
 }
