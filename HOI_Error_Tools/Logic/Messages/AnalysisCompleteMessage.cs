@@ -1,5 +1,5 @@
-﻿namespace HOI_Error_Tools.Logic.Messages;
+﻿using System;
 
-public sealed class AnalysisCompleteMessage
-{
-}
+namespace HOI_Error_Tools.Logic.Messages;
+
+public record AnalysisCompleteMessage(int FileSum, TimeSpan ElapsedTime);

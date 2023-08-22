@@ -13,19 +13,13 @@
     Height="650"
     d:DataContext="{d:DesignInstance local:MainWindowModel}"
     Background="{DynamicResource MaterialDesignPaper}"
+    Closed="MainWindow_OnClosed"
     FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
     FontSize="16"
     ResizeMode="NoResize"
     TextElement.FontWeight="Medium"
     TextElement.Foreground="{DynamicResource MaterialDesignBody}"
     mc:Ignorable="d">
-
-    <i:Interaction.Triggers>
-        <i:EventTrigger EventName="Closing">
-            <i:InvokeCommandAction Command="{Binding WindowClosingCommand, Mode=Default}" />
-        </i:EventTrigger>
-    </i:Interaction.Triggers>
-
     <Window.InputBindings>
         <KeyBinding Key="Enter" Command="{Binding StartParseCommand, Mode=Default}" />
     </Window.InputBindings>

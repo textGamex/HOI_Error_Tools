@@ -50,6 +50,10 @@ public partial class App : Application
             new ErrorMessageSettingsControlView() { DataContext = sp.GetRequiredService<ErrorMessageSettingsControlViewModel>() });
         services.AddTransient<ErrorMessageSettingsControlViewModel>();
 
+        services.AddTransient<CommonSettingsControlView>(sp => 
+            new CommonSettingsControlView() { DataContext = sp.GetRequiredService<CommonSettingsControlViewModel>()});
+        services.AddTransient<CommonSettingsControlViewModel>();
+
         return services.BuildServiceProvider();
     }
 

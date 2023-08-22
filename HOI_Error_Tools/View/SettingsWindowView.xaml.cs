@@ -20,12 +20,14 @@ public partial class SettingsWindowView : Window
         DataContext = viewModel;
 
         var errorSettingsRoot = new SideMenuItem("错误过滤", typeof(ErrorMessageSettingsControlView));
+        var commonSettingsRoot = new SideMenuItem("通用设置", typeof(CommonSettingsControlView));
 
         errorSettingsRoot.Items = new List<SideMenuItem>
         {
             new ("错误类型", typeof(ErrorMessageSettingsControlView))
         };
 
+        SideTreeView.Items.Add(commonSettingsRoot);
         SideTreeView.Items.Add(errorSettingsRoot);
     }
 

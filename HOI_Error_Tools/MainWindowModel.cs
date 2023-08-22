@@ -20,7 +20,6 @@ using System.Windows.Media.Imaging;
 using HOI_Error_Tools.Services;
 using Jot;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Toolkit.Uwp.Notifications;
 using HOI_Error_Tools.Logic.Messages;
 
 namespace HOI_Error_Tools;
@@ -133,11 +132,7 @@ public partial class MainWindowModel : ObservableObject
         await StartAnalyzersAsync();
         oTime.Stop();
         var elapsedTime = oTime.Elapsed;
-
-        new ToastContentBuilder()
-            .AddText("解析完成")
-            .AddText($"共解析 {_fileSum} 文件, 用时 {elapsedTime.TotalSeconds:F1} 秒")
-            .Show();
+        WeakReferenceMessenger.Default.Send(new AnalysisCompleteMessage(_fileSum, elapsedTime));
 
         _log.Info("分析完成, 用时: {Second:F1} s, {Millisecond:F0} ms",
             elapsedTime.TotalSeconds, elapsedTime.TotalMilliseconds);
@@ -167,8 +162,6 @@ public partial class MainWindowModel : ObservableObject
         errorList.AddRange(GameResources.ErrorMessages);
         var result = errorList.ToImmutable();
         _errorMessageService.SetErrorMessages(result);
-
-        WeakReferenceMessenger.Default.Send(new AnalysisCompleteMessage());
     }
 
     [RelayCommand]
@@ -192,12 +185,5 @@ public partial class MainWindowModel : ObservableObject
     private static void ClickSettingsButton()
     {
         WeakReferenceMessenger.Default.Send(App.Current.Services.GetRequiredService<GlobalSettings>());
-    }
-
-    [RelayCommand]
-    private void WindowClosing()
-    {
-        ToastNotificationManagerCompat.Uninstall();
-        _log.Info("Main Window Closing");
     }
 }

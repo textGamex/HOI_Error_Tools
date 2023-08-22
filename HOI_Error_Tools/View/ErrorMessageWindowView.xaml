@@ -23,15 +23,15 @@
         </Grid.RowDefinitions>
 
         <StackPanel Orientation="Horizontal">
-            <Label
+            <TextBlock
                 Width="Auto"
                 Height="Auto"
-                Content="{Binding StatisticsInfo, Mode=Default}"
-                FontSize="15" />
-            <Label
+                FontSize="15"
+                Text="{Binding StatisticsInfo, Mode=Default}" />
+            <TextBlock
                 HorizontalAlignment="Right"
-                Content="{Binding ParseDateTime, Mode=Default}"
-                FontSize="15" />
+                FontSize="15"
+                Text="{Binding ParseDateTime, Mode=Default}" />
         </StackPanel>
 
         <DataGrid
