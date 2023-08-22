@@ -1,13 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Globalization;
-using System.Windows;
 using System.Windows.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using HOI_Error_Tools.View;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
-using WinRT;
 
 
 namespace HOI_Error_Tools.ViewModels;

@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Windows.Data;
 using HOI_Error_Tools.Logic;
 using HOI_Error_Tools.Services;
 using Microsoft.Extensions.DependencyInjection;

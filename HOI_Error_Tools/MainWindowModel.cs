@@ -2,7 +2,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using CommunityToolkit.Mvvm.Messaging.Messages;
 using HOI_Error_Tools.Logic;
 using HOI_Error_Tools.Logic.Analyzers;
 using HOI_Error_Tools.Logic.Analyzers.CountryDefine;
@@ -22,6 +21,7 @@ using HOI_Error_Tools.Services;
 using Jot;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Toolkit.Uwp.Notifications;
+using HOI_Error_Tools.Logic.Messages;
 
 namespace HOI_Error_Tools;
 
@@ -168,7 +168,7 @@ public partial class MainWindowModel : ObservableObject
         var result = errorList.ToImmutable();
         _errorMessageService.SetErrorMessages(result);
 
-        WeakReferenceMessenger.Default.Send(new ValueChangedMessage<IReadOnlyList<ErrorMessage>>(result));
+        WeakReferenceMessenger.Default.Send(new AnalysisCompleteMessage());
     }
 
     [RelayCommand]

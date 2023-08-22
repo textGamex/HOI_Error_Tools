@@ -1,13 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
-using CommunityToolkit.Mvvm.Messaging.Messages;
 using HOI_Error_Tools.Logic;
-using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.State;
 using HOI_Error_Tools.View;
-using System.Collections.Generic;
 using System.Windows;
 using HOI_Error_Tools.Services;
 using Microsoft.Extensions.DependencyInjection;
+using HOI_Error_Tools.Logic.Messages;
 
 namespace HOI_Error_Tools;
 
@@ -17,7 +15,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        WeakReferenceMessenger.Default.Register<MainWindow, ValueChangedMessage<IReadOnlyList<ErrorMessage>>>(this, (_, _) =>
+        WeakReferenceMessenger.Default.Register<MainWindow, AnalysisCompleteMessage>(this, (_, _) =>
         {
             Dispatcher.InvokeAsync(() =>
             {

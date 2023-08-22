@@ -21,6 +21,7 @@
   <ItemGroup>
     <Folder Include="Logic\Analyzers\Util\" />
     <Folder Include="Logic\CustomException\" />
+    <Folder Include="Logic\Messages\" />
   </ItemGroup>
 
   <ItemGroup>
