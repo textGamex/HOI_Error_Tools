@@ -10,13 +10,14 @@ using System.Globalization;
 using System.Linq;
 using HOI_Error_Tools.Logic;
 using HOI_Error_Tools.Services;
+using Humanizer;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HOI_Error_Tools.ViewModels;
 
 public partial class ErrorMessageWindowViewModel : ObservableObject
 {
-    public IReadOnlyList<ErrorMessage> ErrorMessage { get; }
+    public IReadOnlyList<ErrorMessageWindowViewModelVo> ErrorMessage { get; }
     public string StatisticsInfo { get; }
     public string ParseDateTime { get; }
 
@@ -32,7 +33,10 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
         _errorFileInfoService = errorFileInfoService;
         var errors = errorMessageService.GetErrorMessages();
         var rawCount = errors.Count;
-        ErrorMessage = errors.Where(item => !settings.InhibitedErrorCodes.Contains(item.Code)).ToList();
+        ErrorMessage = errors
+            .Where(item => !settings.InhibitedErrorCodes.Contains(item.Code))
+            .Select(message => new ErrorMessageWindowViewModelVo(message))
+            .ToList();
         StatisticsInfo = $"错误 {ErrorMessage.Count}, 忽略 {rawCount - ErrorMessage.Count}";
         ParseDateTime = $"报告生成时间: {DateTime.Now.ToString(CultureInfo.CurrentCulture)}";
     }
@@ -46,5 +50,15 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
         _errorFileInfoService.Clear();
 
         Log.Debug("ErrorFileInfoView window start");
+    }
+
+    public class ErrorMessageWindowViewModelVo : ErrorMessage
+    {
+        public string CodeDescription { get; }
+        public ErrorMessageWindowViewModelVo(ErrorMessage message) 
+            : base(message.Code, message.FileInfo, message.Message, message.Level)
+        {
+            CodeDescription = message.Code.Humanize();
+        }
     }
 }

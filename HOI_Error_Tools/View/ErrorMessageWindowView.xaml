@@ -29,9 +29,10 @@
                 FontSize="15"
                 Text="{Binding StatisticsInfo, Mode=Default}" />
             <TextBlock
-                HorizontalAlignment="Right"
+                Margin="10,0,0,0"
                 FontSize="15"
-                Text="{Binding ParseDateTime, Mode=Default}" />
+                Text="{Binding ParseDateTime, Mode=Default}"
+                TextAlignment="Right" />
         </StackPanel>
 
         <DataGrid
@@ -44,13 +45,20 @@
             VirtualizingPanel.VirtualizationMode="Recycling">
 
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding Code, StringFormat=D, Mode=OneWay}" Header="代码" />
+
+                <DataGridTemplateColumn Header="代码">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Code, StringFormat=D, Mode=Default}" ToolTip="{Binding CodeDescription, Mode=Default}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
                 <DataGridTextColumn Binding="{Binding Path=Level, Mode=OneWay}" Header="等级" />
                 <DataGridTextColumn Binding="{Binding Path=Message, Mode=OneWay}" Header="错误信息" />
                 <DataGridTemplateColumn Header="错误位置">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-
                             <Button
                                 Command="{Binding DataContext.ShowErrorFileInfoCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
                                 CommandParameter="{Binding FileInfo, Mode=Default}"
@@ -60,7 +68,9 @@
                 </DataGridTemplateColumn>
 
                 <DataGridTextColumn Binding="{Binding Type, Mode=Default}" Header="错误来源" />
+
             </DataGrid.Columns>
+
         </DataGrid>
 
     </Grid>
