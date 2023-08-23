@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Globalization;
-using System.Windows.Controls;
+using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HOI_Error_Tools.Logic;
@@ -25,7 +25,6 @@ public partial class SettingsWindowViewModel : ObservableObject
     private void WindowClosed()
     {
         _settings.Save();
-        _log.Info(CultureInfo.InvariantCulture,
-            "设置已保存到: {Path}", GlobalSettings.SettingsFolderPath);
+        _log.Info("设置已保存到: {Path}", new Uri(GlobalSettings.SettingsFolderPath));
     }
 }

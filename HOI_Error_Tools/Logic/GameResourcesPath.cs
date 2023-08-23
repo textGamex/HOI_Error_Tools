@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Diagnostics;
@@ -145,7 +146,8 @@ public sealed class GameResourcesPath
 
         if (_descriptor.ReplacePaths.Contains(folderRelativePath))
         {
-            Log.Debug(CultureInfo.InvariantCulture, "MOD文件夹已完全替换: {Path}", folderRelativePath);
+            Log.Debug(CultureInfo.InvariantCulture,
+                "MOD文件夹已完全替换游戏文件夹: \n\t {GamePath} => {ModPath}", new Uri(gameFolder), new Uri(modFolder));
             return GetAllFilePathForFolder(modFolder);
         }
 
@@ -179,7 +181,7 @@ public sealed class GameResourcesPath
         // 优先读取Mod文件
         foreach (var filePath in modFilePathList.Concat(gameFilePathList))
         {
-            var fileName = Path.GetFileName(filePath) ?? throw new FileFormatException($"无法得到文件名 {filePath}");
+            var fileName = Path.GetFileName(filePath) ?? throw new FileFormatException($"无法得到文件名: {filePath}");
             if (!set.Contains(fileName))
             {
                 set.Add(fileName);
