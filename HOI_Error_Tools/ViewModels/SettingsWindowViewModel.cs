@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Windows.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using HOI_Error_Tools.View;
-using Microsoft.Extensions.DependencyInjection;
+using HOI_Error_Tools.Logic;
 using NLog;
 
 
@@ -12,9 +12,20 @@ namespace HOI_Error_Tools.ViewModels;
 public partial class SettingsWindowViewModel : ObservableObject
 {
 
-    //private static readonly ILogger Log = App.Current.Services.GetRequiredService<ILogger>();
+    private readonly ILogger _log;
+    private readonly GlobalSettings _settings;
 
-    public SettingsWindowViewModel(ErrorMessageSettingsControlView item1)
+    public SettingsWindowViewModel(ILogger log, GlobalSettings settings)
     {
+        _log = log;
+        _settings = settings;
+    }
+
+    [RelayCommand]
+    private void WindowClosed()
+    {
+        _settings.Save();
+        _log.Info(CultureInfo.InvariantCulture,
+            "设置已保存到: {Path}", GlobalSettings.SettingsFolderPath);
     }
 }

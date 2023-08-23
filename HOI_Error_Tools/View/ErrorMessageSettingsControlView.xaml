@@ -66,6 +66,7 @@
                 Margin="3,0,0,0"
                 Command="{Binding ResetButtonCommand, Mode=Default}"
                 Content="重置" />
+
         </StackPanel>
     </Grid>
 </UserControl>

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Windows;
 using HOI_Error_Tools.ViewModels;
@@ -19,11 +20,12 @@ public partial class SettingsWindowView : Window
         _log = log;
         DataContext = viewModel;
 
-        var errorSettingsRoot = new SideMenuItem("错误过滤", typeof(ErrorMessageSettingsControlView));
-        var commonSettingsRoot = new SideMenuItem("通用设置", typeof(CommonSettingsControlView));
+        var errorSettingsRoot = new SideMenuItem("错误过滤", typeof(CommonErrorMessageSettingsControlView));
+        var commonSettingsRoot = new SideMenuItem("通用", typeof(CommonSettingsControlView));
 
         errorSettingsRoot.Items = new List<SideMenuItem>
         {
+            new ("普通", typeof(CommonErrorMessageSettingsControlView)),
             new ("错误类型", typeof(ErrorMessageSettingsControlView))
         };
 

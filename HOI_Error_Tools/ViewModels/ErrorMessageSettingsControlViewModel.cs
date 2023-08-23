@@ -7,6 +7,7 @@ using Microsoft.Toolkit.Uwp.Notifications;
 using NLog;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Windows;
 using Humanizer;
 
