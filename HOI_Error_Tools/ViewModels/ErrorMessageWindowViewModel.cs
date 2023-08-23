@@ -22,6 +22,7 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
     public string ParseDateTime { get; }
 
     private readonly IErrorFileInfoService _errorFileInfoService;
+    private readonly GlobalSettings _settings;
 
     private static readonly ILogger Log = App.Current.Services.GetRequiredService<ILogger>();
 
@@ -31,14 +32,22 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
         IErrorFileInfoService errorFileInfoService)
     {
         _errorFileInfoService = errorFileInfoService;
+        _settings = settings;
+
         var errors = errorMessageService.GetErrorMessages();
         var rawCount = errors.Count;
         ErrorMessage = errors
-            .Where(item => !settings.InhibitedErrorCodes.Contains(item.Code))
+            .Where(IsAllowedShow)
             .Select(message => new ErrorMessageWindowViewModelVo(message))
             .ToList();
         StatisticsInfo = $"错误 {ErrorMessage.Count}, 忽略 {rawCount - ErrorMessage.Count}";
         ParseDateTime = $"报告生成时间: {DateTime.Now.ToString(CultureInfo.CurrentCulture)}";
+    }
+
+    private bool IsAllowedShow(ErrorMessage error)
+    {
+        return !_settings.InhibitedErrorCodes.Contains(error.Code) &&
+               !_settings.InhibitedErrorTypes.Contains(error.Type);
     }
 
     [RelayCommand]
