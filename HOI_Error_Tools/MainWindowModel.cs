@@ -151,7 +151,9 @@ public partial class MainWindowModel : ObservableObject
         analyzers.AddRange(gameResourcesPath.StatesFilePathList.Select(path => new StateFileAnalyzer(path, gameResources)));
         analyzers.AddRange(gameResourcesPath.CountriesDefineFilePath.Select(path => new CountryDefineFileAnalyzer(path, gameResources)));
 
-        var errorsTask = analyzers.Select(analyzer => Task.Run(analyzer.GetErrorMessages)).ToList();
+        var errorsTask = analyzers
+            .Select(analyzer => Task.Run(analyzer.GetErrorMessages))
+            .ToList();
         await Task.WhenAll(errorsTask);
 
         var errorList = ImmutableList.CreateBuilder<ErrorMessage>();

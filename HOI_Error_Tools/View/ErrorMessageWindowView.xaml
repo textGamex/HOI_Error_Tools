@@ -27,12 +27,17 @@
                 Width="Auto"
                 Height="Auto"
                 FontSize="15"
-                Text="{Binding StatisticsInfo, Mode=Default}" />
+                Text="{Binding DisplayedErrorCount, Mode=Default}" />
+            <TextBlock
+                Width="Auto"
+                Height="Auto"
+                Margin="10,0,0,0"
+                FontSize="15"
+                Text="{Binding IgnoredErrorCount, Mode=Default}" />
             <TextBlock
                 Margin="10,0,0,0"
                 FontSize="15"
-                Text="{Binding ParseDateTime, Mode=Default}"
-                TextAlignment="Right" />
+                Text="{Binding ParseDateTime, Mode=Default}" />
         </StackPanel>
 
         <DataGrid
@@ -40,12 +45,26 @@
             AutoGenerateColumns="False"
             IsReadOnly="True"
             ItemsSource="{Binding ErrorMessage, Mode=Default}"
-            SelectionMode="Single"
+            SelectionMode="Extended"
             VirtualizingPanel.IsVirtualizing="True"
             VirtualizingPanel.VirtualizationMode="Recycling">
 
-            <DataGrid.Columns>
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="SelectionChanged">
+                    <i:InvokeCommandAction Command="{Binding SelectionChangedCommand, Mode=Default}" CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}, Path=SelectedItems, Mode=Default}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
 
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem
+                        Command="{Binding DeleteSelectedErrorMessageCommand, Mode=Default}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}, Path=PlacementTarget.SelectedItems, Mode=Default}"
+                        Header="{Binding DeleteMenuItemHeader, Mode=Default}" />
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+
+            <DataGrid.Columns>
                 <DataGridTemplateColumn Header="代码">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
@@ -60,7 +79,7 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Button
-                                Command="{Binding DataContext.ShowErrorFileInfoCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                Command="{Binding DataContext.ShowErrorFileInfoCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Mode=Default}"
                                 CommandParameter="{Binding FileInfo, Mode=Default}"
                                 Content="显示位置" />
                         </DataTemplate>

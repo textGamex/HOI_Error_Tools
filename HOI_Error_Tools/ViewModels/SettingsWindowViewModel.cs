@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Globalization;
-using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HOI_Error_Tools.Logic;
@@ -11,7 +9,6 @@ namespace HOI_Error_Tools.ViewModels;
 
 public partial class SettingsWindowViewModel : ObservableObject
 {
-
     private readonly ILogger _log;
     private readonly GlobalSettings _settings;
 

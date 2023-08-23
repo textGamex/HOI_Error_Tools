@@ -18,7 +18,7 @@
 
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closed">
-            <i:InvokeCommandAction Command="{Binding WindowClosedCommand}" />
+            <i:InvokeCommandAction Command="{Binding WindowClosedCommand, Mode=Default}" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
 
@@ -35,7 +35,9 @@
 
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type vms:SideMenuItem}" ItemsSource="{Binding Items, Mode=Default}">
-                    <TextBlock Text="{Binding Title, Mode=Default}" />
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Title, Mode=Default}" />
+                    </StackPanel>
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>
         </TreeView>
