@@ -20,6 +20,7 @@
     TextElement.FontWeight="Medium"
     TextElement.Foreground="{DynamicResource MaterialDesignBody}"
     mc:Ignorable="d">
+
     <Window.InputBindings>
         <KeyBinding Key="Enter" Command="{Binding StartParseCommand, Mode=Default}" />
     </Window.InputBindings>
@@ -29,21 +30,23 @@
             <RowDefinition Height="0.09*" />
             <RowDefinition />
         </Grid.RowDefinitions>
+        <materialDesign:Card>
+            <Menu materialDesign:MenuAssist.TopLevelMenuItemHeight="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type materialDesign:Card}}, Path=ActualHeight}">
+                <MenuItem
+                    Command="{Binding ClickSettingsButtonCommand, Mode=Default}"
+                    Header="设置(_S)"
+                    Icon="{materialDesign:PackIcon Kind=CogOutline}" />
+                <MenuItem
+                    Command="{Binding ClickAboutButtonCommand, Mode=Default}"
+                    Header="关于"
+                    Icon="{materialDesign:PackIcon Kind=InformationOutline}" />
+                <MenuItem
+                    Command="{Binding ClickProjectLinkButtonCommand, Mode=Default}"
+                    Header="GitHub"
+                    Icon="{materialDesign:PackIcon Kind=Github}" />
+            </Menu>
+        </materialDesign:Card>
 
-        <Menu Grid.Row="0">
-            <MenuItem
-                Command="{Binding ClickSettingsButtonCommand, Mode=Default}"
-                Header="设置(_S)"
-                Icon="{materialDesign:PackIcon Kind=CogOutline}" />
-            <MenuItem
-                Command="{Binding ClickAboutButtonCommand, Mode=Default}"
-                Header="关于"
-                Icon="{materialDesign:PackIcon Kind=InformationOutline}" />
-            <MenuItem
-                Command="{Binding ClickProjectLinkButtonCommand, Mode=Default}"
-                Header="GitHub"
-                Icon="{materialDesign:PackIcon Kind=Github}" />
-        </Menu>
 
         <Button
             Grid.Row="1"
