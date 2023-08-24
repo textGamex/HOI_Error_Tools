@@ -1,11 +1,12 @@
 ﻿using HOI_Error_Tools.Logic.Analyzers;
-using HOI_Error_Tools.Logic.CustomException;
 using HOI_Error_Tools.Logic.HOIParser;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Windows.Media.Imaging;
+using Microsoft.Extensions.DependencyInjection;
+using NLog;
 
 namespace HOI_Error_Tools.Logic;
 
@@ -30,6 +31,7 @@ public class Descriptor
     /// </remarks>
     public IReadOnlySet<string> ReplacePaths => _replacePaths;
     private readonly ImmutableHashSet<string> _replacePaths;
+    private static readonly ILogger Log = App.Current.Services.GetRequiredService<ILogger>();
 
     /// <summary>
     /// 按文件绝对路径构建
@@ -43,7 +45,10 @@ public class Descriptor
         var parser = new CWToolsParser(path);
         if (parser.IsFailure)
         {
-            throw new ParseException($"解析失败 => {path}");
+            Tags = Enumerable.Empty<string>();
+            _replacePaths = ImmutableHashSet<string>.Empty;
+            Log.Warn("Mod descriptor.mod file read is failure");
+            return;
         }
 
         var replacePathsBuilder = ImmutableHashSet.CreateBuilder<string>();
