@@ -53,13 +53,14 @@ public partial class MainWindowModel : ObservableObject
     private Descriptor? _descriptor;
     private int _fileSum;
     private readonly IErrorMessageService _errorMessageService;
-
+    private readonly IMessageBox _messageBox;
     private readonly ILogger _log;
 
-    public MainWindowModel(ILogger logger, Tracker tracker, IErrorMessageService errorMessageService)
+    public MainWindowModel(ILogger logger, Tracker tracker, IErrorMessageService errorMessageService, IMessageBox messageBox)
     {
         _log = logger;
         _errorMessageService = errorMessageService;
+        _messageBox = messageBox;
         PropertyChanged += MainWindowModel_OnPropertyChanged;
 
         tracker.Configure<MainWindowModel>()
@@ -69,7 +70,6 @@ public partial class MainWindowModel : ObservableObject
         tracker.Track(this);
 
 #if DEBUG
-        //GameRootPath = @"D:\STEAM\steamapps\common\Hearts of Iron IV";
         //ModRootPath = @"D:\STEAM\steamapps\workshop\content\394360\2171092591"; // 碧蓝航线
         //ModRootPath = @"D:\STEAM\steamapps\workshop\content\394360\2820469328"; // 明日方舟
 #endif
@@ -124,7 +124,7 @@ public partial class MainWindowModel : ObservableObject
     {
         if (string.IsNullOrEmpty(GameRootPath) || string.IsNullOrEmpty(ModRootPath))
         {
-            MessageBox.Show("未选择资源路径", "错误");
+            _messageBox.Show("未选择资源路径", "错误");
             return;
         }
 
@@ -172,9 +172,9 @@ public partial class MainWindowModel : ObservableObject
     }
 
     [RelayCommand]
-    private static void ClickAboutButton()
+    private void ClickAboutButton()
     {
-        MessageBox.Show($".NET: {Environment.Version}\n 作者: textGamex");
+        _messageBox.Show($".NET: {Environment.Version}\n 作者: textGamex");
     }
 
     [RelayCommand]

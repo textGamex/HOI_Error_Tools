@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using HOI_Error_Tools.View;
 using HOI_Error_Tools.ViewModels;
+using MessageBox = HOI_Error_Tools.Services.MessageBox;
 
 namespace HOI_Error_Tools;
 
@@ -30,6 +31,7 @@ public partial class App : Application
         services.AddSingleton<IErrorFileInfoService, ErrorFileInfoService>();
         services.AddSingleton<Tracker>(_ => new Tracker(new JsonFileStore(GlobalSettings.SettingsFolderPath)));
         services.AddSingleton<GlobalSettings>(_ => GlobalSettings.Load());
+        services.AddSingleton<IMessageBox, MessageBox>();
 
         services.AddSingleton<MainWindow>(sp => 
             new MainWindow() { DataContext = sp.GetRequiredService<MainWindowModel>() });
