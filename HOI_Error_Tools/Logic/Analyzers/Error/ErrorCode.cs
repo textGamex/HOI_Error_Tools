@@ -60,4 +60,7 @@ public enum ErrorCode : uint
 
     [Description("科技不存在却被使用")]
     TechnologyNotExists,
+
+    [Description("人物不存在")]
+    CharacterNotExists
 }

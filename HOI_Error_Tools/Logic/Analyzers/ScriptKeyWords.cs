@@ -21,4 +21,5 @@ public static class ScriptKeyWords
     public const string Ideas = "ideas";
     public const string Yes = "yes";
     public const string No = "no";
+    public const string Characters = "characters";
 }

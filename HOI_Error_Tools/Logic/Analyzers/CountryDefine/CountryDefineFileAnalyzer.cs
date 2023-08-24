@@ -18,6 +18,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
     private readonly IReadOnlySet<string> _registeredTechnologies;
     private readonly IReadOnlySet<string> _registeredAutonomousState;
     //private readonly IReadOnlySet<string> _registeredEquipments;
+    private readonly IReadOnlySet<string> _registeredCharacters;
     private readonly AnalyzerHelper _helper;
 
     public CountryDefineFileAnalyzer(string filePath, GameResources resources) : base(filePath)
@@ -29,6 +30,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
         _registeredTechnologies = resources.RegisteredTechnologiesSet;
         //_registeredEquipments = resources.RegisteredEquipmentSet;
         _registeredAutonomousState = resources.RegisteredAutonomousState;
+        _registeredCharacters = resources.RegisteredCharacters;
     }
 
     public override IEnumerable<ErrorMessage> GetErrorMessages()
@@ -41,6 +43,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
             errorList.Add(ErrorMessageFactory.CreateParseErrorMessage(FilePath, parser.GetError()));
             return errorList;
         }
+
         var model = new CountryDefineFileModel(parser.GetResult());
         
         errorList.AddRange(AnalyzePopularities(model));
@@ -52,6 +55,23 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
         errorList.AddRange(AnalyzeSetAutonomys(model));
         errorList.AddRange(AnalyzeSetTechnologies(model));
         errorList.AddRange(AnalyzeGiveGuaranteeCountriesTag(model));
+        errorList.AddRange(AnalyzeOwnCharacters(model));
+
+        return errorList;
+    }
+
+    private IEnumerable<ErrorMessage> AnalyzeOwnCharacters(CountryDefineFileModel model)
+    {
+        var errorList = new List<ErrorMessage>();
+
+        foreach (var characterLeaf in model.OwnCharacters)
+        {
+            if (!_registeredCharacters.Contains(characterLeaf.ValueText))
+            {
+                errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                    ErrorCode.CharacterNotExists, FilePath, characterLeaf.Position, $"Character '{characterLeaf.ValueText}' 不存在, 却在文件 '{FileName}' 中被使用"));
+            }
+        }
 
         return errorList;
     }
@@ -82,7 +102,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
                 {
                     errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                         ErrorCode.TechnologyNotExists,
-                        FilePath, leafContent.Position, $"科技 '{leafContent.Key}' 不存在"));
+                        FilePath, leafContent.Position, $"科技 '{leafContent.Key}' 不存在, 却在文件 '{FileName}' 中被使用"));
                 }
             }
         }

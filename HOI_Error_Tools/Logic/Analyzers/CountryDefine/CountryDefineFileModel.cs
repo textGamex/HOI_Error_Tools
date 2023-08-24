@@ -19,6 +19,7 @@ public partial class CountryDefineFileAnalyzer
         public IReadOnlyList<LeavesNode> SetAutonomies { get; }
         public IReadOnlyList<LeavesNode> SetTechnologies { get; }
         public IReadOnlyList<LeafContent> GiveGuaranteeCountriesTag { get; }
+        public IReadOnlyList<LeafContent> OwnCharacters { get; }
         public CountryDefineFileModel(Node rootNode)
         {
             SetPopularitiesList = ParseHelper.GetAllLeafKeyAndValueInAllNode(rootNode, "set_popularities").ToList();
@@ -30,6 +31,7 @@ public partial class CountryDefineFileAnalyzer
             SetAutonomies = ParseHelper.GetAllLeafKeyAndValueInAllNode(rootNode, "set_autonomy").ToList();
             SetTechnologies = ParseHelper.GetAllLeafKeyAndValueInAllNode(rootNode, "set_technology").ToList();
             GiveGuaranteeCountriesTag = ParseHelper.GetLeafContentsInAllChildren(rootNode, "give_guarantee").ToList();
+            OwnCharacters = ParseHelper.GetLeafContentsInAllChildren(rootNode, "recruit_character").ToList();
         }
     }
 }

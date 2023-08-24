@@ -12,9 +12,11 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HOI_Error_Tools.Logic;
 
+// TODO: 重构代码, 太多重复的代码了.
 public class GameResources
 {
     public static IReadOnlyCollection<ErrorMessage> ErrorMessages => ErrorMessageCache;
@@ -28,15 +30,17 @@ public class GameResources
     //public IReadOnlySet<string> RegisteredEquipmentSet { get; }
     public IReadOnlySet<string> RegisteredTechnologiesSet { get; }
     public IReadOnlySet<string> RegisteredAutonomousState { get; }
+    public IReadOnlySet<string> RegisteredCharacters { get; }
 
     private readonly ImmutableDictionary<string, BuildingInfo> _buildingInfos;
     private readonly ImmutableHashSet<uint> _registeredProvinces;
     private readonly GameResourcesPath _gameResourcesPath;
 
     private static readonly ConcurrentBag<ErrorMessage> ErrorMessageCache = new();
-    private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+    //private static readonly ILogger Log = App.Current.Services.GetRequiredService<ILogger>();
 
-    public GameResources(string gameRootPath, string modRootPath) : this(new GameResourcesPath(gameRootPath, modRootPath))
+    public GameResources(string gameRootPath, string modRootPath) 
+        : this(new GameResourcesPath(gameRootPath, modRootPath))
     {
     }
 
@@ -54,6 +58,12 @@ public class GameResources
         //RegisteredEquipmentSet = GetRegisteredEquipment();
         RegisteredTechnologiesSet = GetRegisteredTechnologies();
         RegisteredAutonomousState = GetRegisteredAutonomousState();
+        RegisteredCharacters = GetRegisteredCharacters();
+    }
+
+    private IReadOnlySet<string> GetRegisteredCharacters()
+    {
+        return GetAllKeyOfLeaf(_gameResourcesPath.CharactersFilesPath, ScriptKeyWords.Characters);
     }
 
     private IReadOnlySet<string> GetRegisteredAutonomousState()
