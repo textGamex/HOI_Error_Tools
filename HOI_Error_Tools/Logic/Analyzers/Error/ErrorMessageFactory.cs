@@ -36,8 +36,13 @@ public static class ErrorMessageFactory
         return CreateSingleFileError(ErrorCode.EmptyFileError, filePath, $"文件 '{Path.GetFileName(filePath)}' 为空", ErrorLevel.Tip);
     }
 
-    public static ErrorMessage CreateKeywordIsMissingErrorMessage(string filePath, LeavesNode node, string keyword)
+    public static ErrorMessage CreateKeywordIsMissingErrorMessage(string filePath, LeavesNode node, string missingKeyword)
     {
-        return CreateSingleFileErrorWithPosition(ErrorCode.KeywordIsMissing, filePath, node.Position, $"'{node.Key}' 缺少必需关键字 '{keyword}'");
+        return CreateSingleFileErrorWithPosition(ErrorCode.KeywordIsMissing, filePath, node.Position, $"'{node.Key}' 缺少必需关键字 '{missingKeyword}'");
+    }
+
+    public static ErrorMessage CreateKeywordIsMissingErrorMessage(string filePath, string nodeKeyword, string missingKeyword)
+    {
+        return CreateSingleFileError(ErrorCode.KeywordIsMissing, filePath, $"'{nodeKeyword}' 缺少必需关键字 '{missingKeyword}'");
     }
 }

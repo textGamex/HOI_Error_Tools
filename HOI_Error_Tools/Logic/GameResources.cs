@@ -12,7 +12,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace HOI_Error_Tools.Logic;
 
@@ -88,12 +87,13 @@ public class GameResources
             }
 
             var autonomousStatesNode = rootNode.Child(autonomyStateKeyword).Value;
-            if (autonomousStatesNode.HasNot("id"))
+            if (autonomousStatesNode.HasNot(ScriptKeyWords.Id))
             {
-                ErrorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(ErrorCode.KeywordIsMissing, path, "缺少 'id'"));
+                ErrorMessageCache.Add(ErrorMessageFactory.CreateKeywordIsMissingErrorMessage(
+                    path, autonomousStatesNode.Key,ScriptKeyWords.Id));
                 continue;
             }
-            var idLeaf = autonomousStatesNode.Leafs("id").First();
+            var idLeaf = autonomousStatesNode.Leafs(ScriptKeyWords.Id).First();
             if (!set.Add(idLeaf.ValueText))
             {
                 ErrorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(
@@ -364,6 +364,7 @@ public class GameResources
     private IReadOnlySet<string> GetRegisteredStateCategories()
     {
         var builder = ImmutableHashSet.CreateBuilder<string>();
+        // TODO: 重构, 大量重复代码.
         foreach (var path in _gameResourcesPath.StateCategoriesFilePath)
         {
             var parser = new CWToolsParser(path);
@@ -377,8 +378,7 @@ public class GameResources
             var result = parser.GetResult();
             if (result.HasNot(Key.StateCategories))
             {
-                ErrorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(
-                    ErrorCode.KeywordIsMissing, path, $"缺少 '{Key.StateCategories}' 关键字"));
+                ErrorMessageCache.Add(ErrorMessageFactory.CreateEmptyFileErrorMessage(path));
                 continue;
             }
             var stateCategoriesNode = result.Child(Key.StateCategories).Value;
@@ -399,17 +399,15 @@ public class GameResources
             var parser = new CWToolsParser(filePath);
             if (parser.IsFailure)
             {
-                var error = parser.GetError();
                 ErrorMessageCache.Add(
-                    ErrorMessageFactory.CreateParseErrorMessage(filePath, error));
+                    ErrorMessageFactory.CreateParseErrorMessage(filePath, parser.GetError()));
                 continue;
             }
 
             var node = parser.GetResult();
             if (node.HasNot(ScriptKeyWords.Buildings))
             {
-                ErrorMessageCache.Add(ErrorMessageFactory.CreateSingleFileError(
-                    ErrorCode.KeywordIsMissing, filePath, $"缺少 '{ScriptKeyWords.Buildings}' 关键字"));
+                ErrorMessageCache.Add(ErrorMessageFactory.CreateEmptyFileErrorMessage(filePath));
                 continue;
             }
             var buildingsNode = node.Child(ScriptKeyWords.Buildings).Value;

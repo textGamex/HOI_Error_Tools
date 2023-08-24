@@ -85,13 +85,18 @@ public sealed class GameResourcesPath
         _resourcesTypeFilePathList = ImmutableList.CreateRange(
             GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "resources")));
 
-        FileSum = StateCategoriesFilePath.Count + CountriesDefineFilePath.Count +
-                  IdeaFilesPath.Count + IdeaTagsFilePath.Count +
-                  EquipmentFilesPath.Count + TechnologyFilesPath.Count +
-                  CountriesTagFilePath.Count + IdeologiesFilePath.Count +
-                  BuildingsFilePathList.Count + ResourcesTypeFilePathList.Count +
-                  StatesFilePathList.Count + AutonomousStateFilesPath.Count +
-                  CharactersFilesPath.Count + 1; // 这个 1 是 ProvincesDefinitionFilePath 文件
+        FileSum = GetFileSum();
+    }
+
+    private int GetFileSum()
+    {
+        return StateCategoriesFilePath.Count + CountriesDefineFilePath.Count +
+            IdeaFilesPath.Count + IdeaTagsFilePath.Count +
+            EquipmentFilesPath.Count + TechnologyFilesPath.Count +
+            CountriesTagFilePath.Count + IdeologiesFilePath.Count +
+            BuildingsFilePathList.Count + ResourcesTypeFilePathList.Count +
+            StatesFilePathList.Count + AutonomousStateFilesPath.Count +
+            CharactersFilesPath.Count + 1; // 这个 1 是 ProvincesDefinitionFilePath 文件
     }
 
     private static string GetLocPath(string rootPath)
