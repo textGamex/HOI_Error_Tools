@@ -43,9 +43,13 @@ public partial class MainWindowModel : ObservableObject
 
     [ObservableProperty]
     private string _modTags = string.Empty;
+
     [ObservableProperty]
     private BitmapImage? _modImage;
-    
+
+    [ObservableProperty] 
+    private string _modId;
+
     private Descriptor? _descriptor;
     private int _fileSum;
     private readonly IErrorMessageService _errorMessageService;
@@ -79,6 +83,7 @@ public partial class MainWindowModel : ObservableObject
             ModName = descriptor.Name;
             ModTags = string.Join(", ", descriptor.Tags);
             ModImage = descriptor.Picture;
+            ModId = descriptor.RemoteFileId;
 
             _descriptor = descriptor;
         }

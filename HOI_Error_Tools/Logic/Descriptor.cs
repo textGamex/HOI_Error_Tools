@@ -22,6 +22,7 @@ public class Descriptor
     public IEnumerable<string> Tags { get; }
     public string PictureName { get; } = string.Empty;
     public BitmapImage? Picture { get; }
+    public string RemoteFileId { get; } = string.Empty;
 
     /// <summary>
     /// 保存着替换的文件夹相对路径的只读集合
@@ -37,7 +38,6 @@ public class Descriptor
     /// 按文件绝对路径构建
     /// </summary>
     /// <param name="modRootPath">游戏根目录绝对路径</param>
-    /// <exception cref="ParseException">当文件解析失败时</exception>
     /// <exception cref="FileNotFoundException">当文件不存在时</exception>
     public Descriptor(string modRootPath)
     {
@@ -75,6 +75,9 @@ public class Descriptor
                 case ScriptKeyWords.ReplacePath:
                     var parts = item.ValueText.Split('/');
                     replacePathsBuilder.Add(Path.Combine(parts));
+                    break;
+                case "remote_file_id":
+                    RemoteFileId = item.ValueText;
                     break;
             }
         }

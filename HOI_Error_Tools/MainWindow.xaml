@@ -145,7 +145,7 @@
         <TextBox
             Grid.Row="1"
             Width="225"
-            Margin="10,369,0,0"
+            Margin="10,370,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
             IsReadOnly="True"
@@ -159,6 +159,19 @@
                 </StackPanel>
             </materialDesign:HintAssist.Hint>
         </TextBox>
+
+        <TextBox
+            Grid.Row="1"
+            Width="225"
+            Margin="10,435,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            materialDesign:HintAssist.Hint="Mod ID"
+            IsReadOnly="True"
+            Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+            Text="{Binding ModId, Mode=Default}"
+            TextWrapping="NoWrap" />
+
         <Image
             Grid.Row="1"
             Width="230"
