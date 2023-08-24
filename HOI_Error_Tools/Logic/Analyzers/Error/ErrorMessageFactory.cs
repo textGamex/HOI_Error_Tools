@@ -18,7 +18,7 @@ public static class ErrorMessageFactory
 
     public static ErrorMessage CreateParseErrorMessage(string filePath, ParserError error)
     {
-        return CreateSingleFileErrorWithPosition(ErrorCode.ParseError, filePath, new Position(error), $"文件 '{Path.GetFileNameWithoutExtension(filePath)}' 解析错误");
+        return CreateSingleFileErrorWithPosition(ErrorCode.ParseError, filePath, new Position(error), $"文件 '{Path.GetFileName(filePath)}' 解析错误");
     }
 
     public static ErrorMessage CreateFailedStringToIntErrorMessage(string filePath, LeafContent leaf)
