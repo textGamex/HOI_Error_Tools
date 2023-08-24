@@ -29,7 +29,7 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
     private readonly IErrorFileInfoService _errorFileInfoService;
     private readonly GlobalSettings _settings;
 
-    private static readonly ILogger Log = App.Current.Services.GetRequiredService<ILogger>();
+    //private static readonly ILogger Log = App.Current.Services.GetRequiredService<ILogger>();
 
     public ErrorMessageWindowViewModel(
         IErrorMessageService errorMessageService,
@@ -65,8 +65,6 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
         var errorFileInfoWindow = App.Current.Services.GetRequiredService<ErrorFileInfoView>();
         errorFileInfoWindow.Show();
         _errorFileInfoService.Clear();
-
-        Log.Debug("ErrorFileInfoView window start");
     }
 
     [RelayCommand]

@@ -75,6 +75,7 @@
 
                 <DataGridTextColumn Binding="{Binding Path=Level, Mode=OneWay}" Header="等级" />
                 <DataGridTextColumn Binding="{Binding Path=Message, Mode=OneWay}" Header="错误信息" />
+
                 <DataGridTemplateColumn Header="错误位置">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
