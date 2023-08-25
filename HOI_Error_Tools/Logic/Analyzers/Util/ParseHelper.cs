@@ -66,7 +66,9 @@ public static class ParseHelper
     private static IEnumerable<Node> GetAllNodeInAll(Node rootNode, string keyword)
     {
         var nodeList = new List<Node>(8);
-        nodeList.AddRange(GetDateNodes(rootNode));
+        var dateNodes = GetDateNodes(rootNode);
+        nodeList.AddRange(dateNodes.SelectMany(GetAllIfAndElseNode));
+        nodeList.AddRange(dateNodes);
         nodeList.AddRange(GetAllIfAndElseNode(rootNode));
         return nodeList
             .Where(node => node.Has(keyword))
