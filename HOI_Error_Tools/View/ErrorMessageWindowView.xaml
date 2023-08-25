@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:local="clr-namespace:HOI_Error_Tools.View"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prop="clr-namespace:HOI_Error_Tools.Properties"
     xmlns:vm="clr-namespace:HOI_Error_Tools.ViewModels"
@@ -18,14 +19,29 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="0.1*" />
+            <RowDefinition Height="0.09*" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <StackPanel Orientation="Horizontal">
+            <TextBox
+                MinWidth="150"
+                Margin="10,0,0,0"
+                materialDesign:TextFieldAssist.HasClearButton="True"
+                Text="{Binding SearchText, Mode=Default, UpdateSourceTrigger=PropertyChanged}"
+                TextWrapping="NoWrap">
+                <materialDesign:HintAssist.Hint>
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Magnify" />
+                        <TextBlock Text="搜索" />
+                    </StackPanel>
+                </materialDesign:HintAssist.Hint>
+            </TextBox>
+
             <TextBlock
                 Width="Auto"
                 Height="Auto"
+                Margin="10,0,0,0"
                 FontSize="15"
                 Text="{Binding DisplayedErrorCount, Mode=Default}" />
             <TextBlock
@@ -44,7 +60,7 @@
             Grid.Row="1"
             AutoGenerateColumns="False"
             IsReadOnly="True"
-            ItemsSource="{Binding ErrorMessage, Mode=Default}"
+            ItemsSource="{Binding FilteredErrorMessage, Mode=Default}"
             SelectionMode="Extended"
             VirtualizingPanel.IsVirtualizing="True"
             VirtualizingPanel.VirtualizationMode="Recycling">

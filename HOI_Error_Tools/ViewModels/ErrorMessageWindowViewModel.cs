@@ -14,16 +14,25 @@ using HOI_Error_Tools.Services;
 using Humanizer;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows.Data;
+using EnumsNET;
 
 namespace HOI_Error_Tools.ViewModels;
 
 public partial class ErrorMessageWindowViewModel : ObservableObject
 {
-    public ObservableCollection<ErrorMessageWindowViewModelVo> ErrorMessage { get; }
+    private LinkedList<ErrorMessageWindowViewModelVo> _errorMessage { get; }
     public string IgnoredErrorCount { get; }
     public string ParseDateTime { get; }
-    public string DisplayedErrorCount => $"错误: {ErrorMessage.Count}";
-    public string DeleteMenuItemHeader => _selectedItems.Count == ErrorMessage.Count ? "清空" : $"删除 {_selectedItems.Count} 项";
+    public string DisplayedErrorCount => $"错误: {_errorMessage.Count}";
+    public string DeleteMenuItemHeader => _selectedItems.Count == _errorMessage.Count ? "清空" : $"删除 {_selectedItems.Count} 项";
+
+    [ObservableProperty]
+    private string _searchText = string.Empty;
+
+    [ObservableProperty]
+    private ICollectionView _filteredErrorMessage;
 
     private IReadOnlyList<ErrorMessageWindowViewModelVo> _selectedItems = Array.Empty<ErrorMessageWindowViewModelVo>();
     private readonly IErrorFileInfoService _errorFileInfoService;
@@ -42,14 +51,30 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
         var errors = errorMessageService.GetErrorMessages();
         var rawCount = errors.Count;
 
-        ErrorMessage = new ObservableCollection<ErrorMessageWindowViewModelVo>(
+        _errorMessage = new LinkedList<ErrorMessageWindowViewModelVo>(
             errors.Where(IsAllowedShow)
             .Select(message => new ErrorMessageWindowViewModelVo(message)));
+        FilteredErrorMessage = CollectionViewSource.GetDefaultView(_errorMessage);
+        FilteredErrorMessage.Filter = ErrorMessagesFilter;
 
-        IgnoredErrorCount = $"忽略: {rawCount - ErrorMessage.Count}";
+        IgnoredErrorCount = $"忽略: {rawCount - _errorMessage.Count}";
         ParseDateTime = $"报告生成时间: {DateTime.Now.ToString(CultureInfo.CurrentCulture)}";
 
-        ErrorMessage.CollectionChanged += (_, _) => OnPropertyChanged(nameof(DisplayedErrorCount));
+        FilteredErrorMessage.CollectionChanged += (_, _) => OnPropertyChanged(nameof(DisplayedErrorCount));
+    }
+
+    private bool ErrorMessagesFilter(object item)
+    {
+        if (string.IsNullOrEmpty(SearchText))
+        {
+            return true;
+        }
+
+        var vo = (ErrorMessageWindowViewModelVo)item;
+        var code = Enums.ToUInt32(vo.Code).ToString(CultureInfo.InvariantCulture);
+
+        return vo.Message.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+               code.Contains(SearchText, StringComparison.OrdinalIgnoreCase);
     }
 
     private bool IsAllowedShow(ErrorMessage error)
@@ -70,16 +95,18 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
     [RelayCommand]
     private void DeleteSelectedErrorMessage(IList list)
     {
-        if (list.Count == ErrorMessage.Count)
+        if (list.Count == _errorMessage.Count)
         {
-            ErrorMessage.Clear();
+            _errorMessage.Clear();
+            FilteredErrorMessage.Refresh();
             return;
         }
 
         foreach (var item in list.Cast<ErrorMessageWindowViewModelVo>().ToArray())
         {
-            ErrorMessage.Remove(item);
+            _errorMessage.Remove(item);
         }
+        FilteredErrorMessage.Refresh();
     }
 
     [RelayCommand]
@@ -88,6 +115,8 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
         _selectedItems = selectedItems.Cast<ErrorMessageWindowViewModelVo>().ToArray();
         OnPropertyChanged(nameof(DeleteMenuItemHeader));
     }
+
+    partial void OnSearchTextChanged(string value) => FilteredErrorMessage.Refresh();
 
     public sealed class ErrorMessageWindowViewModelVo : ErrorMessage
     {
