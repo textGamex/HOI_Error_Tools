@@ -33,6 +33,18 @@ public static class ParseHelper
     }
 
     /// <summary>
+    /// 获得在 <c>rootNode</c> 中所有拥有指定 <c>leafKeyword</c> 的 <see cref="Leaf"/>. (包括 if 语句)
+    /// </summary>
+    /// <param name="rootNode"></param>
+    /// <param name="leafKeyword"></param>
+    /// <returns></returns>
+    private static IEnumerable<Leaf> GetAllLeafInAllChildren(Node rootNode, string leafKeyword)
+    {
+        var nodeList = GetAllIfAndDateNode(rootNode);
+        return nodeList.Append(rootNode).SelectMany(node => node.Leafs(leafKeyword));
+    }
+
+    /// <summary>
     /// 获得当前 Node 所有 <see cref="LeafContent"/>.
     /// </summary>
     /// <param name="node"></param>
@@ -51,77 +63,10 @@ public static class ParseHelper
     /// <returns></returns>
     public static IEnumerable<LeavesNode> GetAllLeafContentInRootNode(Node rootNode, string nodeKey)
     {
-        var nodeList = GetAllNodeInAll(rootNode, nodeKey);
+        var nodeList = GetAllEligibleNodeInAll(rootNode, nodeKey);
         return nodeList
             .Select(node => new LeavesNode(node.Key, GetAllLeafContentInCurrentNode(node), new Position(node.Position)))
             .ToList();
-    }
-
-    /// <summary>
-    /// 获得在 <c>rootNode</c> 中所有拥有指定 <c>keyword</c> 的 <see cref="Node"/>. (包括在 if 语句和日期语句下的 Node).
-    /// </summary>
-    /// <remarks>
-    /// </remarks>
-    /// <param name="rootNode"></param>
-    /// <param name="keyword"></param>
-    /// <returns></returns>
-    private static IEnumerable<Node> GetAllNodeInAll(Node rootNode, string keyword)
-    {
-        var nodeList = new List<Node>(8);
-
-        nodeList.AddRange(GetAllIfAndElseNode(rootNode));
-        var dateNodes = GetDateNodes(rootNode);
-        nodeList.AddRange(dateNodes);
-        nodeList.AddRange(dateNodes.SelectMany(GetAllIfAndElseNode));
-
-        return nodeList
-            .Where(node => node.Has(keyword))
-            .SelectMany(node => node.Childs(keyword))
-            .Concat(rootNode.Childs(keyword));
-    }
-
-    /// <summary>
-    /// 获得在 <c>rootNode</c> 中所有拥有指定 <c>leafKeyword</c> 的 <see cref="Leaf"/>. (包括 if 语句)
-    /// </summary>
-    /// <param name="rootNode"></param>
-    /// <param name="leafKeyword"></param>
-    /// <returns></returns>
-    private static IEnumerable<Leaf> GetAllLeafInAllChildren(Node rootNode, string leafKeyword)
-    {
-        var nodeList = GetAllIfAndElseNode(rootNode);
-        return nodeList.Append(rootNode).SelectMany(node => node.Leafs(leafKeyword));
-    }
-
-    /// <summary>
-    /// 获得 <c>rootNode</c> 中所有的 If Node 和 Else Node.
-    /// </summary>
-    /// <param name="rootNode"></param>
-    /// <returns>所有的 If Node 和 Else Node</returns>
-    private static IEnumerable<Node> GetAllIfAndElseNode(Node rootNode)
-    {
-        var nodeList = new List<Node>();
-        var ifStatement = rootNode.Childs("if");
-        foreach (var node in ifStatement)
-        {
-            const string elseKey = "else";
-            if (node.Has(elseKey))
-            {
-                var elseNode = node.Child(elseKey).Value;
-                nodeList.Add(elseNode);
-            }
-            nodeList.Add(node);
-        }
-        return nodeList;
-    }
-
-    /// <summary>
-    /// 从 <c>rootNode</c> 中获得所有的日期 Node.
-    /// </summary>
-    /// <param name="rootNode"></param>
-    /// <returns></returns>
-    private static IReadOnlyList<Node> GetDateNodes(Node rootNode)
-    {
-        return rootNode.Nodes.Where(node => Value.IsDateString(node.Key)).ToList();
     }
 
     /// <summary>
@@ -133,7 +78,7 @@ public static class ParseHelper
     public static IEnumerable<LeafValueNode> GetLeafValueNodesInAllNode(Node rootNode, string keyword)
     {
         var list = new List<LeafValueNode>(16);
-        var nodeList = GetAllNodeInAll(rootNode, keyword);
+        var nodeList = GetAllEligibleNodeInAll(rootNode, keyword);
         foreach (var node in nodeList)
         {
             if (!node.LeafValues.Any())
@@ -141,10 +86,52 @@ public static class ParseHelper
                 continue;
             }
             list.Add(new LeafValueNode(
-                node.Key, 
+                node.Key,
                 node.LeafValues.Select(LeafValueContent.FromCWToolsLeafValue),
                 new Position(node.Position)));
         }
         return list;
+    }
+
+    /// <summary>
+    /// 获得在 <c>rootNode</c> 中所有 <c>Key</c> 是 <c>keyword</c> 的 <see cref="Node"/>. (包括在 if 语句和日期语句下的 Node).
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
+    /// <param name="rootNode"></param>
+    /// <param name="keyword"></param>
+    /// <returns></returns>
+    private static IEnumerable<Node> GetAllEligibleNodeInAll(Node rootNode, string keyword)
+    {
+        var nodeList = GetAllIfAndDateNode(rootNode);
+
+        return nodeList
+            .SelectMany(node => node.Childs(keyword))
+            .Concat(rootNode.Childs(keyword));
+    }
+
+    private static IReadOnlyList<Node> GetAllIfAndDateNode(Node rootNode)
+    {
+        var nodeList = new List<Node>(8);
+
+        foreach (var node in rootNode.Nodes)
+        {
+            if (node.Key == "if")
+            {
+                nodeList.Add(node);
+                
+                if (node.Has("else"))
+                {
+                    nodeList.Add(node.Child("else").Value);
+                }
+            }
+            else if (Value.IsDateString(node.Key))
+            {
+                nodeList.Add(node);
+                // 使用递归是为了读取嵌套在 Date 语句下的 If 语句.
+                nodeList.AddRange(GetAllIfAndDateNode(node));
+            }
+        }
+        return nodeList;
     }
 }
