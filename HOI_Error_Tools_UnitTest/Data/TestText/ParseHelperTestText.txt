@@ -14,3 +14,13 @@ if = {
 		}
 	}
 }
+
+1936.1.1 = {
+	date = 1
+	if = {
+		dateIf = 7
+		else = {
+			dateElse = 8
+		}
+	}
+}

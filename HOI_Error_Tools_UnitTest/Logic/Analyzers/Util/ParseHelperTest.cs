@@ -20,7 +20,7 @@ public class ParseHelperTest
         var leavesNode2 = new LeavesNode("bbb",
             new LeafContent[] { new("ccc", "1", new Position(6)), new("ddd", "1", new Position(7)) }, new Position(5));
 
-        var result = ParseHelper.GetAllLeafKeyAndValueInAllNode(rootNode, "bbb").ToArray();
+        var result = ParseHelper.GetAllLeafContentInRootNode(rootNode, "bbb").ToArray();
 
         Multiple(() =>
         {

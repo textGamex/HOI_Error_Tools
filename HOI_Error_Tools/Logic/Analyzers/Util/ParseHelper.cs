@@ -44,12 +44,12 @@ public static class ParseHelper
     }
 
     /// <summary>
-    /// 获得 <c>rootNode</c> 中所有指定 Node 的所有 <see cref="LeafContent"/>, 包括 If 语句中的 Node.
+    /// 获得 <c>rootNode</c> 中所有指定 Node 中的所有 <see cref="LeafContent"/>, 包括 If 和 日期语句下的 Node.
     /// </summary>
     /// <param name="rootNode"></param>
     /// <param name="nodeKey"></param>
     /// <returns></returns>
-    public static IEnumerable<LeavesNode> GetAllLeafKeyAndValueInAllNode(Node rootNode, string nodeKey)
+    public static IEnumerable<LeavesNode> GetAllLeafContentInRootNode(Node rootNode, string nodeKey)
     {
         var nodeList = GetAllNodeInAll(rootNode, nodeKey);
         return nodeList
@@ -58,7 +58,7 @@ public static class ParseHelper
     }
 
     /// <summary>
-    /// 获得在 <c>rootNode</c> 中所有拥有指定 <c>keyword</c> 的 <see cref="Node"/>. (包括 if 语句).
+    /// 获得在 <c>rootNode</c> 中所有拥有指定 <c>keyword</c> 的 <see cref="Node"/>. (包括在 if 语句和日期语句下的 Node).
     /// </summary>
     /// <param name="rootNode"></param>
     /// <param name="keyword"></param>
@@ -66,7 +66,7 @@ public static class ParseHelper
     private static IEnumerable<Node> GetAllNodeInAll(Node rootNode, string keyword)
     {
         var nodeList = new List<Node>(8);
-        nodeList.AddRange(GetAllScriptNode(rootNode));
+        nodeList.AddRange(GetDateNodes(rootNode));
         nodeList.AddRange(GetAllIfAndElseNode(rootNode));
         return nodeList
             .Where(node => node.Has(keyword))
@@ -108,7 +108,12 @@ public static class ParseHelper
         return nodeList;
     }
 
-    private static IReadOnlyList<Node> GetAllScriptNode(Node rootNode)
+    /// <summary>
+    /// 从 <c>rootNode</c> 中获得所有的日期 Node.
+    /// </summary>
+    /// <param name="rootNode"></param>
+    /// <returns></returns>
+    private static IReadOnlyList<Node> GetDateNodes(Node rootNode)
     {
         return rootNode.Nodes.Where(node => Value.IsDateString(node.Key)).ToList();
     }

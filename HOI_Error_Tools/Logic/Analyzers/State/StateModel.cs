@@ -43,7 +43,7 @@ public partial class StateFileAnalyzer
 
             if (stateNode.Has(ScriptKeyWords.Resources))
             {
-                ResourceNodes = ParseHelper.GetAllLeafKeyAndValueInAllNode(stateNode, ScriptKeyWords.Resources).ToList();
+                ResourceNodes = ParseHelper.GetAllLeafContentInRootNode(stateNode, ScriptKeyWords.Resources).ToList();
             }
 
             if (stateNode.Has(ScriptKeyWords.Provinces))
