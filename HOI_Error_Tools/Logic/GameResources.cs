@@ -109,10 +109,10 @@ public class GameResources
         return GetAllKeyOfLeaf(_gameResourcesPath.TechnologyFilesPath, "technologies");
     }
 
-    private IReadOnlySet<string> GetRegisteredEquipment()
-    {
-        return GetAllKeyOfLeaf(_gameResourcesPath.EquipmentFilesPath, "equipments");
-    }
+    //private IReadOnlySet<string> GetRegisteredEquipment()
+    //{
+    //    return GetAllKeyOfLeaf(_gameResourcesPath.EquipmentFilesPath, "equipments");
+    //}
 
     private static IReadOnlySet<string> GetAllKeyOfLeaf(IEnumerable<string> paths, string keyword)
     {

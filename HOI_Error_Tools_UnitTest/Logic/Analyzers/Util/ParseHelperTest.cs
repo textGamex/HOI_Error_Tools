@@ -11,19 +11,26 @@ public class ParseHelperTest
     [Test]
     public void GetAllLeafKeyAndValueInAllNode()
     {
-        var filePath = Path.Combine(Environment.CurrentDirectory, "Data", "TestText", "ParseHelperTestText.txt");
+        var filePath = Path.Combine(PathManager.TestFolderPath, "ParseHelperTestText.txt");
         var parser = new HOI_Error_Tools.Logic.HOIParser.CWToolsParser(filePath);
         var rootNode = parser.GetResult();
+        var leavesNode1 = new LeavesNode("bbb",
+            new LeafContent[] { new("ccc", "2", new Position(12)), new("ddd", "2", new Position(13)) },
+            new Position(11));
+        var leavesNode2 = new LeavesNode("bbb",
+            new LeafContent[] { new("ccc", "1", new Position(6)), new("ddd", "1", new Position(7)) }, new Position(5));
 
-        var result = ParseHelper.GetAllLeafKeyAndValueInAllNode(rootNode, "bbb");
-        var enumerable = new List<(IEnumerable<LeafContent>, Position)>
-        {
-            (new LeafContent[] {new ("ccc", "2", new Position(12)), new ("ddd", "2", new Position(13))}, new Position(11)),
-            (new LeafContent[] {new ("ccc", "1", new Position(6)), new ("ddd", "1", new Position(7))}, new Position(line: 5))
-        };
+        var result = ParseHelper.GetAllLeafKeyAndValueInAllNode(rootNode, "bbb").ToArray();
+
         Multiple(() =>
         {
-            That(result, Is.EqualTo(enumerable));
+            That(result, Has.Length.EqualTo(2));
+            That(result[0].Key, Is.EqualTo(leavesNode1.Key));
+            That(result[0].Leaves, Is.EquivalentTo(leavesNode1.Leaves));
+            That(result[0].Position, Is.EqualTo(leavesNode1.Position));
+            That(result[1].Key, Is.EqualTo(leavesNode2.Key));
+            That(result[1].Leaves, Is.EquivalentTo(leavesNode2.Leaves));
+            That(result[1].Position, Is.EqualTo(leavesNode2.Position));
         });
     }
 

@@ -24,7 +24,7 @@ public sealed class GameResourcesPath
     public IReadOnlyList<string> CountriesDefineFilePath { get; }
     public IReadOnlyList<string> IdeaFilesPath { get; }
     public IReadOnlyList<string> IdeaTagsFilePath { get; }
-    public IReadOnlyList<string> EquipmentFilesPath { get; }
+    //public IReadOnlyList<string> EquipmentFilesPath { get; }
     public IReadOnlyList<string> TechnologyFilesPath { get; }
     public IReadOnlyList<string> CountriesTagFilePath { get; }
     public IReadOnlyList<string> IdeologiesFilePath { get; }
@@ -69,8 +69,8 @@ public sealed class GameResourcesPath
         CountriesDefineFilePath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(ScriptKeyWords.History, "countries")).ToList();
         IdeaFilesPath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.Ideas)).ToList();
         IdeaTagsFilePath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "idea_tags")).ToList();
-        EquipmentFilesPath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "units", "equipment"))
-            .Where(path => Path.GetExtension(path) == ".txt").ToList();
+        //EquipmentFilesPath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "units", "equipment"))
+        //    .Where(path => Path.GetExtension(path) == ".txt").ToList();
         TechnologyFilesPath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "technologies")).ToList();
         AutonomousStateFilesPath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "autonomous_states")).ToList();
         CharactersFilesPath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.Characters)).ToList();
@@ -91,8 +91,7 @@ public sealed class GameResourcesPath
     private int GetFileSum()
     {
         return StateCategoriesFilePath.Count + CountriesDefineFilePath.Count +
-            IdeaFilesPath.Count + IdeaTagsFilePath.Count +
-            EquipmentFilesPath.Count + TechnologyFilesPath.Count +
+            IdeaFilesPath.Count + IdeaTagsFilePath.Count + TechnologyFilesPath.Count +
             CountriesTagFilePath.Count + IdeologiesFilePath.Count +
             BuildingsFilePathList.Count + ResourcesTypeFilePathList.Count +
             StatesFilePathList.Count + AutonomousStateFilesPath.Count +

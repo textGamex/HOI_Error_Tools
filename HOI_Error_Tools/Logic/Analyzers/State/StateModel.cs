@@ -11,7 +11,7 @@ namespace HOI_Error_Tools.Logic.Analyzers.State;
 
 public partial class StateFileAnalyzer
 {
-    private sealed class StateModel
+    public sealed class StateModel
     {
         public IReadOnlyList<LeafContent> Ids { get; } = ImmutableList<LeafContent>.Empty;
         public IReadOnlyList<LeafContent> Manpowers { get; } = ImmutableList<LeafContent>.Empty;
