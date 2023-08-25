@@ -18,7 +18,11 @@ public class ParseHelperTest
             new LeafContent[] { new("ccc", "2", new Position(12)), new("ddd", "2", new Position(13)) },
             new Position(11));
         var leavesNode2 = new LeavesNode("bbb",
-            new LeafContent[] { new("ccc", "1", new Position(6)), new("ddd", "1", new Position(7)) }, new Position(5));
+            new LeafContent[] { new("ccc", "1", new Position(6)), new("ddd", "1", new Position(7)) },
+            new Position(5));
+        var leavesNode3 = new LeavesNode("bbb", 
+            new LeafContent[] { new("ccc", "3", new Position(18)), new("ddd", "3", new Position(19)) }, 
+            new Position(17));
 
         var result = ParseHelper.GetAllLeafContentInRootNode(rootNode, "bbb").ToArray();
 

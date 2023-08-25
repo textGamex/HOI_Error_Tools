@@ -60,14 +60,20 @@ public static class ParseHelper
     /// <summary>
     /// 获得在 <c>rootNode</c> 中所有拥有指定 <c>keyword</c> 的 <see cref="Node"/>. (包括在 if 语句和日期语句下的 Node).
     /// </summary>
+    /// <remarks>
+    /// </remarks>
     /// <param name="rootNode"></param>
     /// <param name="keyword"></param>
     /// <returns></returns>
     private static IEnumerable<Node> GetAllNodeInAll(Node rootNode, string keyword)
     {
         var nodeList = new List<Node>(8);
-        nodeList.AddRange(GetDateNodes(rootNode));
+
         nodeList.AddRange(GetAllIfAndElseNode(rootNode));
+        var dateNodes = GetDateNodes(rootNode);
+        nodeList.AddRange(dateNodes);
+        nodeList.AddRange(dateNodes.SelectMany(GetAllIfAndElseNode));
+
         return nodeList
             .Where(node => node.Has(keyword))
             .SelectMany(node => node.Childs(keyword))

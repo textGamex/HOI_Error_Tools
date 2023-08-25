@@ -17,10 +17,17 @@ if = {
 
 1936.1.1 = {
 	date = 1
+	bbb = {
+		dateBbbNodeLeaf = 2	
+	}
 	if = {
 		dateIf = 7
+		bbb = {
+			dateIfBbbNodeLeaf = 8
+		}
+
 		else = {
-			dateElse = 8
+			dateElse = 9
 		}
 	}
 }
