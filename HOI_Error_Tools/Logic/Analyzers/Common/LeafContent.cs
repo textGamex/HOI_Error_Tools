@@ -61,6 +61,6 @@ public class LeafContent : IEquatable<LeafContent>
 
     public override string ToString()
     {
-        return $"{nameof(Key)}={Key}, {nameof(ValueText)}={ValueText}, {nameof(Position)}={Position}";
+        return $"[{nameof(Key)}={Key}, {nameof(ValueText)}={ValueText}, {nameof(Position)}={Position}]";
     }
 }
