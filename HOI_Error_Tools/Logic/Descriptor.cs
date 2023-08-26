@@ -1,4 +1,5 @@
-﻿using HOI_Error_Tools.Logic.Analyzers;
+﻿using System;
+using HOI_Error_Tools.Logic.Analyzers;
 using HOI_Error_Tools.Logic.HOIParser;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -36,7 +37,7 @@ public class Descriptor
     /// <summary>
     /// 按文件绝对路径构建
     /// </summary>
-    /// <param name="filePath">游戏根目录绝对路径</param>
+    /// <param name="filePath">描述文件的绝对路径</param>
     /// <exception cref="FileNotFoundException">当文件不存在时</exception>
     public Descriptor(string filePath)
     {
@@ -90,7 +91,7 @@ public class Descriptor
         {
             Tags = Enumerable.Empty<string>();
         }
-        Picture = TryGetBitmapImage(filePath);
+        Picture = TryGetBitmapImage(Path.GetDirectoryName(filePath) ?? throw new ArgumentException(filePath));
     }
 
     private static BitmapImage? TryGetBitmapImage(string modRootPath)
