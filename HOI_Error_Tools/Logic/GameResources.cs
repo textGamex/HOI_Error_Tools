@@ -15,7 +15,6 @@ using System.Text;
 
 namespace HOI_Error_Tools.Logic;
 
-// TODO: 重构代码, 太多重复的代码了.
 public class GameResources
 {
     public static IReadOnlyCollection<ErrorMessage> ErrorMessages => ErrorMessageCache;
@@ -71,14 +70,12 @@ public class GameResources
 
         foreach (var path in _gameResourcesPath.AutonomousStateFilesPath)
         {
-            var parser = new CWToolsParser(path);
-            if (parser.IsFailure)
+            var rootNode = ParseFile(path);
+            if (rootNode is null)
             {
-                ErrorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(path, parser.GetError()));
                 continue;
             }
 
-            var rootNode = parser.GetResult();
             const string autonomyStateKeyword = "autonomy_state";
             if (rootNode.HasNot(autonomyStateKeyword))
             {
@@ -119,14 +116,12 @@ public class GameResources
         var dictionary = new Dictionary<string, ParameterFileInfo>();
         foreach (var path in paths)
         {
-            var parser = new CWToolsParser(path);
-            if (parser.IsFailure)
+            var rootNode = ParseFile(path);
+            if (rootNode is null)
             {
-                ErrorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(path, parser.GetError()));
                 continue;
             }
 
-            var rootNode = parser.GetResult();
             if (rootNode.HasNot(keyword))
             {
                 ErrorMessageCache.Add(ErrorMessageFactory.CreateEmptyFileErrorMessage(path));
@@ -163,14 +158,12 @@ public class GameResources
 
         foreach (var path in _gameResourcesPath.IdeaTagsFilePath)
         {
-            var parser = new CWToolsParser(path);
-            if (parser.IsFailure)
+            var rootNode = ParseFile(path);
+            if (rootNode is null)
             {
-                ErrorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(path, parser.GetError()));
                 continue;
             }
 
-            var rootNode = parser.GetResult();
             if (rootNode.HasNot(ideaCategoriesKey))
             {
                 ErrorMessageCache.Add(ErrorMessageFactory.CreateEmptyFileErrorMessage(path));
@@ -200,20 +193,18 @@ public class GameResources
 
         foreach (var path in _gameResourcesPath.IdeaFilesPath)
         {
-            var parser = new CWToolsParser(path);
-            if (parser.IsFailure)
-            {
-                ErrorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(path, parser.GetError()));
-                continue;
-            }
-
-            var result = parser.GetResult();
-            if (result.HasNot(ScriptKeyWords.Ideas))
+            var rootNode = ParseFile(path);
+            if (rootNode is null)
             {
                 continue;
             }
 
-            var ideasNode = result.Child(ScriptKeyWords.Ideas).Value;
+            if (rootNode.HasNot(ScriptKeyWords.Ideas))
+            {
+                continue;
+            }
+
+            var ideasNode = rootNode.Child(ScriptKeyWords.Ideas).Value;
             var subordinateMap = TryGetIdeas(ideasNode, path, registeredIdeaTag);
             MergeMap(map, subordinateMap);
         }
@@ -282,20 +273,18 @@ public class GameResources
 
         foreach (var path in _gameResourcesPath.IdeologiesFilePath)
         {
-            var parser = new CWToolsParser(path);
-            if (parser.IsFailure)
-            {
-                ErrorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(path, parser.GetError()));
-                continue;
-            }
-
-            var result = parser.GetResult();
-            if (result.HasNot(ScriptKeyWords.Ideologies))
+            var rootNode = ParseFile(path);
+            if (rootNode is null)
             {
                 continue;
             }
 
-            var ideologies = result.Child(ScriptKeyWords.Ideologies).Value;
+            if (rootNode.HasNot(ScriptKeyWords.Ideologies))
+            {
+                continue;
+            }
+
+            var ideologies = rootNode.Child(ScriptKeyWords.Ideologies).Value;
             foreach (var ideology in ideologies.Nodes)
             {
                 if (set.TryGetValue(ideology.Key, out var ideologyPosition))
@@ -327,14 +316,13 @@ public class GameResources
         var builder = ImmutableHashSet.CreateBuilder<string>();
         foreach (var path in _gameResourcesPath.CountriesTagFilePath)
         {
-            var parser = new CWToolsParser(path);
-            if (parser.IsFailure)
+            var result = ParseFile(path);
+            if (result is null)
             {
-                ErrorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(
-                    path, parser.GetError()));
                 continue;
             }
-            builder.UnionWith(GetCountriesTagFromFile(path, parser.GetResult()));
+
+            builder.UnionWith(GetCountriesTagFromFile(path, result));
         }
 
         return builder.ToImmutable();
@@ -364,18 +352,15 @@ public class GameResources
     private IReadOnlySet<string> GetRegisteredStateCategories()
     {
         var builder = ImmutableHashSet.CreateBuilder<string>();
-        // TODO: 重构, 大量重复代码.
+        
         foreach (var path in _gameResourcesPath.StateCategoriesFilePath)
         {
-            var parser = new CWToolsParser(path);
-            if (parser.IsFailure)
+            var result = ParseFile(path);
+            if (result is null)
             {
-                ErrorMessageCache.Add(ErrorMessageFactory.CreateParseErrorMessage(
-                    path, parser.GetError()));
                 continue;
             }
 
-            var result = parser.GetResult();
             if (result.HasNot(Key.StateCategories))
             {
                 ErrorMessageCache.Add(ErrorMessageFactory.CreateEmptyFileErrorMessage(path));
@@ -396,21 +381,18 @@ public class GameResources
         var builder = ImmutableDictionary.CreateBuilder<string, BuildingInfo>();
         foreach (var filePath in _gameResourcesPath.BuildingsFilePathList)
         {
-            var parser = new CWToolsParser(filePath);
-            if (parser.IsFailure)
+            var rootNode = ParseFile(filePath);
+            if (rootNode is null)
             {
-                ErrorMessageCache.Add(
-                    ErrorMessageFactory.CreateParseErrorMessage(filePath, parser.GetError()));
                 continue;
             }
 
-            var node = parser.GetResult();
-            if (node.HasNot(ScriptKeyWords.Buildings))
+            if (rootNode.HasNot(ScriptKeyWords.Buildings))
             {
                 ErrorMessageCache.Add(ErrorMessageFactory.CreateEmptyFileErrorMessage(filePath));
                 continue;
             }
-            var buildingsNode = node.Child(ScriptKeyWords.Buildings).Value;
+            var buildingsNode = rootNode.Child(ScriptKeyWords.Buildings).Value;
             var map = ParseBuildingInfosToMap(filePath, buildingsNode);
             builder.AddRange(map);
         }
@@ -500,15 +482,12 @@ public class GameResources
         var builder = ImmutableHashSet.CreateBuilder<string>();
         foreach (var path in _gameResourcesPath.ResourcesTypeFilePathList)
         {
-            var parser = new CWToolsParser(path);
-            if (parser.IsFailure)
+            var rootNode = ParseFile(path);
+            if (rootNode is null)
             {
-                ErrorMessageCache.Add(
-                    ErrorMessageFactory.CreateParseErrorMessage(path, parser.GetError()));
                 continue;
             }
 
-            var rootNode = parser.GetResult();
             if (rootNode.HasNot(ScriptKeyWords.Resources))
             {
                 ErrorMessageCache.Add(
@@ -553,6 +532,23 @@ public class GameResources
             set.Add(node.Key);
         }
         return set;
+    }
+
+    /// <summary>
+    /// 解析文件, 如果解析失败, 将错误信息添加到 <see cref="ErrorMessageCache"/>, 返回<c>null</c>
+    /// </summary>
+    /// <param name="filePath">文件绝对路径</param>
+    /// <returns>root Node</returns>
+    private static Node? ParseFile(string filePath)
+    {
+        var parser = new CWToolsParser(filePath);
+        if (parser.IsSuccess)
+        {
+            return parser.GetResult();
+        }
+        ErrorMessageCache.Add(
+            ErrorMessageFactory.CreateParseErrorMessage(filePath, parser.GetError()));
+        return null;
     }
 
     public static void ClearErrorMessagesCache()
