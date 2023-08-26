@@ -13,15 +13,23 @@ state={
 		owner = TES
 		victory_points = { 3838 1 }
 		buildings = {
-			infrastructure = 2
+			infrastructure = 1
 			industrial_complex = 1
 			air_base = 1
 			3838 = {
-				naval_base = 3
+				naval_base = 1
 			}
 		}
 		add_core_of = TES
 		add_core_of = AAA
+		1939.1.1 = {
+			owner = BBB
+			add_core_of = BBB
+			buildings = {
+				infrastructure = 2
+				industrial_complex = 2
+			}
+		}
 	}
 
 	provinces={

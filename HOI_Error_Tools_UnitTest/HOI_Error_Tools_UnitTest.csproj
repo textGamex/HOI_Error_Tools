@@ -47,6 +47,9 @@
     <None Update="Data\Mod\descriptor.mod">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Data\Mod\errorDescriptor.mod">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Data\Realistic\Hearts of Iron IV\common\buildings\test_buildings.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

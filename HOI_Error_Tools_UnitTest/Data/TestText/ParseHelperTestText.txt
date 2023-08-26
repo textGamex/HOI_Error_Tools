@@ -30,4 +30,12 @@ if = {
 			dateElse = 9
 		}
 	}
+	eee = 6
 }
+
+bbb = {
+	rootLeaf = 0
+}
+
+rootLeaf = 0
+eee = 7

@@ -16,7 +16,6 @@ namespace HOI_Error_Tools.Logic;
 public class Descriptor
 {
     public string Name { get; } = string.Empty;
-
     public string SupportedVersion { get; } = string.Empty;
     public string Version { get; } = string.Empty;
     public IEnumerable<string> Tags { get; }
@@ -37,12 +36,11 @@ public class Descriptor
     /// <summary>
     /// 按文件绝对路径构建
     /// </summary>
-    /// <param name="modRootPath">游戏根目录绝对路径</param>
+    /// <param name="filePath">游戏根目录绝对路径</param>
     /// <exception cref="FileNotFoundException">当文件不存在时</exception>
-    public Descriptor(string modRootPath)
+    public Descriptor(string filePath)
     {
-        var path = Path.Combine(modRootPath, "descriptor.mod");
-        var parser = new CWToolsParser(path);
+        var parser = new CWToolsParser(filePath);
         if (parser.IsFailure)
         {
             Tags = Enumerable.Empty<string>();
@@ -92,7 +90,7 @@ public class Descriptor
         {
             Tags = Enumerable.Empty<string>();
         }
-        Picture = TryGetBitmapImage(modRootPath);
+        Picture = TryGetBitmapImage(filePath);
     }
 
     private static BitmapImage? TryGetBitmapImage(string modRootPath)

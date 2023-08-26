@@ -43,7 +43,7 @@ public sealed class GameResourcesPath
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
     public GameResourcesPath(string gameRootPath, string modRootPath) 
-        : this(gameRootPath, modRootPath, new Descriptor(modRootPath))
+        : this(gameRootPath, modRootPath, new Descriptor(Path.Combine(modRootPath, "descriptor.mod")))
     {
     }
 

@@ -4,6 +4,7 @@ using HOI_Error_Tools.Logic.Analyzers.Util;
 namespace HOI_Error_Tools_UnitTest.Logic.Analyzers.Util;
 
 [TestFixture]
+[TestOf(typeof(AnalyzerHelper))]
 public class AnalyzerHelperTests
 {
     private const string FilePath = "test.txt";

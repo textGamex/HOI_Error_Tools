@@ -13,6 +13,7 @@ using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -79,7 +80,7 @@ public partial class MainWindowModel : ObservableObject
     {
         if (e.PropertyName is nameof(ModRootPath))
         {
-            var descriptor = new Descriptor(ModRootPath);
+            var descriptor = new Descriptor(Path.Combine(ModRootPath, "descriptor.mod"));
             ModName = descriptor.Name;
             ModTags = string.Join(", ", descriptor.Tags);
             ModImage = descriptor.Picture;

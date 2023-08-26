@@ -21,7 +21,7 @@ public static class ParseHelper
     }
 
     /// <summary>
-    /// 获得 <c>rootNode</c> 中所有拥有指定 <c>leafKeyword</c> 的 <see cref="LeafContent"/>. (包括 if else 语句)
+    /// 获得 <c>rootNode</c> 中所有拥有指定 <c>leafKeyword</c> 的 <see cref="LeafContent"/>. (包括 if else 语句和 Date 语句)
     /// </summary>
     /// <param name="rootNode"></param>
     /// <param name="leafKeyword"></param>
@@ -33,7 +33,7 @@ public static class ParseHelper
     }
 
     /// <summary>
-    /// 获得在 <c>rootNode</c> 中所有拥有指定 <c>leafKeyword</c> 的 <see cref="Leaf"/>. (包括 if 语句)
+    /// 获得在 <c>rootNode</c> 中所有拥有指定 <c>leafKeyword</c> 的 <see cref="Leaf"/>. (包括 if 语句 和 Date 语句)
     /// </summary>
     /// <param name="rootNode"></param>
     /// <param name="leafKeyword"></param>

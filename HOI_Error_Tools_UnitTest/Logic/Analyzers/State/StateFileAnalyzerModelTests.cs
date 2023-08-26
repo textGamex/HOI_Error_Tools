@@ -5,6 +5,7 @@ using HOI_Error_Tools.Logic.HOIParser;
 namespace HOI_Error_Tools_UnitTest.Logic.Analyzers.State;
 
 [TestFixture]
+[TestOf(typeof(StateFileAnalyzer))]
 public class StateFileAnalyzerModelTests
 {
     private readonly StateFileAnalyzer.StateModel _stateModel = 
@@ -149,15 +150,15 @@ public class StateFileAnalyzerModelTests
         {
             That(province, Is.Not.Null);
             That(province.Key, Is.EqualTo("provinces"));
-            That(province.Position.Line, Is.EqualTo(27));
+            That(province.Position.Line, Is.EqualTo(35));
         });
         That(leafValueList, Has.Count.EqualTo(3));
         That(leafValueList[0].ValueText, Is.EqualTo("10"));
-        That(leafValueList[0].Position.Line, Is.EqualTo(28));
+        That(leafValueList[0].Position.Line, Is.EqualTo(36));
         That(leafValueList[1].ValueText, Is.EqualTo("20"));
-        That(leafValueList[1].Position.Line, Is.EqualTo(28));
+        That(leafValueList[1].Position.Line, Is.EqualTo(36));
         That(leafValueList[2].ValueText, Is.EqualTo("30"));
-        That(leafValueList[2].Position.Line, Is.EqualTo(28));
+        That(leafValueList[2].Position.Line, Is.EqualTo(36));
     }
 
     [Test]
