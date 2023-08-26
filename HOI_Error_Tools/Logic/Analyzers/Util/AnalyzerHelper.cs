@@ -2,17 +2,21 @@
 using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using EnumsNET;
 
 namespace HOI_Error_Tools.Logic.Analyzers.Util;
 
 public sealed class AnalyzerHelper
 {
     private readonly string _filePath;
+    private readonly string _fileName;
 
     public AnalyzerHelper(string filePath)
     {
         _filePath = filePath;
+        _fileName = Path.GetFileName(filePath) ?? throw new ArgumentException(filePath);
     }
 
     public ErrorMessage? AssertExistKeyword<T>(IEnumerable<T> enumerable, string keyword, ErrorLevel level = ErrorLevel.Error)
@@ -20,7 +24,7 @@ public sealed class AnalyzerHelper
         return enumerable.Any()
             ? null
             : ErrorMessageFactory.CreateSingleFileError(ErrorCode.KeywordIsMissing,
-                _filePath, $"缺少 '{keyword}' 关键字", level);
+                _filePath, $"文件 '{_fileName}' 缺少 '{keyword}' 关键字", level);
     }
 
     /// <summary>
@@ -32,7 +36,8 @@ public sealed class AnalyzerHelper
     public IEnumerable<ErrorMessage> AssertKeywordIsOnly(IReadOnlyCollection<LeafContent> enumerable, string keyword)
     {
         return enumerable.Count > 1
-            ? new[] { new ErrorMessage(ErrorCode.KeywordIsRepeated, enumerable.Select(item => new ParameterFileInfo(_filePath, item.Position)), $"重复的 '{keyword}' 关键字", ErrorLevel.Error) }
+            ? new[] { new ErrorMessage(ErrorCode.KeywordIsRepeated, 
+                enumerable.Select(item => new ParameterFileInfo(_filePath, item.Position)), $"文件 '{_fileName}' 中存在重复的 '{keyword}' 关键字", ErrorLevel.Error) }
             : Enumerable.Empty<ErrorMessage>();
     }
 
@@ -43,7 +48,7 @@ public sealed class AnalyzerHelper
             if (!keywords.Contains(leaf.Key))
             {
                 yield return ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    ErrorCode.InvalidValue, _filePath, leaf.Position, $"不应出现的关键字 '{leaf.Key}'");
+                    ErrorCode.InvalidValue, _filePath, leaf.Position, $"文件 '{_fileName}' 中存在不应出现的关键字 '{leaf.Key}'");
             }
         }
     }
@@ -59,7 +64,7 @@ public sealed class AnalyzerHelper
             if (leafContent is not null && leafContent.Value.Type != valueType)
             {
                 errorList.Add(ErrorMessageFactory.CreateInvalidValueErrorMessage(
-                    _filePath, leafContent, Enum.GetName(valueType) ?? string.Empty));
+                    _filePath, leafContent, valueType.GetName() ?? string.Empty));
             }
         }
 
@@ -74,7 +79,7 @@ public sealed class AnalyzerHelper
             if (leaf.Value.Type != expectedType)
             {
                  list.Add(ErrorMessageFactory.CreateInvalidValueErrorMessage(
-                     _filePath, leaf, Enum.GetName(expectedType) ?? string.Empty));
+                     _filePath, leaf, expectedType.GetName() ?? string.Empty));
             }
         }
         return list;
@@ -85,6 +90,6 @@ public sealed class AnalyzerHelper
         return leaf.Value.Type == expectedType
             ? Enumerable.Empty<ErrorMessage>()
             : new[] { ErrorMessageFactory.CreateInvalidValueErrorMessage(
-                _filePath, leaf, Enum.GetName(expectedType) ?? string.Empty) };
+                _filePath, leaf, expectedType.GetName() ?? string.Empty) };
     }
 }
