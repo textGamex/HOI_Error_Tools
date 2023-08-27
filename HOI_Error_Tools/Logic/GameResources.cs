@@ -29,6 +29,10 @@ public class GameResources
     public IReadOnlySet<string> RegisteredTechnologiesSet { get; }
     public IReadOnlySet<string> RegisteredAutonomousState { get; }
     public IReadOnlySet<string> RegisteredCharacters { get; }
+    /// <summary>
+    /// 文件名, 不包含文件后缀
+    /// </summary>
+    public IReadOnlySet<string> RegisteredOobFileNames { get; }
 
     private readonly ImmutableDictionary<string, BuildingInfo> _buildingInfos;
     private readonly ImmutableHashSet<uint> _registeredProvinces;
@@ -57,6 +61,20 @@ public class GameResources
         RegisteredTechnologiesSet = GetRegisteredTechnologies();
         RegisteredAutonomousState = GetRegisteredAutonomousState();
         RegisteredCharacters = GetRegisteredCharacters();
+        RegisteredOobFileNames = GetExistOobFiles();
+    }
+
+    private IReadOnlySet<string> GetExistOobFiles()
+    {
+        var setBuild = ImmutableHashSet.CreateBuilder<string>();
+
+        foreach (var path in _gameResourcesPath.OobFilesPath)
+        {
+            var fileName = Path.GetFileNameWithoutExtension(path);
+            setBuild.Add(fileName);
+        }
+
+        return setBuild.ToImmutable();
     }
 
     private IReadOnlySet<string> GetRegisteredCharacters()

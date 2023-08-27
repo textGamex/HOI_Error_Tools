@@ -19,6 +19,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
     private readonly IReadOnlySet<string> _registeredAutonomousState;
     //private readonly IReadOnlySet<string> _registeredEquipments;
     private readonly IReadOnlySet<string> _registeredCharacters;
+    private readonly IReadOnlySet<string> _registeredOobFileNames;
 
     public CountryDefineFileAnalyzer(string filePath, GameResources resources) : base(filePath)
     {
@@ -29,6 +30,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
         //_registeredEquipments = resources.RegisteredEquipmentSet;
         _registeredAutonomousState = resources.RegisteredAutonomousState;
         _registeredCharacters = resources.RegisteredCharacters;
+        _registeredOobFileNames = resources.RegisteredOobFileNames;
     }
 
     public override IEnumerable<ErrorMessage> GetErrorMessages()
@@ -54,6 +56,23 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
         errorList.AddRange(AnalyzeSetTechnologies(model));
         errorList.AddRange(AnalyzeGiveGuaranteeCountriesTag(model));
         errorList.AddRange(AnalyzeOwnCharacters(model));
+        errorList.AddRange(AnalyzeOwnOobs(model));
+
+        return errorList;
+    }
+
+    private IEnumerable<ErrorMessage> AnalyzeOwnOobs(CountryDefineFileModel model)
+    {
+        var errorList = new List<ErrorMessage>();
+
+        foreach (var oobLeaf in model.OwnOobs)
+        {
+            if (!_registeredOobFileNames.Contains(oobLeaf.ValueText))
+            {
+                errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                    ErrorCode.InvalidValue, FilePath, oobLeaf.Position, $"文件 '{FileName}' 中使用不存在的 oob 文件 '{oobLeaf.ValueText}'"));
+            }
+        }
 
         return errorList;
     }

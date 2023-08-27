@@ -30,6 +30,7 @@ public sealed class GameResourcesPath
     public IReadOnlyList<string> IdeologiesFilePath { get; }
     public IReadOnlyList<string> AutonomousStateFilesPath { get; }
     public IReadOnlyList<string> CharactersFilesPath { get; }
+    public IReadOnlyList<string> OobFilesPath { get; }
     public IReadOnlyList<string> BuildingsFilePathList => _buildingsFilePathList;
     public IReadOnlyList<string> ResourcesTypeFilePathList => _resourcesTypeFilePathList;
     public IReadOnlyList<string> StatesFilePathList => _statesFilePathList;
@@ -74,6 +75,7 @@ public sealed class GameResourcesPath
         TechnologyFilesPath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "technologies")).ToList();
         AutonomousStateFilesPath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "autonomous_states")).ToList();
         CharactersFilesPath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.Characters)).ToList();
+        OobFilesPath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(ScriptKeyWords.History, "units")).ToList();
 
         CountriesTagFilePath = ImmutableList.CreateRange(GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "country_tags")));
         IdeologiesFilePath = ImmutableList.CreateRange(GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.Ideologies)));

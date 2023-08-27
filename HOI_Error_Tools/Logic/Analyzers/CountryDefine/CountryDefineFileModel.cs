@@ -20,6 +20,7 @@ public partial class CountryDefineFileAnalyzer
         public IReadOnlyList<LeavesNode> SetTechnologies { get; }
         public IReadOnlyList<LeafContent> GiveGuaranteeCountriesTag { get; }
         public IReadOnlyList<LeafContent> OwnCharacters { get; }
+        public IReadOnlyList<LeafContent> OwnOobs { get; }
         public CountryDefineFileModel(Node rootNode)
         {
             SetPopularitiesList = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_popularities").ToList();
@@ -32,6 +33,17 @@ public partial class CountryDefineFileAnalyzer
             SetTechnologies = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_technology").ToList();
             GiveGuaranteeCountriesTag = ParseHelper.GetLeafContentsInAllChildren(rootNode, "give_guarantee").ToList();
             OwnCharacters = ParseHelper.GetLeafContentsInAllChildren(rootNode, "recruit_character").ToList();
+            OwnOobs = GetOwnOobs(rootNode);
+        }
+
+        private static IReadOnlyList<LeafContent> GetOwnOobs(Node rootNode)
+        {
+            var list = new List<LeafContent>(8);
+            list.AddRange(ParseHelper.GetLeafContentsInAllChildren(rootNode, "oob"));
+            list.AddRange(ParseHelper.GetLeafContentsInAllChildren(rootNode, "set_oob"));
+            list.AddRange(ParseHelper.GetLeafContentsInAllChildren(rootNode, "set_naval_oob"));
+            list.AddRange(ParseHelper.GetLeafContentsInAllChildren(rootNode, "set_air_oob"));
+            return list;
         }
     }
 }
