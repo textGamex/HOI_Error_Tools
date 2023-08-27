@@ -19,6 +19,12 @@ public sealed class AnalyzerHelper
         _fileName = Path.GetFileName(filePath) ?? throw new ArgumentException(filePath);
     }
 
+    public AnalyzerHelper(string filePath, string fileName)
+    {
+        _filePath = filePath;
+        _fileName = fileName;
+    }
+
     public ErrorMessage? AssertExistKeyword<T>(IEnumerable<T> enumerable, string keyword, ErrorLevel level = ErrorLevel.Error)
     {
         return enumerable.Any()

@@ -13,7 +13,6 @@ namespace HOI_Error_Tools.Logic.Analyzers.State;
 
 public partial class StateFileAnalyzer : AnalyzerBase
 {
-    private readonly AnalyzerHelper _helper;
     /// <summary>
     /// 在文件中注册的省份ID
     /// </summary>
@@ -36,7 +35,6 @@ public partial class StateFileAnalyzer : AnalyzerBase
         
     public StateFileAnalyzer(string filePath, GameResources resources) : base(filePath)
     {
-        _helper = new AnalyzerHelper(FilePath);
         _registeredProvince = resources.RegisteredProvinceSet;
         _registeredBuildings = resources.BuildingInfoMap;
         _resourcesTypeSet = resources.ResourcesType;
@@ -86,7 +84,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
     private IEnumerable<ErrorMessage> AnalyzeId(StateModel model)
     {
         var errorList = new List<ErrorMessage>();
-        var errorMessage = _helper.AssertExistKeyword(model.Ids, ScriptKeyWords.Id);
+        var errorMessage = Helper.AssertExistKeyword(model.Ids, ScriptKeyWords.Id);
 
         if (errorMessage is not null)
         {
@@ -121,7 +119,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
             }
         }
 
-        errorList.AddRange(_helper.AssertKeywordIsOnly(model.Ids, ScriptKeyWords.Id));
+        errorList.AddRange(Helper.AssertKeywordIsOnly(model.Ids, ScriptKeyWords.Id));
         return errorList;
     }
 
@@ -224,7 +222,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
     {
         var errorList = new List<ErrorMessage>(5);
 
-        var error = _helper.AssertExistKeyword(model.Owners, ScriptKeyWords.Owner);
+        var error = Helper.AssertExistKeyword(model.Owners, ScriptKeyWords.Owner);
         if (error is not null)
         {
             errorList.Add(error);
@@ -241,7 +239,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
             }
         }
 
-        errorList.AddRange(_helper.AssertKeywordIsOnly(model.Owners, ScriptKeyWords.Owner));
+        errorList.AddRange(Helper.AssertKeywordIsOnly(model.Owners, ScriptKeyWords.Owner));
         return errorList;
     }
 
@@ -249,22 +247,22 @@ public partial class StateFileAnalyzer : AnalyzerBase
     {
         var errorList = new List<ErrorMessage>();
 
-        var errorMessage = _helper.AssertExistKeyword(model.Names, ScriptKeyWords.Name);
+        var errorMessage = Helper.AssertExistKeyword(model.Names, ScriptKeyWords.Name);
         if (errorMessage is not null)
         {
             errorList.Add(errorMessage);
             return errorList;
         }
 
-        errorList.AddRange(_helper.AssertValueTypeIsExpected(model.Names, Value.Types.String));
-        errorList.AddRange(_helper.AssertKeywordIsOnly(model.Names, ScriptKeyWords.Name));
+        errorList.AddRange(Helper.AssertValueTypeIsExpected(model.Names, Value.Types.String));
+        errorList.AddRange(Helper.AssertKeywordIsOnly(model.Names, ScriptKeyWords.Name));
         return errorList;
     }
 
     private IEnumerable<ErrorMessage> AnalyzeManpower(StateModel model)
     {
         var errorList = new List<ErrorMessage>();
-        var errorMessage = _helper.AssertExistKeyword(model.Manpowers, ScriptKeyWords.Manpower);
+        var errorMessage = Helper.AssertExistKeyword(model.Manpowers, ScriptKeyWords.Manpower);
         if (errorMessage is not null)
         {
             errorList.Add(errorMessage);
@@ -280,14 +278,14 @@ public partial class StateFileAnalyzer : AnalyzerBase
             }
         }
 
-        errorList.AddRange(_helper.AssertKeywordIsOnly(model.Manpowers, ScriptKeyWords.Manpower));
+        errorList.AddRange(Helper.AssertKeywordIsOnly(model.Manpowers, ScriptKeyWords.Manpower));
         return errorList;
     }
 
     private IEnumerable<ErrorMessage> AnalyzeStateCategory(StateModel model)
     {
         var errorList = new List<ErrorMessage>();
-        var errorMessage = _helper.AssertExistKeyword(model.StateCategories, ScriptKeyWords.StateCategory);
+        var errorMessage = Helper.AssertExistKeyword(model.StateCategories, ScriptKeyWords.StateCategory);
         if (errorMessage is not null)
         {
             errorList.Add(errorMessage);
@@ -303,10 +301,10 @@ public partial class StateFileAnalyzer : AnalyzerBase
                     ErrorCode.StateCategoryNotExists,
                     FilePath, stateCategoryLeaf.Position, $"StateCategory 类型 '{type}' 未注册"));
             }
-            errorList.AddRange(_helper.AssertValueTypeIsExpected(stateCategoryLeaf, Value.Types.String));
+            errorList.AddRange(Helper.AssertValueTypeIsExpected(stateCategoryLeaf, Value.Types.String));
         }
 
-        errorList.AddRange(_helper.AssertKeywordIsOnly(model.StateCategories, ScriptKeyWords.StateCategory));
+        errorList.AddRange(Helper.AssertKeywordIsOnly(model.StateCategories, ScriptKeyWords.StateCategory));
         return errorList;
     }
 

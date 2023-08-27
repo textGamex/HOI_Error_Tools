@@ -19,11 +19,9 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
     private readonly IReadOnlySet<string> _registeredAutonomousState;
     //private readonly IReadOnlySet<string> _registeredEquipments;
     private readonly IReadOnlySet<string> _registeredCharacters;
-    private readonly AnalyzerHelper _helper;
 
     public CountryDefineFileAnalyzer(string filePath, GameResources resources) : base(filePath)
     {
-        _helper = new AnalyzerHelper(FilePath);
         _registeredCountriesTag = resources.RegisteredCountriesTag;
         _registeredIdeologies = resources.RegisteredIdeologies;
         _registeredIdeas = resources.RegisteredIdeas;
@@ -128,7 +126,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
         
         foreach (var setAutonomyNode in model.SetAutonomies)
         {
-            errorList.AddRange(_helper.AssertValueTypeIsExpected(setAutonomyNode, keywordMap));
+            errorList.AddRange(Helper.AssertValueTypeIsExpected(setAutonomyNode, keywordMap));
             var target = TryGetLeafContent(setAutonomyNode, targetKey);
             if (target is null)
             {
@@ -161,7 +159,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
     private IEnumerable<ErrorMessage> AnalyzePolitics(CountryDefineFileModel model)
     {
         var errorList = new List<ErrorMessage>();
-        var errorMessage = _helper.AssertExistKeyword(model.SetPoliticsList, "set_politics", ErrorLevel.Warn);
+        var errorMessage = Helper.AssertExistKeyword(model.SetPoliticsList, "set_politics", ErrorLevel.Warn);
         if (errorMessage is not null)
         {
             errorList.Add(errorMessage);
@@ -179,8 +177,8 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
         
         foreach (var leavesNode in model.SetPoliticsList)
         {
-            errorList.AddRange(_helper.AssertKeywordsIsValid(leavesNode, keyMap.Keys.ToHashSet()));
-            errorList.AddRange(_helper.AssertValueTypeIsExpected(leavesNode, keyMap));
+            errorList.AddRange(Helper.AssertKeywordsIsValid(leavesNode, keyMap.Keys.ToHashSet()));
+            errorList.AddRange(Helper.AssertValueTypeIsExpected(leavesNode, keyMap));
 
             var rulingParty = TryGetLeafContent(leavesNode, rulingPartyKey);
             if (rulingParty is null)
@@ -236,7 +234,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
     {
         var errorList = new List<ErrorMessage>();
 
-        var errorMessage = _helper.AssertExistKeyword(model.SetPopularitiesList, "set_popularities");
+        var errorMessage = Helper.AssertExistKeyword(model.SetPopularitiesList, "set_popularities");
         if (errorMessage is not null)
         {
             errorList.Add(errorMessage);
@@ -277,7 +275,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
     {
         var errorList = new List<ErrorMessage>();
         const string capitalKey = "capital";
-        var errorMessage = _helper.AssertExistKeyword(model.Capitals, capitalKey);
+        var errorMessage = Helper.AssertExistKeyword(model.Capitals, capitalKey);
         if (errorMessage is not null)
         {
             errorList.Add(errorMessage);
@@ -286,8 +284,8 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
 
         // TODO: 未定义的首都 State
 
-        errorList.AddRange(_helper.AssertValueTypeIsExpected(model.Capitals, Value.Types.Integer));
-        errorList.AddRange(_helper.AssertKeywordIsOnly(model.Capitals, capitalKey));
+        errorList.AddRange(Helper.AssertValueTypeIsExpected(model.Capitals, Value.Types.Integer));
+        errorList.AddRange(Helper.AssertKeywordIsOnly(model.Capitals, capitalKey));
         return errorList;
     }
 
