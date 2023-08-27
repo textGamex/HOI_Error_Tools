@@ -1,12 +1,12 @@
 ﻿using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
-using HOI_Error_Tools.Logic.HOIParser;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using HOI_Error_Tools.Logic.Analyzers.Util;
 
 namespace HOI_Error_Tools.Logic.Analyzers.State;
 
@@ -44,17 +44,12 @@ public partial class StateFileAnalyzer : AnalyzerBase
 
     public override IEnumerable<ErrorMessage> GetErrorMessages()
     {
-        var parser = new CWToolsParser(FilePath);
-
-        if (parser.IsFailure)
+        var rootNode = ParseHelper.ParseFileToNode(_errorList, FilePath);
+        if (rootNode is null)
         {
-            _errorList.Add(ErrorMessageFactory.CreateParseErrorMessage(
-                FilePath, parser.GetError()));
             return _errorList;
         }
-
-        var result = parser.GetResult();
-        var stateModel = new StateModel(result);
+        var stateModel = new StateModel(rootNode);
         if (stateModel.IsEmptyFile)
         {
             _errorList.Add(ErrorMessageFactory.CreateEmptyFileErrorMessage(FilePath));

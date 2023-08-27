@@ -12,6 +12,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using HOI_Error_Tools.Logic.Analyzers.Util;
 
 namespace HOI_Error_Tools.Logic;
 
@@ -88,7 +89,7 @@ public class GameResources
 
         foreach (var path in _gameResourcesPath.AutonomousStateFilesPath)
         {
-            var rootNode = ParseFileToNode(path);
+            var rootNode = ParseFile(path);
             if (rootNode is null)
             {
                 continue;
@@ -134,7 +135,7 @@ public class GameResources
         var dictionary = new Dictionary<string, ParameterFileInfo>();
         foreach (var path in paths)
         {
-            var rootNode = ParseFileToNode(path);
+            var rootNode = ParseFile(path);
             if (rootNode is null)
             {
                 continue;
@@ -176,7 +177,7 @@ public class GameResources
 
         foreach (var path in _gameResourcesPath.IdeaTagsFilePath)
         {
-            var rootNode = ParseFileToNode(path);
+            var rootNode = ParseFile(path);
             if (rootNode is null)
             {
                 continue;
@@ -211,7 +212,7 @@ public class GameResources
 
         foreach (var path in _gameResourcesPath.IdeaFilesPath)
         {
-            var rootNode = ParseFileToNode(path);
+            var rootNode = ParseFile(path);
             if (rootNode is null)
             {
                 continue;
@@ -291,7 +292,7 @@ public class GameResources
 
         foreach (var path in _gameResourcesPath.IdeologiesFilePath)
         {
-            var rootNode = ParseFileToNode(path);
+            var rootNode = ParseFile(path);
             if (rootNode is null)
             {
                 continue;
@@ -334,7 +335,7 @@ public class GameResources
         var builder = ImmutableHashSet.CreateBuilder<string>();
         foreach (var path in _gameResourcesPath.CountriesTagFilePath)
         {
-            var result = ParseFileToNode(path);
+            var result = ParseFile(path);
             if (result is null)
             {
                 continue;
@@ -373,7 +374,7 @@ public class GameResources
         
         foreach (var path in _gameResourcesPath.StateCategoriesFilePath)
         {
-            var result = ParseFileToNode(path);
+            var result = ParseFile(path);
             if (result is null)
             {
                 continue;
@@ -399,7 +400,7 @@ public class GameResources
         var builder = ImmutableDictionary.CreateBuilder<string, BuildingInfo>();
         foreach (var filePath in _gameResourcesPath.BuildingsFilePathList)
         {
-            var rootNode = ParseFileToNode(filePath);
+            var rootNode = ParseFile(filePath);
             if (rootNode is null)
             {
                 continue;
@@ -500,7 +501,7 @@ public class GameResources
         var builder = ImmutableHashSet.CreateBuilder<string>();
         foreach (var path in _gameResourcesPath.ResourcesTypeFilePathList)
         {
-            var rootNode = ParseFileToNode(path);
+            var rootNode = ParseFile(path);
             if (rootNode is null)
             {
                 continue;
@@ -557,16 +558,9 @@ public class GameResources
     /// </summary>
     /// <param name="filePath">文件绝对路径</param>
     /// <returns>root Node</returns>
-    private static Node? ParseFileToNode(string filePath)
+    private static Node? ParseFile(string filePath)
     {
-        var parser = new CWToolsParser(filePath);
-        if (parser.IsSuccess)
-        {
-            return parser.GetResult();
-        }
-        ErrorMessageCache.Add(
-            ErrorMessageFactory.CreateParseErrorMessage(filePath, parser.GetError()));
-        return null;
+        return ParseHelper.ParseFileToNode(ErrorMessageCache, filePath);
     }
 
     public static void ClearErrorMessagesCache()

@@ -1,7 +1,10 @@
 ﻿using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
+using HOI_Error_Tools.Logic.HOIParser;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace HOI_Error_Tools.Logic.Analyzers.Util;
@@ -133,5 +136,36 @@ public static class ParseHelper
             }
         }
         return nodeList;
+    }
+
+    /// <summary>
+    /// 解析文件, 如果解析失败, 将错误信息添加到 <c>errorMessages</c>, 返回 <c>null</c>
+    /// </summary>
+    /// <param name="errorMessages">错误信息集合</param>
+    /// <param name="filePath">文件绝对路径</param>
+    /// <returns>root Node</returns>
+    public static Node? ParseFileToNode(ICollection<ErrorMessage> errorMessages, string filePath)
+    {
+        var parser = new CWToolsParser(filePath);
+        if (parser.IsSuccess)
+        {
+            return parser.GetResult();
+        }
+        errorMessages.Add(ErrorMessageFactory.CreateParseErrorMessage(filePath, parser.GetError()));
+        return null;
+    }
+
+
+    /// <inheritdoc cref="ParseFileToNode(ICollection{ErrorMessage},string)"/>
+    public static Node? ParseFileToNode(IProducerConsumerCollection<ErrorMessage> errorMessages, string filePath)
+    {
+        var parser = new CWToolsParser(filePath);
+        if (parser.IsSuccess)
+        {
+            return parser.GetResult();
+        }
+        var result = errorMessages.TryAdd(ErrorMessageFactory.CreateParseErrorMessage(filePath, parser.GetError()));
+        Debug.Assert(result);
+        return null;
     }
 }

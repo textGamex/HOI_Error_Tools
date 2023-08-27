@@ -5,7 +5,6 @@ using System.Linq;
 using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.Util;
-using HOI_Error_Tools.Logic.HOIParser;
 
 namespace HOI_Error_Tools.Logic.Analyzers.CountryDefine;
 
@@ -36,14 +35,12 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
 
     public override IEnumerable<ErrorMessage> GetErrorMessages()
     {
-        var parser = new CWToolsParser(FilePath);
-        if (parser.IsFailure)
+        var rootNode = ParseHelper.ParseFileToNode(_errorList, FilePath);
+        if (rootNode is null)
         {
-            _errorList.Add(ErrorMessageFactory.CreateParseErrorMessage(FilePath, parser.GetError()));
             return _errorList;
         }
-
-        var model = new CountryDefineFileModel(parser.GetResult());
+        var model = new CountryDefineFileModel(rootNode);
         AnalyzePopularities(model);
         AnalyzeIdeas(model);
         AnalyzePolitics(model);
