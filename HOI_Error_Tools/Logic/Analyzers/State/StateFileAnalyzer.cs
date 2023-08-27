@@ -56,7 +56,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
             return _errorList;
         }
 
-        var provinceInStateSet = stateModel.Provinces
+        var provinceInStateSet = stateModel.ProvinceNodes
             .SelectMany(leafNode => leafNode.LeafValueContents.Select(leafValue => leafValue.ValueText))
             .ToHashSet();
 
@@ -285,18 +285,25 @@ public partial class StateFileAnalyzer : AnalyzerBase
     /// <returns></returns>
     private void AnalyzeProvinces(StateModel model)
     {
-        if (model.Provinces.Count == 0)
+        if (model.ProvinceNodes.Count == 0)
         {
-            //TODO: 应该带上 provinces 块的位置
             _errorList.Add(ErrorMessageFactory.CreateSingleFileError(
-                ErrorCode.EmptyProvincesNode, FilePath, "空的 provinces 块", ErrorLevel.Warn));
+                ErrorCode.EmptyProvincesNode, FilePath,  $"State 文件 '{FileName}' 未分配 province", ErrorLevel.Warn));
             return;
         }
 
         var provinces = new List<(uint, Position)>(16);
-        foreach (var leafValueNode in model.Provinces)
+        foreach (var provinceNode in model.ProvinceNodes)
         {
-            foreach (var provinceIdLeafValue in leafValueNode.LeafValueContents)
+            var provinceIds = provinceNode.LeafValueContents;
+            if (!provinceIds.Any())
+            {
+                _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                    ErrorCode.EmptyProvincesNode, FilePath, provinceNode.Position, $"文件 '{FileName}' 存在空的 provinces 节点", ErrorLevel.Warn));
+                continue;
+            }
+
+            foreach (var provinceIdLeafValue in provinceIds)
             {
                 var provinceIdText = provinceIdLeafValue.ValueText;
                 if (!provinceIdLeafValue.Value.IsInt)

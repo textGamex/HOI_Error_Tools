@@ -23,7 +23,7 @@ public partial class StateFileAnalyzer
         public IReadOnlyList<(string ProvinceId, IReadOnlyList<LeafContent> Buildings, Position Position)> BuildingsByProvince { get; }
             = ImmutableList<(string, IReadOnlyList<LeafContent>, Position)>.Empty;
         public IReadOnlyList<LeavesNode> ResourceNodes { get; } = ImmutableList<LeavesNode>.Empty;
-        public IReadOnlyList<LeafValueNode> Provinces { get; } = ImmutableList<LeafValueNode>.Empty;
+        public IReadOnlyList<LeafValueNode> ProvinceNodes { get; } = ImmutableList<LeafValueNode>.Empty;
         public IReadOnlyList<LeafValueNode> VictoryPointNodes { get; } = ImmutableList<LeafValueNode>.Empty;
         public bool IsEmptyFile { get; }
 
@@ -48,7 +48,7 @@ public partial class StateFileAnalyzer
 
             if (stateNode.Has(ScriptKeyWords.Provinces))
             {
-                Provinces = ParseHelper.GetLeafValueNodesInAllNode(stateNode, ScriptKeyWords.Provinces).ToList();
+                ProvinceNodes = ParseHelper.GetLeafValueNodesInAllNode(stateNode, ScriptKeyWords.Provinces).ToList();
             }
 
             if (stateNode.HasNot(ScriptKeyWords.History))

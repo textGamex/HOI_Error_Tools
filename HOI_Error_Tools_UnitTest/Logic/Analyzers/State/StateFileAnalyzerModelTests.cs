@@ -24,7 +24,7 @@ public class StateFileAnalyzerModelTests
             That(_stateModel.Manpowers, Has.Count.EqualTo(1));
             That(_stateModel.StateCategories, Has.Count.EqualTo(1));
             That(_stateModel.VictoryPointNodes, Has.Count.EqualTo(1));
-            That(_stateModel.Provinces, Has.Count.EqualTo(1));
+            That(_stateModel.ProvinceNodes, Has.Count.EqualTo(1));
             That(_stateModel.Buildings, Has.Count.EqualTo(3));
             That(_stateModel.BuildingsByProvince, Has.Count.EqualTo(1));
             That(_stateModel.ResourceNodes, Has.Count.EqualTo(1));
@@ -143,7 +143,7 @@ public class StateFileAnalyzerModelTests
     [Test]
     public void StateModelProvinceTest()
     {
-        var province = _stateModel.Provinces[0];
+        var province = _stateModel.ProvinceNodes[0];
         var leafValueList = province.LeafValueContents.ToList();
 
         Multiple(() =>
@@ -209,7 +209,7 @@ public class StateFileAnalyzerModelTests
             That(emptyModel.Manpowers, Has.Count.Zero);
             That(emptyModel.StateCategories, Has.Count.Zero);
             That(emptyModel.VictoryPointNodes, Has.Count.Zero);
-            That(emptyModel.Provinces, Has.Count.Zero);
+            That(emptyModel.ProvinceNodes, Has.Count.Zero);
             That(emptyModel.Buildings, Has.Count.Zero);
             That(emptyModel.BuildingsByProvince, Has.Count.Zero);
             That(emptyModel.ResourceNodes, Has.Count.Zero);
