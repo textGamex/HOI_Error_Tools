@@ -61,7 +61,7 @@ public class GameResources
 
     private IReadOnlySet<string> GetRegisteredCharacters()
     {
-        return GetAllKeyOfLeaf(_gameResourcesPath.CharactersFilesPath, ScriptKeyWords.Characters);
+        return GetAllKeyOfNode(_gameResourcesPath.CharactersFilesPath, ScriptKeyWords.Characters);
     }
 
     private IReadOnlySet<string> GetRegisteredAutonomousState()
@@ -103,15 +103,15 @@ public class GameResources
 
     private IReadOnlySet<string> GetRegisteredTechnologies()
     {
-        return GetAllKeyOfLeaf(_gameResourcesPath.TechnologyFilesPath, "technologies");
+        return GetAllKeyOfNode(_gameResourcesPath.TechnologyFilesPath, "technologies");
     }
 
     //private IReadOnlySet<string> GetRegisteredEquipment()
     //{
-    //    return GetAllKeyOfLeaf(_gameResourcesPath.EquipmentFilesPath, "equipments");
+    //    return GetAllKeyOfNode(_gameResourcesPath.EquipmentFilesPath, "equipments");
     //}
 
-    private static IReadOnlySet<string> GetAllKeyOfLeaf(IEnumerable<string> paths, string keyword)
+    private static IReadOnlySet<string> GetAllKeyOfNode(IEnumerable<string> paths, string keyword)
     {
         var dictionary = new Dictionary<string, ParameterFileInfo>();
         foreach (var path in paths)
@@ -437,7 +437,7 @@ public class GameResources
                 filePath, new Position(maxLevelLeafs[0].Position), "重复的 Key"));
         }
 
-        var maxLevelLeaf = maxLevelLeafs.Last();
+        var maxLevelLeaf = maxLevelLeafs[^1];
         if (ushort.TryParse(maxLevelLeaf.ValueText, out maxLevel))
         {
             return true;

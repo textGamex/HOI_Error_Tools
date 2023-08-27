@@ -13,11 +13,9 @@ public sealed class AnalyzerHelper
     private readonly string _filePath;
     private readonly string _fileName;
 
-    public AnalyzerHelper(string filePath)
-    {
-        _filePath = filePath;
-        _fileName = Path.GetFileName(filePath) ?? throw new ArgumentException(filePath);
-    }
+    public AnalyzerHelper(string filePath) 
+        : this(filePath, Path.GetFileName(filePath))
+    { }
 
     public AnalyzerHelper(string filePath, string fileName)
     {
