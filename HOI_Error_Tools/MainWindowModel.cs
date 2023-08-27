@@ -49,7 +49,7 @@ public partial class MainWindowModel : ObservableObject
     private BitmapImage? _modImage;
 
     [ObservableProperty] 
-    private string _modId;
+    private string _modId = string.Empty;
 
     private Descriptor? _descriptor;
     private int _fileSum;
