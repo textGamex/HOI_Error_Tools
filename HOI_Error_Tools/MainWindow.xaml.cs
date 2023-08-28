@@ -35,10 +35,6 @@ public partial class MainWindow : Window
                 {
                     ParseCompletionToast(message.FileSum, message.ElapsedTime);
                 }
-                //TODO: 用户可以自行设置是否关闭
-#if RELEASE
-                this.Close();
-#endif
             });
         });
 
