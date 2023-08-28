@@ -23,10 +23,11 @@ public partial class CountryDefineFileAnalyzer
         public IReadOnlyList<LeafContent> GiveGuaranteeCountriesTag { get; }
         public IReadOnlyList<LeafContent> OwnCharacters { get; }
         public IReadOnlyList<LeafContent> OwnOobs { get; }
+
         public CountryDefineFileModel(Node rootNode)
         {
             SetPopularitiesList = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_popularities").ToList();
-            OwnIdeaNodes = ParseHelper.GetLeafValueNodesInAllNode(rootNode, "add_ideas").ToList();
+            OwnIdeaNodes = GetOwnIdeas(rootNode);
             SetPoliticsList = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_politics").ToList();
             Capitals = ParseHelper.GetLeafContentsInAllChildren(rootNode, "capital").ToList();
             Puppets = ParseHelper.GetLeafContentsInAllChildren(rootNode, "puppet").ToList();
@@ -48,6 +49,17 @@ public partial class CountryDefineFileAnalyzer
                 "set_air_oob"
             };
             return ParseHelper.GetLeafContentsInAllChildren(rootNode, keywords)
+                .ToList();
+        }
+
+        private static IReadOnlyList<LeafValueNode> GetOwnIdeas(Node rootNode)
+        {
+            var set = new HashSet<string>(2)
+            {
+                "add_ideas",
+                "remove_ideas",
+            };
+            return ParseHelper.GetLeafValueNodesInAllNode(rootNode, set)
                 .ToList();
         }
     }

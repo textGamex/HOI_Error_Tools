@@ -131,6 +131,24 @@ public static class ParseHelper
         return list;
     }
 
+    public static IEnumerable<LeafValueNode> GetLeafValueNodesInAllNode(Node rootNode, IReadOnlySet<string> keywordSet)
+    {
+        var list = new List<LeafValueNode>(16);
+        var nodeList = GetAllEligibleNodeInAll(rootNode, keywordSet);
+        foreach (var node in nodeList)
+        {
+            if (!node.LeafValues.Any())
+            {
+                continue;
+            }
+            list.Add(new LeafValueNode(
+                node.Key,
+                node.LeafValues.Select(LeafValueContent.FromCWToolsLeafValue),
+                new Position(node.Position)));
+        }
+        return list;
+    }
+
     /// <summary>
     /// 获得在 <c>rootNode</c> 中所有 <c>Key</c> 是 <c>keyword</c> 的 <see cref="Node"/>. (包括在 if 语句和日期语句下的 Node).
     /// </summary>
@@ -146,6 +164,12 @@ public static class ParseHelper
         return nodeList
             .SelectMany(node => node.Childs(keyword))
             .Concat(rootNode.Childs(keyword));
+    }
+
+    private static IEnumerable<Node> GetAllEligibleNodeInAll(Node rootNode, IReadOnlySet<string> keywordSet)
+    {
+        var nodeList = GetAllIfAndDateNode(rootNode).Append(rootNode);
+        return nodeList.SelectMany(node => node.Nodes.Where(n => keywordSet.Contains(n.Key)));
     }
 
     private static IList<Node> GetAllIfAndDateNode(Node rootNode)
