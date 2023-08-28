@@ -34,7 +34,11 @@ public sealed class GlobalSettings
     }
 
     public void Save()
-    { 
+    {
+        if (!Directory.Exists(SettingsFolderPath))
+        {
+            Directory.CreateDirectory(SettingsFolderPath);
+        }
         File.WriteAllTextAsync(SettingsFilePath, JsonConvert.SerializeObject(this, Formatting.Indented));
     }
 }
