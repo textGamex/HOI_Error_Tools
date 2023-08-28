@@ -75,7 +75,8 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
             if (!_registeredCharacters.Contains(characterLeaf.ValueText))
             {
                 _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    ErrorCode.CharacterNotExists, FilePath, characterLeaf.Position, $"Character '{characterLeaf.ValueText}' 不存在, 却在文件 '{FileName}' 中被使用"));
+                    ErrorCode.CharacterNotExists, FilePath, characterLeaf.Position, 
+                    $"Character '{characterLeaf.ValueText}' 不存在, 却在文件 '{FileName}' 中被使用"));
             }
         }
     }

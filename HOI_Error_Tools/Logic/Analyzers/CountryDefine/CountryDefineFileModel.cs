@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Xml.Linq;
 using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Util;
@@ -38,12 +40,15 @@ public partial class CountryDefineFileAnalyzer
 
         private static IReadOnlyList<LeafContent> GetOwnOobs(Node rootNode)
         {
-            var list = new List<LeafContent>(8);
-            list.AddRange(ParseHelper.GetLeafContentsInAllChildren(rootNode, "oob"));
-            list.AddRange(ParseHelper.GetLeafContentsInAllChildren(rootNode, "set_oob"));
-            list.AddRange(ParseHelper.GetLeafContentsInAllChildren(rootNode, "set_naval_oob"));
-            list.AddRange(ParseHelper.GetLeafContentsInAllChildren(rootNode, "set_air_oob"));
-            return list;
+            var keywords = new HashSet<string>(4)
+            {
+                "oob",
+                "set_oob",
+                "set_naval_oob",
+                "set_air_oob"
+            };
+            return ParseHelper.GetLeafContentsInAllChildren(rootNode, keywords)
+                .ToList();
         }
     }
 }

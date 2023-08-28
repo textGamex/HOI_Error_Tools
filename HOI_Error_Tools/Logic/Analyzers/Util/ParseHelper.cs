@@ -36,6 +36,22 @@ public static class ParseHelper
     }
 
     /// <summary>
+    /// 获得 <c>rootNode</c> 中所有拥有 <c>leafKeywords</c> 中的一个的 <see cref="LeafContent"/>. (包括 if else 语句和 Date 语句).
+    /// </summary>
+    /// <remarks>
+    /// 如果要一次性获得多个不同 Key 的 LeafContent, 优先使用此方法, 而不是多次调用 <see cref="GetLeafContentsInAllChildren(Node, string)"/>,
+    /// 此方法的性能优于多次调用 <see cref="GetLeafContentsInAllChildren(Node, string)"/>.
+    /// </remarks>
+    /// <param name="rootNode"></param>
+    /// <param name="leafKeywords"></param>
+    /// <returns></returns>
+    public static IEnumerable<LeafContent> GetLeafContentsInAllChildren(Node rootNode, IReadOnlySet<string> leafKeywords)
+    {
+        return GetAllLeafInAllChildren(rootNode, leafKeywords)
+            .Select(LeafContent.FromCWToolsLeaf);
+    }
+
+    /// <summary>
     /// 获得在 <c>rootNode</c> 中所有拥有指定 <c>leafKeyword</c> 的 <see cref="Leaf"/>. (包括 if 语句 和 Date 语句)
     /// </summary>
     /// <param name="rootNode"></param>
@@ -45,6 +61,25 @@ public static class ParseHelper
     {
         var nodeList = GetAllIfAndDateNode(rootNode);
         return nodeList.Append(rootNode).SelectMany(node => node.Leafs(leafKeyword));
+    }
+
+    /// <summary>
+    /// 获得在 <c>rootNode</c> 中所有拥有 <c>leafKeywords</c> 中的其中一个 keyword 的 <see cref="Leaf"/>. (包括 if 语句 和 Date 语句)
+    /// </summary>
+    /// <param name="rootNode"></param>
+    /// <param name="leafKeywords"></param>
+    /// <returns></returns>
+    private static IEnumerable<Leaf> GetAllLeafInAllChildren(Node rootNode, IReadOnlySet<string> leafKeywords)
+    {
+        var nodes = GetAllIfAndDateNode(rootNode).Append(rootNode);
+
+        var leafList = new List<Leaf>(16);
+        foreach (var node in nodes)
+        {
+            leafList.AddRange(node.Leaves.Where(leaf => leafKeywords.Contains(leaf.Key)));
+        }
+
+        return leafList;
     }
 
     /// <summary>
@@ -113,7 +148,7 @@ public static class ParseHelper
             .Concat(rootNode.Childs(keyword));
     }
 
-    private static IReadOnlyList<Node> GetAllIfAndDateNode(Node rootNode)
+    private static IList<Node> GetAllIfAndDateNode(Node rootNode)
     {
         var nodeList = new List<Node>(8);
 
