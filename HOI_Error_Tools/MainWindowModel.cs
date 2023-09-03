@@ -68,8 +68,8 @@ public partial class MainWindowModel : ObservableObject
         tracker.Track(this);
 
 #if DEBUG
-        //ModRootPath = @"D:\STEAM\steamapps\workshop\content\394360\2171092591"; // 碧蓝航线
-        //ModRootPath = @"D:\STEAM\steamapps\workshop\content\394360\2820469328"; // 明日方舟
+        //ModRootFolderPath = @"D:\STEAM\steamapps\workshop\content\394360\2171092591"; // 碧蓝航线
+        //ModRootFolderPath = @"D:\STEAM\steamapps\workshop\content\394360\2820469328"; // 明日方舟
 #endif
     }
 

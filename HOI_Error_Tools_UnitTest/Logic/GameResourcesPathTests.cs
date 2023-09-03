@@ -6,25 +6,25 @@ namespace HOI_Error_Tools_UnitTest.Logic;
 [Ignore("TODO")]
 public class GameResourcesPathTests
 {
-    //private static readonly string GameRootPath =
+    //private static readonly string GameRootFolderPath =
     //    Path.Combine(Environment.CurrentDirectory, @"Data\Realistic\Hearts of Iron IV");
 
-    //private static readonly string ModRootPath = Path.Combine(Environment.CurrentDirectory, @"Data\Mod");
+    //private static readonly string ModRootFolderPath = Path.Combine(Environment.CurrentDirectory, @"Data\Mod");
 
     //[Test]
     //public void GetProperty()
     //{
-    //    var paths = new GameResourcesPath(GameRootPath, ModRootPath);
-    //    var buildingsFilePathList = new[] { Path.Combine(GameRootPath, "common", "buildings", "test_buildings.txt") };
+    //    var paths = new GameResourcesPath(GameRootFolderPath, ModRootFolderPath);
+    //    var buildingsFilePathList = new[] { Path.Combine(GameRootFolderPath, "common", "buildings", "test_buildings.txt") };
 
     //    Multiple(() =>
     //    {
-    //        That(paths.ModLocPath, Is.EqualTo(Path.Combine(paths.ModRootPath, "localisation")));
-    //        That(paths.GameLocPath, Is.EqualTo(Path.Combine(paths.GameRootPath, "localisation")));
+    //        That(paths.ModLocPath, Is.EqualTo(Path.Combine(paths.ModRootFolderPath, "localisation")));
+    //        That(paths.GameLocPath, Is.EqualTo(Path.Combine(paths.GameRootFolderPath, "localisation")));
     //        That(paths.BuildingsFilePathList, Is.EquivalentTo(buildingsFilePathList));
-    //        That(paths.GameRootPath, Is.EqualTo(GameRootPath));
-    //        That(paths.ModRootPath, Is.EqualTo(ModRootPath));
-    //        That(paths.ProvincesDefinitionFilePath, Is.EqualTo(Path.Combine(GameRootPath, "map", "definition.csv")));
+    //        That(paths.GameRootFolderPath, Is.EqualTo(GameRootFolderPath));
+    //        That(paths.ModRootFolderPath, Is.EqualTo(ModRootFolderPath));
+    //        That(paths.ProvincesDefinitionFilePath, Is.EqualTo(Path.Combine(GameRootFolderPath, "map", "definition.csv")));
     //    });
     //}
 }

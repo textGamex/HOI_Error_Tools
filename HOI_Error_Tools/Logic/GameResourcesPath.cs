@@ -15,8 +15,8 @@ namespace HOI_Error_Tools.Logic;
 /// </summary>
 public sealed class GameResourcesPath
 {
-    public string GameRootPath { get; }
-    public string ModRootPath { get; }
+    public string GameRootFolderPath { get; }
+    public string ModRootFolderPath { get; }
     public string GameLocPath { get; }
     public string ModLocPath { get; }
     public string ProvincesDefinitionFilePath { get; }
@@ -43,27 +43,27 @@ public sealed class GameResourcesPath
     private readonly Descriptor _descriptor;
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-    public GameResourcesPath(string gameRootPath, string modRootPath) 
-        : this(gameRootPath, modRootPath, new Descriptor(Path.Combine(modRootPath, "descriptor.mod")))
+    public GameResourcesPath(string gameRootFolderPath, string modRootFolderPath) 
+        : this(gameRootFolderPath, modRootFolderPath, new Descriptor(Path.Combine(modRootFolderPath, "descriptor.mod")))
     {
     }
 
-    public GameResourcesPath(string gameRootPath, string modRootPath, Descriptor descriptor)
+    public GameResourcesPath(string gameRootFolderPath, string modRootFolderPath, Descriptor descriptor)
     {
-        if (!Directory.Exists(gameRootPath))
+        if (!Directory.Exists(gameRootFolderPath))
         {
-            throw new DirectoryNotFoundException($"文件夹不存在: {gameRootPath}");
+            throw new DirectoryNotFoundException($"文件夹不存在: {gameRootFolderPath}");
         }
-        if (!Directory.Exists(modRootPath))
+        if (!Directory.Exists(modRootFolderPath))
         {
-            throw new DirectoryNotFoundException($"文件夹不存在: {modRootPath}");
+            throw new DirectoryNotFoundException($"文件夹不存在: {modRootFolderPath}");
         }
 
-        GameRootPath = gameRootPath;
-        ModRootPath = modRootPath;
+        GameRootFolderPath = gameRootFolderPath;
+        ModRootFolderPath = modRootFolderPath;
         _descriptor = descriptor;
-        GameLocPath = GetLocPath(GameRootPath);
-        ModLocPath = GetLocPath(ModRootPath);
+        GameLocPath = GetLocPath(GameRootFolderPath);
+        ModLocPath = GetLocPath(ModRootFolderPath);
         ProvincesDefinitionFilePath = GetFilePathPriorModByRelativePath(Path.Combine(Key.Map, "definition.csv"));
 
         StateCategoriesFilePath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.StateCategory)).ToList();
@@ -116,13 +116,13 @@ public sealed class GameResourcesPath
     /// <returns>文件路径</returns>
     private string GetFilePathPriorModByRelativePath(string fileRelativePath)
     {
-        var modFilePath = Path.Combine(ModRootPath, fileRelativePath);
+        var modFilePath = Path.Combine(ModRootFolderPath, fileRelativePath);
         if (File.Exists(modFilePath))
         {
             return modFilePath;
         }
 
-        var gameFilePath = Path.Combine(GameRootPath, fileRelativePath);
+        var gameFilePath = Path.Combine(GameRootFolderPath, fileRelativePath);
         if (File.Exists(gameFilePath))
         {
             return gameFilePath;
@@ -140,8 +140,8 @@ public sealed class GameResourcesPath
     private IEnumerable<string> GetAllFilePriorModByRelativePathForFolder(string folderRelativePath)
     {
         Log.Debug(CultureInfo.InvariantCulture, "正在加载文件夹: {Path}", folderRelativePath);
-        var modFolder = Path.Combine(ModRootPath, folderRelativePath);
-        var gameFolder = Path.Combine(GameRootPath, folderRelativePath);
+        var modFolder = Path.Combine(ModRootFolderPath, folderRelativePath);
+        var gameFolder = Path.Combine(GameRootFolderPath, folderRelativePath);
 
         if (!Directory.Exists(gameFolder))
         {

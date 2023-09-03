@@ -193,7 +193,7 @@ public static class ParseHelper
         }
         return nodeList;
 
-        // 虽然说 if 里只允许一个 else, 但谁知道到底有几个.
+        // 虽然说一个 if 里只面允许存在一个 else, 但谁知道到底有几个.
         void AddElseNodesToList(Node n)
         {
             foreach (var childNode in n.Nodes)
