@@ -1,4 +1,5 @@
-﻿using CWTools.Process;
+﻿using System;
+using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.HOIParser;
@@ -178,14 +179,10 @@ public static class ParseHelper
 
         foreach (var node in rootNode.Nodes)
         {
-            if (node.Key == "if")
+            if (node.Key.Equals("if", StringComparison.OrdinalIgnoreCase))
             {
                 nodeList.Add(node);
-                
-                if (node.Has("else"))
-                {
-                    nodeList.Add(node.Child("else").Value);
-                }
+                AddElseNodesToList(node);
             }
             else if (Value.IsDateString(node.Key))
             {
@@ -195,6 +192,18 @@ public static class ParseHelper
             }
         }
         return nodeList;
+
+        // 虽然说 if 里只允许一个 else, 但谁知道到底有几个.
+        void AddElseNodesToList(Node n)
+        {
+            foreach (var childNode in n.Nodes)
+            {
+                if (childNode.Key.Equals("else", StringComparison.OrdinalIgnoreCase))
+                {
+                    nodeList!.Add(childNode);
+                }
+            }
+        }
     }
 
     /// <summary>
