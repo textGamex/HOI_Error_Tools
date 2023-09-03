@@ -23,10 +23,14 @@ public partial class CountryDefineFileAnalyzer
         public IReadOnlyList<LeafContent> OwnCharacters { get; }
         public IReadOnlyList<LeafContent> OwnOobs { get; }
 
+        private readonly Node _rootNode;
+
         public CountryDefineFileModel(Node rootNode)
         {
+            _rootNode = rootNode;
+
             SetPopularitiesList = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_popularities").ToList();
-            OwnIdeaNodes = GetOwnIdeas(rootNode);
+            OwnIdeaNodes = GetOwnIdeas();
             OwnIdeaLeaves = ParseHelper.GetLeafContentsInAllChildren(rootNode, "add_idea").ToList();
             SetPoliticsList = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_politics").ToList();
             Capitals = ParseHelper.GetLeafContentsInAllChildren(rootNode, "capital").ToList();
@@ -35,11 +39,11 @@ public partial class CountryDefineFileAnalyzer
             SetAutonomies = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_autonomy").ToList();
             SetTechnologies = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_technology").ToList();
             GiveGuaranteeCountriesTag = ParseHelper.GetLeafContentsInAllChildren(rootNode, "give_guarantee").ToList();
-            OwnCharacters = ParseHelper.GetLeafContentsInAllChildren(rootNode, "recruit_character").ToList();
-            OwnOobs = GetOwnOobs(rootNode);
+            OwnCharacters = GetOwnCharacters();
+            OwnOobs = GetOwnOobs();
         }
 
-        private static IReadOnlyList<LeafContent> GetOwnOobs(Node rootNode)
+        private IReadOnlyList<LeafContent> GetOwnOobs()
         {
             var keywords = new HashSet<string>(4)
             {
@@ -48,18 +52,30 @@ public partial class CountryDefineFileAnalyzer
                 "set_naval_oob",
                 "set_air_oob"
             };
-            return ParseHelper.GetLeafContentsInAllChildren(rootNode, keywords)
+            return ParseHelper.GetLeafContentsInAllChildren(_rootNode, keywords)
                 .ToList();
         }
 
-        private static IReadOnlyList<LeafValueNode> GetOwnIdeas(Node rootNode)
+        private IReadOnlyList<LeafValueNode> GetOwnIdeas()
         {
             var set = new HashSet<string>(2)
             {
                 "add_ideas",
                 "remove_ideas",
             };
-            return ParseHelper.GetLeafValueNodesInAllNode(rootNode, set)
+            return ParseHelper.GetLeafValueNodesInAllNode(_rootNode, set)
+                .ToList();
+        }
+
+        private IReadOnlyList<LeafContent> GetOwnCharacters()
+        {
+            var keywords = new HashSet<string>(3)
+            {
+                "recruit_character",
+                "promote_character",
+                "retire_character"
+            };
+            return ParseHelper.GetLeafContentsInAllChildren(_rootNode, keywords)
                 .ToList();
         }
     }

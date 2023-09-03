@@ -1,7 +1,7 @@
 ﻿using HOI_Error_Tools.Logic.Analyzers.Error;
 using System.Collections.Generic;
 using HOI_Error_Tools.Logic.Analyzers.Util;
-using static System.IO.Path;
+using System.IO;
 
 namespace HOI_Error_Tools.Logic.Analyzers;
 
@@ -14,7 +14,7 @@ public abstract class AnalyzerBase
     protected AnalyzerBase(string filePath)
     {
         FilePath = filePath;
-        FileName = GetFileName(filePath);
+        FileName = Path.GetFileName(filePath);
         Helper = new AnalyzerHelper(FilePath, FileName);
     }
 
