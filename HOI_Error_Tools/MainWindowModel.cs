@@ -62,7 +62,6 @@ public partial class MainWindowModel : ObservableObject
         _log = logger;
         _errorMessageService = errorMessageService;
         _messageBox = messageBox;
-        PropertyChanged += MainWindowModel_OnPropertyChanged;
 
         tracker.Configure<MainWindowModel>()
             .Id(w => "MainUI")
@@ -76,20 +75,24 @@ public partial class MainWindowModel : ObservableObject
 #endif
     }
 
-    private void MainWindowModel_OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    partial void OnModRootPathChanged(string? oldValue, string newValue)
     {
-        if (e.PropertyName is nameof(ModRootPath))
+        var descriptorPath = Path.Combine(newValue, "descriptor.mod");
+        if (!File.Exists(descriptorPath))
         {
-            var descriptor = new Descriptor(Path.Combine(ModRootPath, "descriptor.mod"));
-            ModName = descriptor.Name;
-            ModTags = string.Join(", ", descriptor.Tags);
-            ModImage = descriptor.Picture;
-            ModId = descriptor.RemoteFileId;
-
-            _descriptor = descriptor;
+            _modRootPath = oldValue ?? string.Empty;
+            _messageBox.Show("此文件夹不存在 descriptor.mod 文件", "错误");
+            _log.Warn("Modification root path change failed: \n path {Path} is not exist", descriptorPath);
+            return;
         }
-        _log.Debug(CultureInfo.InvariantCulture,
-            "Property changed: {PropertyName}", e.PropertyName);
+        var descriptor = new Descriptor(descriptorPath);
+        ModName = descriptor.Name;
+        ModTags = string.Join(", ", descriptor.Tags);
+        ModImage = descriptor.Picture;
+        ModId = descriptor.RemoteFileId;
+
+        _descriptor = descriptor;
+        _log.Debug("Modification root path changed");
     }
 
     [RelayCommand]
