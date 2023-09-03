@@ -97,7 +97,7 @@ public sealed class GameResourcesPath
             CountriesTagFilePath.Count + IdeologiesFilePath.Count +
             BuildingsFilePathList.Count + ResourcesTypeFilePathList.Count +
             StatesFilePathList.Count + AutonomousStateFilesPath.Count +
-            CharactersFilesPath.Count + 1; // 这个 1 是 ProvincesDefinitionFilePath 文件
+            CharactersFilesPath.Count + OobFilesPath.Count + 1; // 这个 1 是 ProvincesDefinitionFilePath 文件
     }
 
     private static string GetLocPath(string rootPath)
