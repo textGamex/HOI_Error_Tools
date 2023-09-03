@@ -9,7 +9,7 @@ public class LeafValueContent
     public string ValueText => Value.Text;
     public Position Position { get; }
 
-    private LeafValueContent(Value value, Position position)
+    public LeafValueContent(Value value, Position position)
     {
         Value = value;
         Position = position;

@@ -10,9 +10,7 @@ using HOI_Error_Tools.Logic.Analyzers.State;
 using NLog;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -80,7 +78,7 @@ public partial class MainWindowModel : ObservableObject
         var descriptorPath = Path.Combine(newValue, "descriptor.mod");
         if (!File.Exists(descriptorPath))
         {
-            _modRootPath = oldValue ?? string.Empty;
+            _modRootPath = oldValue!;
             _messageBox.Show("此文件夹不存在 descriptor.mod 文件", "错误");
             _log.Warn("Modification root path change failed: \n path {Path} is not exist", descriptorPath);
             return;

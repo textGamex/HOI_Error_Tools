@@ -12,6 +12,7 @@ public partial class CountryDefineFileAnalyzer
     {
         public IReadOnlyList<LeavesNode> SetPopularitiesList { get; }
         public IReadOnlyList<LeafValueNode> OwnIdeaNodes { get; }
+        public IReadOnlyList<LeafContent> OwnIdeaLeaves { get; }
         public IReadOnlyList<LeavesNode> SetPoliticsList { get; }
         public IReadOnlyList<LeafContent> Capitals { get; }
         public IReadOnlyList<LeafContent> Puppets { get; }
@@ -26,6 +27,7 @@ public partial class CountryDefineFileAnalyzer
         {
             SetPopularitiesList = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_popularities").ToList();
             OwnIdeaNodes = GetOwnIdeas(rootNode);
+            OwnIdeaLeaves = ParseHelper.GetLeafContentsInAllChildren(rootNode, "add_idea").ToList();
             SetPoliticsList = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_politics").ToList();
             Capitals = ParseHelper.GetLeafContentsInAllChildren(rootNode, "capital").ToList();
             Puppets = ParseHelper.GetLeafContentsInAllChildren(rootNode, "puppet").ToList();

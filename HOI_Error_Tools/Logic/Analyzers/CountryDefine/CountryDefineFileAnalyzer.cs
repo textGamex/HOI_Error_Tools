@@ -220,11 +220,23 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
             {
                 if (!_registeredIdeas.Contains(idea.ValueText))
                 {
-                    _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                        ErrorCode.InvalidValue, FilePath, idea.Position, $"Idea '{idea.ValueText}' 未定义"));
+                    AddErrorMessageToList(idea.ValueText, idea.Position);
                 }
             }
         }
+
+        foreach (var ideaLeaf in model.OwnIdeaLeaves)
+        {
+            if (!_registeredIdeas.Contains(ideaLeaf.ValueText))
+            {
+                AddErrorMessageToList(ideaLeaf.ValueText, ideaLeaf.Position);
+            }
+        }
+
+        return;
+        void AddErrorMessageToList(string ideaName, Position position) => 
+            _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                ErrorCode.InvalidValue, FilePath, position, $"Idea '{ideaName}' 未定义"));
     }
 
     private void AnalyzePopularities(CountryDefineFileModel model)
@@ -279,7 +291,6 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
 
         _errorList.AddRange(Helper.AssertValueTypeIsExpected(model.Capitals, Value.Types.Integer));
         _errorList.AddRange(Helper.AssertKeywordIsOnly(model.Capitals, capitalKey));
-        return;
     }
 
     private void AnalyzePuppets(CountryDefineFileModel model)
