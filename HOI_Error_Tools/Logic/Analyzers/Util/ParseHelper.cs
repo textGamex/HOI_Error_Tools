@@ -196,13 +196,7 @@ public static class ParseHelper
         // 虽然说一个 if 里只面允许存在一个 else, 但谁知道到底有几个.
         void AddElseNodesToList(Node n)
         {
-            foreach (var childNode in n.Nodes)
-            {
-                if (childNode.Key.Equals("else", StringComparison.OrdinalIgnoreCase))
-                {
-                    nodeList!.Add(childNode);
-                }
-            }
+            nodeList.AddRange(n.Nodes.Where(childNode => childNode.Key.Equals("else", StringComparison.OrdinalIgnoreCase)));
         }
     }
 
