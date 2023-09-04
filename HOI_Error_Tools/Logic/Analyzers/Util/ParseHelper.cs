@@ -160,14 +160,20 @@ public static class ParseHelper
     /// <returns></returns>
     private static IEnumerable<Node> GetAllEligibleNodeInAll(Node rootNode, string keyword)
     {
-        var nodeList = GetAllIfAndDateNode(rootNode).Append(rootNode);
-        return nodeList.SelectMany(node => node.Childs(keyword));
+        return GetAllEligibleNodeInAll(rootNode, nodes =>
+            nodes.SelectMany(node => node.Childs(keyword)));
     }
 
     private static IEnumerable<Node> GetAllEligibleNodeInAll(Node rootNode, IReadOnlySet<string> keywordSet)
     {
+        return GetAllEligibleNodeInAll(rootNode, nodes =>
+            nodes.SelectMany(node => node.Nodes.Where(n => keywordSet.Contains(n.Key))));
+    }
+
+    private static IEnumerable<Node> GetAllEligibleNodeInAll(Node rootNode, Func<IEnumerable<Node>, IEnumerable<Node>> selector)
+    {
         var nodeList = GetAllIfAndDateNode(rootNode).Append(rootNode);
-        return nodeList.SelectMany(node => node.Nodes.Where(n => keywordSet.Contains(n.Key)));
+        return selector(nodeList);
     }
 
     private static IList<Node> GetAllIfAndDateNode(Node rootNode)
@@ -205,26 +211,28 @@ public static class ParseHelper
     /// <returns>root Node</returns>
     public static Node? ParseFileToNode(ICollection<ErrorMessage> errorMessages, string filePath)
     {
-        var parser = new CWToolsParser(filePath);
-        if (parser.IsSuccess)
-        {
-            return parser.GetResult();
-        }
-        errorMessages.Add(ErrorMessageFactory.CreateParseErrorMessage(filePath, parser.GetError()));
-        return null;
+        return ParseFileToNode(filePath, errorMessages.Add);
     }
 
 
     /// <inheritdoc cref="ParseFileToNode(ICollection{ErrorMessage},string)"/>
     public static Node? ParseFileToNode(IProducerConsumerCollection<ErrorMessage> errorMessages, string filePath)
     {
+        return ParseFileToNode(filePath, message =>
+        {
+            var result = errorMessages.TryAdd(message);
+            Debug.Assert(result);
+        });
+    }
+
+    private static Node? ParseFileToNode(string filePath, Action<ErrorMessage> action)
+    {
         var parser = new CWToolsParser(filePath);
         if (parser.IsSuccess)
         {
             return parser.GetResult();
         }
-        var result = errorMessages.TryAdd(ErrorMessageFactory.CreateParseErrorMessage(filePath, parser.GetError()));
-        Debug.Assert(result);
+        action(ErrorMessageFactory.CreateParseErrorMessage(filePath, parser.GetError()));
         return null;
     }
 }
