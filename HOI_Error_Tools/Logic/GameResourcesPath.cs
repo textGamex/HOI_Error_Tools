@@ -156,7 +156,7 @@ public sealed class GameResourcesPath
         if (_descriptor.ReplacePaths.Contains(folderRelativePath))
         {
             Log.Debug(CultureInfo.InvariantCulture,
-                "MOD文件夹已完全替换游戏文件夹: \n\t {GamePath} => {ModPath}", new Uri(gameFolder), new Uri(modFolder));
+                "MOD文件夹已完全替换游戏文件夹: \n\t {GamePath} => {ModPath}", gameFolder.ToFilePath(), modFolder.ToFilePath());
             return GetAllFilePathForFolder(modFolder);
         }
 

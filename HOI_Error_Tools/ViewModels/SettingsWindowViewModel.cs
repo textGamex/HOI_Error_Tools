@@ -22,6 +22,6 @@ public partial class SettingsWindowViewModel : ObservableObject
     private void WindowClosed()
     {
         _settings.Save();
-        _log.Info("设置已保存到: {Path}", new Uri(GlobalSettings.SettingsFolderPath));
+        _log.Info("设置已保存到: {Path}", GlobalSettings.SettingsFolderPath.ToFilePath());
     }
 }
