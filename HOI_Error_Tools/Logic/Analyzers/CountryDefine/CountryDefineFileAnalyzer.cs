@@ -60,10 +60,11 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
     {
         foreach (var oobLeaf in model.OwnOobs)
         {
-            if (!_registeredOobFileNames.Contains(oobLeaf.ValueText))
+            var oobFileName = oobLeaf.ValueText;
+            if (!_registeredOobFileNames.Contains(oobFileName))
             {
                 _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    ErrorCode.InvalidValue, FilePath, oobLeaf.Position, $"文件 '{FileName}' 中使用不存在的 oob 文件 '{oobLeaf.ValueText}'"));
+                    ErrorCode.InvalidValue, FilePath, oobLeaf.Position, $"文件 '{FileName}' 中使用不存在的 oob 文件 '{oobFileName}'"));
             }
         }
     }
@@ -72,11 +73,12 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
     {
         foreach (var characterLeaf in model.OwnCharacters)
         {
-            if (!_registeredCharacters.Contains(characterLeaf.ValueText))
+            var characterName = characterLeaf.ValueText;
+            if (!_registeredCharacters.Contains(characterName))
             {
                 _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                     ErrorCode.CharacterNotExists, FilePath, characterLeaf.Position, 
-                    $"Character '{characterLeaf.ValueText}' 不存在, 却在文件 '{FileName}' 中被使用"));
+                    $"Character '{characterName}' 不存在, 却在文件 '{FileName}' 中被使用"));
             }
         }
     }
@@ -129,18 +131,18 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
         foreach (var setAutonomyNode in model.SetAutonomies)
         {
             _errorList.AddRange(Helper.AssertValueTypeIsExpected(setAutonomyNode, keywordMap));
-            var target = TryGetLeafContent(setAutonomyNode, targetKey);
-            if (target is null)
+            var targetCountryTag = TryGetLeafContent(setAutonomyNode, targetKey);
+            if (targetCountryTag is null)
             {
                 _errorList.Add(ErrorMessageFactory.CreateKeywordIsMissingErrorMessage(FilePath, setAutonomyNode, targetKey));
                 continue;
             }
 
-            if (!_registeredCountriesTag.Contains(target.ValueText))
+            if (!_registeredCountriesTag.Contains(targetCountryTag.ValueText))
             {
                 _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                     ErrorCode.CountryTagNotExists,
-                    FilePath, target.Position, $"国家Tag '{target.ValueText}' 不存在"));
+                    FilePath, targetCountryTag.Position, $"国家Tag '{targetCountryTag.ValueText}' 不存在"));
             }
 
             var autonomousState = TryGetLeafContent(setAutonomyNode, autonomousStateKey);
