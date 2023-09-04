@@ -1,4 +1,5 @@
 ﻿using CWTools.Process;
+using HOI_Error_Tools.Logic.Analyzers;
 using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.Util;
@@ -114,5 +115,20 @@ public class ParseHelperTest
             That(result[2].ValueText, Is.EqualTo("7"));
             That(result[2].Position, Is.EqualTo(new Position(41)));
         });
+    }
+
+    [Test]
+    public void Get()
+    {
+        var result = new CWToolsParser(Path.Combine(PathManager.GameRootPath, ScriptKeyWords.History, "states", "test.txt"))
+            .GetResult().Child("state").Value;
+
+        var rootNode = result.Child("history").Value;
+
+        var list = ParseHelper.GetAllLeafContentWithConditionsInRootNode(rootNode, "buildings").ToList();
+
+        That(list, Has.Count.EqualTo(2));
+        That(list[0].Condition.Date, Is.EqualTo(default(DateOnly)));
+        That(list[1].Condition.Date, Is.EqualTo(new DateOnly(1939, 1, 1)));
     }
 }

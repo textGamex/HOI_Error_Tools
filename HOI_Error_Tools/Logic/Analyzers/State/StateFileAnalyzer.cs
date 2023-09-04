@@ -366,7 +366,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
     {
         if (model.Buildings.Count != 0)
         {
-            _errorList.AddRange(AssertBuildingLevelWithinRange(model.Buildings));
+            //_errorList.AddRange(AssertBuildingLevelWithinRange(model.Buildings));
         }
     }
 
