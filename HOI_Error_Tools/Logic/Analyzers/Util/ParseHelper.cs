@@ -160,11 +160,8 @@ public static class ParseHelper
     /// <returns></returns>
     private static IEnumerable<Node> GetAllEligibleNodeInAll(Node rootNode, string keyword)
     {
-        var nodeList = GetAllIfAndDateNode(rootNode);
-
-        return nodeList
-            .SelectMany(node => node.Childs(keyword))
-            .Concat(rootNode.Childs(keyword));
+        var nodeList = GetAllIfAndDateNode(rootNode).Append(rootNode);
+        return nodeList.SelectMany(node => node.Childs(keyword));
     }
 
     private static IEnumerable<Node> GetAllEligibleNodeInAll(Node rootNode, IReadOnlySet<string> keywordSet)
