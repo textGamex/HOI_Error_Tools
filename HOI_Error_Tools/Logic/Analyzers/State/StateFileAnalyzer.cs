@@ -400,7 +400,6 @@ public partial class StateFileAnalyzer : AnalyzerBase
                 errorMessages.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                     ErrorCode.InvalidValue, FilePath, building.Position, $"建筑类型 '{buildingType}' 不存在"));
             }
-
             if (!uint.TryParse(levelText, out var level))
             {
                 errorMessages.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
