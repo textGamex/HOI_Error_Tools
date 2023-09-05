@@ -60,8 +60,8 @@ public static class ParseHelper
     /// <returns></returns>
     private static IEnumerable<Leaf> GetAllLeafInAllChildren(Node rootNode, string leafKeyword)
     {
-        var nodeList = GetAllIfAndDateNode(rootNode);
-        return nodeList.Append(rootNode).SelectMany(node => node.Leafs(leafKeyword));
+        var nodeList = GetAllIfAndDateNode(rootNode).Append(rootNode);
+        return nodeList.SelectMany(node => node.Leafs(leafKeyword));
     }
 
     /// <summary>
@@ -116,26 +116,18 @@ public static class ParseHelper
     /// <returns></returns>
     public static IEnumerable<LeafValueNode> GetLeafValueNodesInAllNode(Node rootNode, string keyword)
     {
-        var list = new List<LeafValueNode>(16);
-        var nodeList = GetAllEligibleNodeInAll(rootNode, keyword);
-        foreach (var node in nodeList)
-        {
-            if (!node.LeafValues.Any())
-            {
-                continue;
-            }
-            list.Add(new LeafValueNode(
-                node.Key,
-                node.LeafValues.Select(LeafValueContent.FromCWToolsLeafValue),
-                new Position(node.Position)));
-        }
-        return list;
+        return GetLeafValueNodesInAllNode(() => GetAllEligibleNodeInAll(rootNode, keyword));
     }
 
     public static IEnumerable<LeafValueNode> GetLeafValueNodesInAllNode(Node rootNode, IReadOnlySet<string> keywordSet)
     {
+        return GetLeafValueNodesInAllNode(() => GetAllEligibleNodeInAll(rootNode, keywordSet));
+    }
+
+    private static IEnumerable<LeafValueNode> GetLeafValueNodesInAllNode(Func<IEnumerable<Node>> func)
+    {
         var list = new List<LeafValueNode>(16);
-        var nodeList = GetAllEligibleNodeInAll(rootNode, keywordSet);
+        var nodeList = func();
         foreach (var node in nodeList)
         {
             if (!node.LeafValues.Any())
