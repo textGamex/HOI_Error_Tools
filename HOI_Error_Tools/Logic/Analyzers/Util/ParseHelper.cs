@@ -124,10 +124,10 @@ public static class ParseHelper
         return GetLeafValueNodesInAllNode(() => GetAllEligibleNodeInAll(rootNode, keywordSet));
     }
 
-    private static IEnumerable<LeafValueNode> GetLeafValueNodesInAllNode(Func<IEnumerable<Node>> func)
+    private static IEnumerable<LeafValueNode> GetLeafValueNodesInAllNode(Func<IEnumerable<Node>> nodesSource)
     {
         var list = new List<LeafValueNode>(16);
-        var nodeList = func();
+        var nodeList = nodesSource();
         foreach (var node in nodeList)
         {
             if (!node.LeafValues.Any())
