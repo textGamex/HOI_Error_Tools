@@ -111,20 +111,16 @@ public static class ParseHelper
     public static IEnumerable<LeavesNodeWithCondition> GetAllLeafContentWithConditionsInRootNode(Node rootNode,
         string nodeKey)
     {
-        // 不直接读取 Date 节点下的 if/else 语句, 因为这样无法得知 if/else 的 Date 语句是什么
-        var nodeList = GetAllIfAndDateNode(rootNode, false);
-        var childNodeInDateNodeList = new List<(Node, Condition)>();
         var result = new List<LeavesNodeWithCondition>();
-
-        foreach (var node in nodeList)
+        foreach (var node in GetAllIfAndDateNode(rootNode).Prepend(rootNode))
         {
+            var condition = Condition.Empty;
             if (Value.TryParseDate(node.Key, out var date))
             {
-                childNodeInDateNodeList.AddRange(GetAllIfAndDateNode(node).Select(n => (n, new Condition(date))));
+                condition = new Condition(date);
             }
-            result.Add(new LeavesNodeWithCondition(node.Key, GetAllLeafContentInCurrentNode(node), new Position(node.Position), Condition.Empty));
+            result.AddRange(node.Childs(nodeKey).Select(n => new LeavesNodeWithCondition(n.Key, GetAllLeafContentInCurrentNode(n), new Position(n.Position), condition)));
         }
-        result.AddRange(childNodeInDateNodeList.Select(tuple => new LeavesNodeWithCondition(tuple.Item1.Key, GetAllLeafContentInCurrentNode(tuple.Item1), new Position(tuple.Item1.Position), tuple.Item2)));
         return result;
     }
 
@@ -170,7 +166,7 @@ public static class ParseHelper
     /// <param name="rootNode"></param>
     /// <param name="keyword"></param>
     /// <returns></returns>
-    private static IEnumerable<Node> GetAllEligibleNodeInAll(Node rootNode, string keyword, bool enableReadIfNodesInDateNodes = true)
+    private static IEnumerable<Node> GetAllEligibleNodeInAll(Node rootNode, string keyword)
     {
         return GetAllEligibleNodeInAll(rootNode, nodes =>
             nodes.SelectMany(node => node.Childs(keyword)));
@@ -188,17 +184,7 @@ public static class ParseHelper
         return selector(nodeList);
     }
 
-    /// <summary>
-    /// 获得所有的 if, else 和 Date Node, 包括 Date 节点下的 if, else.
-    /// </summary>
-    /// <param name="rootNode"></param>
-    /// <returns></returns>
     private static IList<Node> GetAllIfAndDateNode(Node rootNode)
-    {
-        return GetAllIfAndDateNode(rootNode, true);
-    }
-
-    private static IList<Node> GetAllIfAndDateNode(Node rootNode, bool enableReadIfNodesInDateNodes)
     {
         var nodeList = new List<Node>(8);
 
@@ -212,11 +198,8 @@ public static class ParseHelper
             else if (Value.IsDateString(node.Key))
             {
                 nodeList.Add(node);
-                if (enableReadIfNodesInDateNodes)
-                {
-                    // 使用递归是为了读取嵌套在 Date 语句下的 If 语句.
-                    nodeList.AddRange(GetAllIfAndDateNode(node));
-                }
+                // 使用递归是为了读取嵌套在 Date 语句下的 If 语句.
+                nodeList.AddRange(GetAllIfAndDateNode(node));
             }
         }
         return nodeList;

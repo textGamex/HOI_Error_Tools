@@ -118,7 +118,7 @@ public class ParseHelperTest
     }
 
     [Test]
-    public void Get()
+    public void GetAllLeafContentWithConditionsInRootNodeTest()
     {
         var result = new CWToolsParser(Path.Combine(PathManager.GameRootPath, ScriptKeyWords.History, "states", "test.txt"))
             .GetResult().Child("state").Value;
@@ -128,7 +128,12 @@ public class ParseHelperTest
         var list = ParseHelper.GetAllLeafContentWithConditionsInRootNode(rootNode, "buildings").ToList();
 
         That(list, Has.Count.EqualTo(2));
-        That(list[0].Condition.Date, Is.EqualTo(default(DateOnly)));
-        That(list[1].Condition.Date, Is.EqualTo(new DateOnly(1939, 1, 1)));
+        Multiple(() =>
+        {
+            That(list[0].Condition, Is.EqualTo(Condition.Empty));
+            That(list[0].Position, Is.EqualTo(new Position(15)));
+            That(list[1].Condition, Is.EqualTo(new Condition(new DateOnly(1939, 1, 1))));
+            That(list[1].Position, Is.EqualTo(new Position(28)));
+        });
     }
 }

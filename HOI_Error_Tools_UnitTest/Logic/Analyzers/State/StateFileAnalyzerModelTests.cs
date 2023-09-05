@@ -25,7 +25,7 @@ public class StateFileAnalyzerModelTests
             That(_stateModel.StateCategories, Has.Count.EqualTo(1));
             That(_stateModel.VictoryPointNodes, Has.Count.EqualTo(1));
             That(_stateModel.ProvinceNodes, Has.Count.EqualTo(1));
-            That(_stateModel.Buildings, Has.Count.EqualTo(3));
+            That(_stateModel.BuildingNodes, Has.Count.EqualTo(2));
             That(_stateModel.BuildingsByProvince, Has.Count.EqualTo(1));
             That(_stateModel.ResourceNodes, Has.Count.EqualTo(1));
         });
@@ -180,10 +180,10 @@ public class StateFileAnalyzerModelTests
     }
 
     [Test]
-    [Ignore("对 Buildings 的解析要改")]
+    [Ignore("对 BuildingNodes 的解析要改")]
     public void StateModelBuildingsTest()
     {
-        var building = _stateModel.Buildings[0];
+        var building = _stateModel.BuildingNodes[0];
 
         Multiple(() =>
         {
@@ -210,7 +210,7 @@ public class StateFileAnalyzerModelTests
             That(emptyModel.StateCategories, Has.Count.Zero);
             That(emptyModel.VictoryPointNodes, Has.Count.Zero);
             That(emptyModel.ProvinceNodes, Has.Count.Zero);
-            That(emptyModel.Buildings, Has.Count.Zero);
+            That(emptyModel.BuildingNodes, Has.Count.Zero);
             That(emptyModel.BuildingsByProvince, Has.Count.Zero);
             That(emptyModel.ResourceNodes, Has.Count.Zero);
             That(emptyModel.IsEmptyFile, Is.True);

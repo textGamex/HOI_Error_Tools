@@ -364,9 +364,14 @@ public partial class StateFileAnalyzer : AnalyzerBase
 
     private void AnalyzeBuildings(StateModel model)
     {
-        if (model.Buildings.Count != 0)
+        if (model.BuildingNodes.Count == 0)
         {
-            //_errorList.AddRange(AssertBuildingLevelWithinRange(model.Buildings));
+            return;
+        }
+
+        foreach (var building in model.BuildingNodes)
+        {
+            _errorList.AddRange(AssertBuildingLevelWithinRange(building.Leaves));
         }
     }
 
@@ -375,7 +380,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
     /// </summary>
     /// <param name="buildings"></param>
     /// <returns></returns>
-    private IEnumerable<ErrorMessage> AssertBuildingLevelWithinRange(IReadOnlyList<LeafContent> buildings)
+    private IEnumerable<ErrorMessage> AssertBuildingLevelWithinRange(IEnumerable<LeafContent> buildings)
     {
         var errorMessages = new List<ErrorMessage>();
         //TODO: 待优化
