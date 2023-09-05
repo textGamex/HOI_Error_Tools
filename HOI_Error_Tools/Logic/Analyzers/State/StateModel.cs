@@ -13,17 +13,17 @@ public partial class StateFileAnalyzer
 {
     public sealed class StateModel
     {
-        public IReadOnlyList<LeafContent> Ids { get; } = ImmutableList<LeafContent>.Empty;
-        public IReadOnlyList<LeafContent> Manpowers { get; } = ImmutableList<LeafContent>.Empty;
-        public IReadOnlyList<LeafContent> Names { get; } = ImmutableList<LeafContent>.Empty;
+        public IReadOnlyList<LeafContent> Ids { get; }
+        public IReadOnlyList<LeafContent> Manpowers { get; }
+        public IReadOnlyList<LeafContent> Names { get; }
         public IReadOnlyList<LeafContent> HasCoreTags { get; } = ImmutableList<LeafContent>.Empty;
         public IReadOnlyList<LeavesNodeWithCondition> BuildingNodes { get; } = ImmutableList<LeavesNodeWithCondition>.Empty;
-        public IReadOnlyList<LeafContent> StateCategories { get; } = ImmutableList<LeafContent>.Empty;
+        public IReadOnlyList<LeafContent> StateCategories { get; }
         public IReadOnlyList<LeafContent> Owners { get; } = ImmutableList<LeafContent>.Empty;
         public IReadOnlyList<(string ProvinceId, IReadOnlyList<LeafContent> Buildings, Position Position)> BuildingsByProvince { get; }
             = ImmutableList<(string, IReadOnlyList<LeafContent>, Position)>.Empty;
-        public IReadOnlyList<LeavesNode> ResourceNodes { get; } = ImmutableList<LeavesNode>.Empty;
-        public IReadOnlyList<LeafValueNode> ProvinceNodes { get; } = ImmutableList<LeafValueNode>.Empty;
+        public IReadOnlyList<LeavesNode> ResourceNodes { get; }
+        public IReadOnlyList<LeafValueNode> ProvinceNodes { get; } 
         public IReadOnlyList<LeafValueNode> VictoryPointNodes { get; } = ImmutableList<LeafValueNode>.Empty;
         public bool IsEmptyFile { get; }
 
