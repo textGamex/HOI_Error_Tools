@@ -60,8 +60,8 @@ public static class ParseHelper
     /// <returns></returns>
     private static IEnumerable<Leaf> GetAllLeafInAllChildren(Node rootNode, string leafKeyword)
     {
-        var nodeList = GetAllIfAndDateNode(rootNode);
-        return nodeList.Append(rootNode).SelectMany(node => node.Leafs(leafKeyword));
+        var nodeList = GetAllIfAndDateNode(rootNode).Append(rootNode);
+        return nodeList.SelectMany(node => node.Leafs(leafKeyword));
     }
 
     /// <summary>
@@ -136,26 +136,18 @@ public static class ParseHelper
     /// <returns></returns>
     public static IEnumerable<LeafValueNode> GetLeafValueNodesInAllNode(Node rootNode, string keyword)
     {
-        var list = new List<LeafValueNode>(16);
-        var nodeList = GetAllEligibleNodeInAll(rootNode, keyword);
-        foreach (var node in nodeList)
-        {
-            if (!node.LeafValues.Any())
-            {
-                continue;
-            }
-            list.Add(new LeafValueNode(
-                node.Key,
-                node.LeafValues.Select(LeafValueContent.FromCWToolsLeafValue),
-                new Position(node.Position)));
-        }
-        return list;
+        return GetLeafValueNodesInAllNode(() => GetAllEligibleNodeInAll(rootNode, keyword));
     }
 
     public static IEnumerable<LeafValueNode> GetLeafValueNodesInAllNode(Node rootNode, IReadOnlySet<string> keywordSet)
     {
+        return GetLeafValueNodesInAllNode(() => GetAllEligibleNodeInAll(rootNode, keywordSet));
+    }
+
+    private static IEnumerable<LeafValueNode> GetLeafValueNodesInAllNode(Func<IEnumerable<Node>> nodesSource)
+    {
         var list = new List<LeafValueNode>(16);
-        var nodeList = GetAllEligibleNodeInAll(rootNode, keywordSet);
+        var nodeList = nodesSource();
         foreach (var node in nodeList)
         {
             if (!node.LeafValues.Any())
@@ -180,15 +172,20 @@ public static class ParseHelper
     /// <returns></returns>
     private static IEnumerable<Node> GetAllEligibleNodeInAll(Node rootNode, string keyword, bool enableReadIfNodesInDateNodes = true)
     {
-        var nodeList = GetAllIfAndDateNode(rootNode, enableReadIfNodesInDateNodes).Append(rootNode);
-        return nodeList.SelectMany(node => node.Childs(keyword));
+        return GetAllEligibleNodeInAll(rootNode, nodes =>
+            nodes.SelectMany(node => node.Childs(keyword)));
     }
 
     private static IEnumerable<Node> GetAllEligibleNodeInAll(Node rootNode, IReadOnlySet<string> keywordSet)
     {
-        //TODO: 使用委托重构
+        return GetAllEligibleNodeInAll(rootNode, nodes =>
+            nodes.SelectMany(node => node.Nodes.Where(n => keywordSet.Contains(n.Key))));
+    }
+
+    private static IEnumerable<Node> GetAllEligibleNodeInAll(Node rootNode, Func<IEnumerable<Node>, IEnumerable<Node>> selector)
+    {
         var nodeList = GetAllIfAndDateNode(rootNode).Append(rootNode);
-        return nodeList.SelectMany(node => node.Nodes.Where(n => keywordSet.Contains(n.Key)));
+        return selector(nodeList);
     }
 
     /// <summary>
@@ -241,26 +238,28 @@ public static class ParseHelper
     /// <returns>root Node</returns>
     public static Node? ParseFileToNode(ICollection<ErrorMessage> errorMessages, string filePath)
     {
-        var parser = new CWToolsParser(filePath);
-        if (parser.IsSuccess)
-        {
-            return parser.GetResult();
-        }
-        errorMessages.Add(ErrorMessageFactory.CreateParseErrorMessage(filePath, parser.GetError()));
-        return null;
+        return ParseFileToNode(filePath, errorMessages.Add);
     }
 
 
     /// <inheritdoc cref="ParseFileToNode(ICollection{ErrorMessage},string)"/>
     public static Node? ParseFileToNode(IProducerConsumerCollection<ErrorMessage> errorMessages, string filePath)
     {
+        return ParseFileToNode(filePath, message =>
+        {
+            var result = errorMessages.TryAdd(message);
+            Debug.Assert(result);
+        });
+    }
+
+    private static Node? ParseFileToNode(string filePath, Action<ErrorMessage> action)
+    {
         var parser = new CWToolsParser(filePath);
         if (parser.IsSuccess)
         {
             return parser.GetResult();
         }
-        var result = errorMessages.TryAdd(ErrorMessageFactory.CreateParseErrorMessage(filePath, parser.GetError()));
-        Debug.Assert(result);
+        action(ErrorMessageFactory.CreateParseErrorMessage(filePath, parser.GetError()));
         return null;
     }
     #endregion
