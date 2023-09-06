@@ -20,8 +20,8 @@ public partial class StateFileAnalyzer
         public IReadOnlyList<LeavesNodeWithCondition> BuildingNodes { get; } = ImmutableList<LeavesNodeWithCondition>.Empty;
         public IReadOnlyList<LeafContent> StateCategories { get; }
         public IReadOnlyList<LeafContent> Owners { get; } = ImmutableList<LeafContent>.Empty;
-        public IReadOnlyList<(string ProvinceId, IReadOnlyList<LeafContent> Buildings, Position Position)> BuildingsByProvince { get; }
-            = ImmutableList<(string, IReadOnlyList<LeafContent>, Position)>.Empty;
+        public IReadOnlyList<LeavesNode> BuildingsByProvince { get; }
+            = ImmutableList<LeavesNode>.Empty;
         public IReadOnlyList<LeavesNode> ResourceNodes { get; }
         public IReadOnlyList<LeafValueNode> ProvinceNodes { get; } 
         public IReadOnlyList<LeafValueNode> VictoryPointNodes { get; } = ImmutableList<LeafValueNode>.Empty;
@@ -50,14 +50,15 @@ public partial class StateFileAnalyzer
 
             var historyNode = stateNode.Child(ScriptKeyWords.History).Value;
             BuildingNodes = ParseHelper.GetAllLeafContentWithConditionsInRootNode(historyNode, "buildings").ToList();
-            var buildingsByProvince = new List<(string, IReadOnlyList<LeafContent>, Position)>();
+            var buildingsByProvince = new List<LeavesNode>();
             if (historyNode.Has(ScriptKeyWords.Buildings))
             {
                 var buildingsNode = historyNode.Child(ScriptKeyWords.Buildings).Value;
                 foreach (var provinceNode in buildingsNode.Nodes)
                 {
                     var provinceBuildings = ParseHelper.GetAllLeafContentInCurrentNode(provinceNode).ToList();
-                    buildingsByProvince.Add((provinceNode.Key, provinceBuildings, new Position(provinceNode.Position)));
+                    buildingsByProvince.Add(
+                        new LeavesNode(provinceNode.Key, provinceBuildings, new Position(provinceNode.Position)));
                 }
             }
 

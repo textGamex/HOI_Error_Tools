@@ -104,7 +104,8 @@ public static class ParseHelper
     {
         var nodeList = GetAllEligibleNodeInAll(rootNode, nodeKey);
         return nodeList
-            .Select(node => new LeavesNode(node.Key, GetAllLeafContentInCurrentNode(node), new Position(node.Position)))
+            .Select(node => 
+                new LeavesNode(node.Key, GetAllLeafContentInCurrentNode(node), new Position(node.Position)))
             .ToList();
     }
 
@@ -119,7 +120,8 @@ public static class ParseHelper
             {
                 condition = new Condition(date);
             }
-            result.AddRange(node.Childs(nodeKey).Select(n => new LeavesNodeWithCondition(n.Key, GetAllLeafContentInCurrentNode(n), new Position(n.Position), condition)));
+            result.AddRange(node.Childs(nodeKey).Select(n => 
+                new LeavesNodeWithCondition(n.Key, GetAllLeafContentInCurrentNode(n), new Position(n.Position), condition)));
         }
         return result;
     }
@@ -178,7 +180,8 @@ public static class ParseHelper
             nodes.SelectMany(node => node.Nodes.Where(n => keywordSet.Contains(n.Key))));
     }
 
-    private static IEnumerable<Node> GetAllEligibleNodeInAll(Node rootNode, Func<IEnumerable<Node>, IEnumerable<Node>> selector)
+    private static IEnumerable<Node> GetAllEligibleNodeInAll(Node rootNode, Func<IEnumerable<Node>,
+        IEnumerable<Node>> selector)
     {
         var nodeList = GetAllIfAndDateNode(rootNode).Append(rootNode);
         return selector(nodeList);
@@ -207,7 +210,8 @@ public static class ParseHelper
         // 虽然说一个 if 里只面允许存在一个 else, 但谁知道到底有几个.
         void AddElseNodesToList(Node n)
         {
-            nodeList.AddRange(n.Nodes.Where(childNode => childNode.Key.Equals("else", StringComparison.OrdinalIgnoreCase)));
+            nodeList.AddRange(n.Nodes.Where(childNode => 
+                childNode.Key.Equals("else", StringComparison.OrdinalIgnoreCase)));
         }
     }
 

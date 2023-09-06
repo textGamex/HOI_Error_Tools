@@ -155,14 +155,16 @@ public partial class StateFileAnalyzer : AnalyzerBase
 
     private void AnalyzeBuildingsByProvince(StateModel model, IReadOnlySet<string> provinceInStateSet)
     {
-        foreach (var (provinceIdText, buildings, position) in model.BuildingsByProvince)
+        foreach (var provinceNode in model.BuildingsByProvince)
         {
+            var provinceIdText = provinceNode.Key;
+            var buildings = provinceNode.Leaves;
             _errorList.AddRange(AssertBuildingLevelWithinRange(buildings));
             if (!uint.TryParse(provinceIdText, out var provinceId))
             {
                 _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                     ErrorCode.FailedStringToIntError,
-                    FilePath, position, $"Province '{provinceIdText}' 无法转换为正整数"));
+                    FilePath, provinceNode.Position, $"Province '{provinceIdText}' 无法转换为正整数"));
                 continue;
             }
 
@@ -170,14 +172,15 @@ public partial class StateFileAnalyzer : AnalyzerBase
             {
                 _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                     ErrorCode.ProvinceNotExistsInDefinitionCsvFile,
-                    FilePath, position, $"Province '{provinceId}' 未在 'definition.csv' 文件中注册"));
+                    FilePath, provinceNode.Position, $"Province '{provinceId}' 未在 'definition.csv' 文件中注册"));
             }
 
             if (!provinceInStateSet.Contains(provinceIdText))
             {
                 _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                     ErrorCode.ProvinceNotExistsInStateFile,
-                    FilePath, position, $"Province '{provinceId}' 未分配在 State '{FileName}' 中, 但却在此地有 Province 建筑"));
+                    FilePath, provinceNode.Position, 
+                    $"Province '{provinceId}' 未分配在 State '{FileName}' 中, 但却在此地有 Province 建筑"));
             }
         }
     }
@@ -299,7 +302,8 @@ public partial class StateFileAnalyzer : AnalyzerBase
             if (!provinceIds.Any())
             {
                 _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    ErrorCode.EmptyProvincesNode, FilePath, provinceNode.Position, $"文件 '{FileName}' 存在空的 provinces 节点", ErrorLevel.Warn));
+                    ErrorCode.EmptyProvincesNode, FilePath, provinceNode.Position,
+                    $"文件 '{FileName}' 存在空的 provinces 节点", ErrorLevel.Warn));
                 continue;
             }
 
@@ -419,7 +423,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
             {
                 errorMessages.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                    ErrorCode.ValueIsOutOfRange,
-                   FilePath, building.Position, $"建筑物 '{buildingType}' 等级 [{level}] 超出范围 [{buildingInfo.MaxLevel}]"));
+                   FilePath, building.Position, $"建筑物 '{buildingType}' 等级 [{level}] 超出范围 [{buildingInfo.MaxLevel}]")); 
             }
         }
         errorMessages.AddRange(GetErrorOfRepeatedBuildingsType(existingBuildings));
