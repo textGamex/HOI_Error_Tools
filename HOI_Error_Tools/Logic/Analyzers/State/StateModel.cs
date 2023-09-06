@@ -64,7 +64,7 @@ public partial class StateFileAnalyzer
 
             BuildingsByProvince = buildingsByProvince;
             Owners = ParseHelper.GetLeafContents(historyNode, ScriptKeyWords.Owner).ToList();
-            HasCoreTags = ParseHelper.GetLeafContents(historyNode, "add_core_of").ToList();
+            HasCoreTags = ParseHelper.GetLeafContentsInAllChildren(historyNode, "add_core_of").ToList();
             VictoryPointNodes = ParseHelper.GetLeafValueNodesInAllNode(historyNode, "victory_points").ToList();
         }
     }
