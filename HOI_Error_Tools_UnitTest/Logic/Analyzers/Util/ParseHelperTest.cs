@@ -98,7 +98,7 @@ public class ParseHelperTest
     [Test]
     public void GetLeafContentTest()
     {
-        var result = ParseHelper.GetLeafContentsInAllChildren(_rootNode, "eee").ToArray();
+        var result = ParseHelper.GetLeafContentsInChildren(_rootNode, "eee").ToArray();
 
         That(result, Has.Length.EqualTo(3));
         Multiple(() =>

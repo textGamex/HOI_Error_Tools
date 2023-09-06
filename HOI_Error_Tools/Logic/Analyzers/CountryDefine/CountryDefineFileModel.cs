@@ -31,14 +31,14 @@ public partial class CountryDefineFileAnalyzer
 
             SetPopularitiesList = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_popularities").ToList();
             OwnIdeaNodes = GetOwnIdeas();
-            OwnIdeaLeaves = ParseHelper.GetLeafContentsInAllChildren(rootNode, "add_idea").ToList();
+            OwnIdeaLeaves = ParseHelper.GetLeafContentsInChildren(rootNode, "add_idea").ToList();
             SetPoliticsList = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_politics").ToList();
-            Capitals = ParseHelper.GetLeafContentsInAllChildren(rootNode, "capital").ToList();
-            Puppets = ParseHelper.GetLeafContentsInAllChildren(rootNode, "puppet").ToList();
-            CountriesTagOfAddToFaction = ParseHelper.GetLeafContentsInAllChildren(rootNode, "add_to_faction").ToList();
+            Capitals = ParseHelper.GetLeafContentsInChildren(rootNode, "capital").ToList();
+            Puppets = ParseHelper.GetLeafContentsInChildren(rootNode, "puppet").ToList();
+            CountriesTagOfAddToFaction = ParseHelper.GetLeafContentsInChildren(rootNode, "add_to_faction").ToList();
             SetAutonomies = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_autonomy").ToList();
             SetTechnologies = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_technology").ToList();
-            GiveGuaranteeCountriesTag = ParseHelper.GetLeafContentsInAllChildren(rootNode, "give_guarantee").ToList();
+            GiveGuaranteeCountriesTag = ParseHelper.GetLeafContentsInChildren(rootNode, "give_guarantee").ToList();
             OwnCharacters = GetOwnCharacters();
             OwnOobs = GetOwnOobs();
         }
@@ -52,7 +52,7 @@ public partial class CountryDefineFileAnalyzer
                 "set_naval_oob",
                 "set_air_oob"
             };
-            return ParseHelper.GetLeafContentsInAllChildren(_rootNode, keywords)
+            return ParseHelper.GetLeafContentsInChildren(_rootNode, keywords)
                 .ToList();
         }
 
@@ -63,7 +63,7 @@ public partial class CountryDefineFileAnalyzer
                 "add_ideas",
                 "remove_ideas",
             };
-            return ParseHelper.GetLeafValueNodesInAllNode(_rootNode, set)
+            return ParseHelper.GetLeafValueNodesInChildren(_rootNode, set)
                 .ToList();
         }
 
@@ -75,7 +75,7 @@ public partial class CountryDefineFileAnalyzer
                 "promote_character",
                 "retire_character"
             };
-            return ParseHelper.GetLeafContentsInAllChildren(_rootNode, keywords)
+            return ParseHelper.GetLeafContentsInChildren(_rootNode, keywords)
                 .ToList();
         }
     }

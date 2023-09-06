@@ -30,7 +30,7 @@ public static class ParseHelper
     /// <param name="rootNode"></param>
     /// <param name="leafKeyword"></param>
     /// <returns></returns>
-    public static IEnumerable<LeafContent> GetLeafContentsInAllChildren(Node rootNode, string leafKeyword)
+    public static IEnumerable<LeafContent> GetLeafContentsInChildren(Node rootNode, string leafKeyword)
     {
         return GetAllLeafInAllChildren(rootNode, leafKeyword)
             .Select(LeafContent.FromCWToolsLeaf);
@@ -40,13 +40,13 @@ public static class ParseHelper
     /// 获得 <c>rootNode</c> 中所有拥有 <c>leafKeywords</c> 中的一个的 <see cref="LeafContent"/>. (包括 if else 语句和 Date 语句).
     /// </summary>
     /// <remarks>
-    /// 如果要一次性获得多个不同 <c>Key</c> 的 <c>LeafContent</c>, 优先使用此方法, 而不是多次调用 <see cref="GetLeafContentsInAllChildren(Node, string)"/>,
-    /// 此方法的性能优于多次调用 <see cref="GetLeafContentsInAllChildren(Node, string)"/>.
+    /// 如果要一次性获得多个不同 <c>Key</c> 的 <c>LeafContent</c>, 优先使用此方法, 而不是多次调用 <see cref="GetLeafContentsInChildren"/>,
+    /// 此方法的性能优于多次调用 <see cref="GetLeafContentsInChildren"/>.
     /// </remarks>
     /// <param name="rootNode"></param>
     /// <param name="leafKeywords"></param>
     /// <returns></returns>
-    public static IEnumerable<LeafContent> GetLeafContentsInAllChildren(Node rootNode, IReadOnlySet<string> leafKeywords)
+    public static IEnumerable<LeafContent> GetLeafContentsInChildren(Node rootNode, IReadOnlySet<string> leafKeywords)
     {
         return GetAllLeafInAllChildren(rootNode, leafKeywords)
             .Select(LeafContent.FromCWToolsLeaf);
@@ -127,22 +127,22 @@ public static class ParseHelper
     }
 
     /// <summary>
-    /// 获得所有 key 是 <c>keyword</c> 的 Node 的所有 <see cref="LeafValueContent"/>, 包括 If 语句中的 Node.
+    /// 获得所有 key 是 <c>keyword</c> 的 Node 的所有 <see cref="LeafValueContent"/>, 包括 if/esle/Date 语句中的 Node.
     /// </summary>
     /// <param name="rootNode"></param>
     /// <param name="keyword"></param>
     /// <returns></returns>
-    public static IEnumerable<LeafValueNode> GetLeafValueNodesInAllNode(Node rootNode, string keyword)
+    public static IEnumerable<LeafValueNode> GetLeafValueNodesInChildren(Node rootNode, string keyword)
     {
-        return GetLeafValueNodesInAllNode(() => GetAllEligibleNodeInAll(rootNode, keyword));
+        return GetLeafValueNodesInChildren(() => GetAllEligibleNodeInAll(rootNode, keyword));
     }
 
-    public static IEnumerable<LeafValueNode> GetLeafValueNodesInAllNode(Node rootNode, IReadOnlySet<string> keywordSet)
+    public static IEnumerable<LeafValueNode> GetLeafValueNodesInChildren(Node rootNode, IReadOnlySet<string> keywordSet)
     {
-        return GetLeafValueNodesInAllNode(() => GetAllEligibleNodeInAll(rootNode, keywordSet));
+        return GetLeafValueNodesInChildren(() => GetAllEligibleNodeInAll(rootNode, keywordSet));
     }
 
-    private static IEnumerable<LeafValueNode> GetLeafValueNodesInAllNode(Func<IEnumerable<Node>> nodesSource)
+    private static IEnumerable<LeafValueNode> GetLeafValueNodesInChildren(Func<IEnumerable<Node>> nodesSource)
     {
         var list = new List<LeafValueNode>(16);
         var nodeList = nodesSource();
@@ -161,7 +161,7 @@ public static class ParseHelper
     }
 
     /// <summary>
-    /// 获得在 <c>rootNode</c> 中所有 <c>Key</c> 是 <c>keyword</c> 的 <see cref="Node"/>. (包括在 if 语句和日期语句下的 Node).
+    /// 获得在 <c>rootNode</c> 中所有 <c>Key</c> 是 <c>keyword</c> 的 <see cref="Node"/>. (包括在 if/else 语句和日期语句下的 Node).
     /// </summary>
     /// <remarks>
     /// </remarks>

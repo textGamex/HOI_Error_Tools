@@ -16,7 +16,7 @@ public partial class StateFileAnalyzer
         public IReadOnlyList<LeafContent> Ids { get; }
         public IReadOnlyList<LeafContent> Manpowers { get; }
         public IReadOnlyList<LeafContent> Names { get; }
-        public IReadOnlyList<LeafContent> HasCoreTags { get; } = ImmutableList<LeafContent>.Empty;
+        public IReadOnlyList<LeafContent> OwnCoreTags { get; } = ImmutableList<LeafContent>.Empty;
         public IReadOnlyList<LeavesNodeWithCondition> BuildingNodes { get; } = ImmutableList<LeavesNodeWithCondition>.Empty;
         public IReadOnlyList<LeafContent> StateCategories { get; }
         public IReadOnlyList<LeafContent> Owners { get; } = ImmutableList<LeafContent>.Empty;
@@ -41,7 +41,7 @@ public partial class StateFileAnalyzer
             Names = ParseHelper.GetLeafContents(stateNode, ScriptKeyWords.Name).ToList();
             StateCategories = ParseHelper.GetLeafContents(stateNode, ScriptKeyWords.StateCategory).ToList();
             ResourceNodes = ParseHelper.GetAllLeafContentInRootNode(stateNode, ScriptKeyWords.Resources).ToList();
-            ProvinceNodes = ParseHelper.GetLeafValueNodesInAllNode(stateNode, ScriptKeyWords.Provinces).ToList();
+            ProvinceNodes = ParseHelper.GetLeafValueNodesInChildren(stateNode, ScriptKeyWords.Provinces).ToList();
 
             if (stateNode.HasNot(ScriptKeyWords.History))
             {
@@ -64,8 +64,8 @@ public partial class StateFileAnalyzer
 
             BuildingsByProvince = buildingsByProvince;
             Owners = ParseHelper.GetLeafContents(historyNode, ScriptKeyWords.Owner).ToList();
-            HasCoreTags = ParseHelper.GetLeafContentsInAllChildren(historyNode, "add_core_of").ToList();
-            VictoryPointNodes = ParseHelper.GetLeafValueNodesInAllNode(historyNode, "victory_points").ToList();
+            OwnCoreTags = ParseHelper.GetLeafContentsInChildren(historyNode, "add_core_of").ToList();
+            VictoryPointNodes = ParseHelper.GetLeafValueNodesInChildren(historyNode, "victory_points").ToList();
         }
     }
 }

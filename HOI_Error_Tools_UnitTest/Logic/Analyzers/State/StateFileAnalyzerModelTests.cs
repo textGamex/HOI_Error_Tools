@@ -20,7 +20,7 @@ public class StateFileAnalyzerModelTests
             That(_stateModel.Ids, Has.Count.EqualTo(1));
             That(_stateModel.Names, Has.Count.EqualTo(1));
             That(_stateModel.Owners, Has.Count.EqualTo(1));
-            That(_stateModel.HasCoreTags, Has.Count.EqualTo(2));
+            That(_stateModel.OwnCoreTags, Has.Count.EqualTo(2));
             That(_stateModel.Manpowers, Has.Count.EqualTo(1));
             That(_stateModel.StateCategories, Has.Count.EqualTo(1));
             That(_stateModel.VictoryPointNodes, Has.Count.EqualTo(1));
@@ -90,8 +90,8 @@ public class StateFileAnalyzerModelTests
     [Test]
     public void StateModelHasCoreTest()
     {
-        var hasCore1 = _stateModel.HasCoreTags[0];
-        var hasCore2 = _stateModel.HasCoreTags[1];
+        var hasCore1 = _stateModel.OwnCoreTags[0];
+        var hasCore2 = _stateModel.OwnCoreTags[1];
 
         Multiple(() =>
         {
@@ -205,7 +205,7 @@ public class StateFileAnalyzerModelTests
             That(emptyModel.Ids, Has.Count.Zero);
             That(emptyModel.Names, Has.Count.Zero);
             That(emptyModel.Owners, Has.Count.Zero);
-            That(emptyModel.HasCoreTags, Has.Count.Zero);
+            That(emptyModel.OwnCoreTags, Has.Count.Zero);
             That(emptyModel.Manpowers, Has.Count.Zero);
             That(emptyModel.StateCategories, Has.Count.Zero);
             That(emptyModel.VictoryPointNodes, Has.Count.Zero);

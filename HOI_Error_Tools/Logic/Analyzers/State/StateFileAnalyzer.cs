@@ -187,7 +187,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
 
     private void AnalyzeHasCoreTags(StateModel model)
     {
-        foreach (var leaf in model.HasCoreTags)
+        foreach (var leaf in model.OwnCoreTags)
         {
             var tag = leaf.ValueText;
             if (!_registeredCountriesTag.Contains(tag))
