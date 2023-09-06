@@ -70,8 +70,55 @@ public partial class StateFileAnalyzer : AnalyzerBase
         AnalyzeBuildings(stateModel);
         AnalyzeOwner(stateModel);
         AnalyzeHasCoreTags(stateModel);
+        AnalyzeControllerTags(stateModel);
         AssertResourcesTypeIsRegistered(stateModel);
         return _errorList;
+    }
+
+    private void AnalyzeControllerTags(StateModel stateModel)
+    {
+        if (stateModel.ControllerTags.Count == 0)
+        {
+            return;
+        }
+
+        var dictionary = new Dictionary<string, LeafContentWithCondition>(stateModel.ControllerTags.Count);
+        foreach (var controllerTag in stateModel.ControllerTags)
+        {
+            var isRepeatedController = dictionary.TryGetValue(controllerTag.ValueText, out var oldLeaf) && 
+                                       controllerTag.Condition == oldLeaf.Condition;
+            if (isRepeatedController)
+            {
+                var fileInfos = new ParameterFileInfo[]
+                {
+                    new (FilePath, controllerTag.Position),
+                    new (FilePath, oldLeaf!.Position)
+                };
+                _errorList.Add(new ErrorMessage(ErrorCode.UniqueValueIsRepeated, fileInfos, 
+                    "语句 controller 重复", ErrorLevel.Error));
+            }
+            else
+            {
+                dictionary.Add(controllerTag.ValueText, controllerTag);
+            }
+
+            CheckCountryTag(controllerTag.ValueText, controllerTag.Position);
+        }
+    }
+
+    /// <summary>
+    /// 检查国家标签是否存在, 如果不存在则添加 <see cref="ErrorMessage"/> 到字段 <c>_errorList</c>
+    /// </summary>
+    /// <param name="countryTag"></param>
+    /// <param name="position"></param>
+    private void CheckCountryTag(string countryTag, Position position)
+    {
+        if (!_registeredCountriesTag.Contains(countryTag))
+        {
+            _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                ErrorCode.CountryTagNotExists,
+                FilePath, position, $"国家 Tag '{countryTag}' 未注册"));
+        }
     }
 
     private void AnalyzeId(StateModel model)
@@ -190,12 +237,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
         foreach (var leaf in model.OwnCoreTags)
         {
             var tag = leaf.ValueText;
-            if (!_registeredCountriesTag.Contains(tag))
-            {
-                _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    ErrorCode.CountryTagNotExists,
-                    FilePath, leaf.Position, $"国家Tag '{tag}' 未注册"));
-            }
+            CheckCountryTag(tag, leaf.Position);
         }
     }
 

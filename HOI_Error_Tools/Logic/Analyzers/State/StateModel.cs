@@ -24,6 +24,7 @@ public partial class StateFileAnalyzer
         public IReadOnlyList<LeavesNode> ResourceNodes { get; } = Array.Empty<LeavesNode>();
         public IReadOnlyList<LeafValueNode> ProvinceNodes { get; } = Array.Empty<LeafValueNode>();
         public IReadOnlyList<LeafValueNode> VictoryPointNodes { get; } = Array.Empty<LeafValueNode>();
+        public IReadOnlyList<LeafContentWithCondition> ControllerTags { get; } = Array.Empty<LeafContentWithCondition>();
         public bool IsEmptyFile { get; }
 
         public StateModel(Node rootNode)
@@ -49,6 +50,7 @@ public partial class StateFileAnalyzer
 
             var historyNode = stateNode.Child(ScriptKeyWords.History).Value;
             BuildingNodes = ParseHelper.GetAllLeafContentWithConditionsInRootNode(historyNode, ScriptKeyWords.Buildings).ToList();
+            ControllerTags = ParseHelper.GetLeafContentsWithConditionInChildren(historyNode, "controller").ToList();
             var buildingsByProvince = new List<LeavesNode>();
             if (historyNode.Has(ScriptKeyWords.Buildings))
             {

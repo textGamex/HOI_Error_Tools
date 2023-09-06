@@ -36,12 +36,28 @@ public static class ParseHelper
             .Select(LeafContent.FromCWToolsLeaf);
     }
 
+    public static IEnumerable<LeafContentWithCondition> GetLeafContentsWithConditionInChildren(Node rootNode, string leafKeyword)
+    {
+        var list = new List<LeafContentWithCondition>();
+        var condition = Condition.Empty;
+        foreach (var node in GetAllIfAndDateNode(rootNode).Prepend(rootNode))
+        {
+            var leaves = node.Leafs(leafKeyword);
+            if (Value.TryParseDate(node.Key, out var date))
+            {
+                condition = new Condition(date);
+            }
+            list.AddRange(leaves.Select(leaf => LeafContentWithCondition.Create(leaf, condition)));
+        }
+        return list;
+    }
+
     /// <summary>
     /// 获得 <c>rootNode</c> 中所有拥有 <c>leafKeywords</c> 中的一个的 <see cref="LeafContent"/>. (包括 if else 语句和 Date 语句).
     /// </summary>
     /// <remarks>
-    /// 如果要一次性获得多个不同 <c>Key</c> 的 <c>LeafContent</c>, 优先使用此方法, 而不是多次调用 <see cref="GetLeafContentsInChildren"/>,
-    /// 此方法的性能优于多次调用 <see cref="GetLeafContentsInChildren"/>.
+    /// 如果要一次性获得多个不同 <c>Key</c> 的 <c>LeafContent</c>, 优先使用此方法, 而不是多次调用 <see cref="GetLeafContentsInChildren(CWTools.Process.Node,string)"/>,
+    /// 此方法的性能优于多次调用 <see cref="GetLeafContentsInChildren(CWTools.Process.Node,string)"/>.
     /// </remarks>
     /// <param name="rootNode"></param>
     /// <param name="leafKeywords"></param>
@@ -73,7 +89,6 @@ public static class ParseHelper
     private static IEnumerable<Leaf> GetAllLeafInAllChildren(Node rootNode, IReadOnlySet<string> leafKeywords)
     {
         var nodes = GetAllIfAndDateNode(rootNode).Append(rootNode);
-
         var leafList = new List<Leaf>(16);
         foreach (var node in nodes)
         {
@@ -116,11 +131,12 @@ public static class ParseHelper
         foreach (var node in GetAllIfAndDateNode(rootNode).Prepend(rootNode))
         {
             var condition = Condition.Empty;
+            var nodes = node.Childs(nodeKey);
             if (Value.TryParseDate(node.Key, out var date))
             {
                 condition = new Condition(date);
             }
-            result.AddRange(node.Childs(nodeKey).Select(n => 
+            result.AddRange(nodes.Select(n => 
                 new LeavesNodeWithCondition(n.Key, GetAllLeafContentInCurrentNode(n), new Position(n.Position), condition)));
         }
         return result;
@@ -187,6 +203,11 @@ public static class ParseHelper
         return selector(nodeList);
     }
 
+    /// <summary>
+    /// 获得 <c>rootNode</c> 下的 if/else/date 节点, 不包含 <c>rootNode</c>.
+    /// </summary>
+    /// <param name="rootNode"></param>
+    /// <returns><c>rootNode</c> 下的 if/else/date 节点列表, 不包含 <c>rootNode</c></returns>
     private static IList<Node> GetAllIfAndDateNode(Node rootNode)
     {
         var nodeList = new List<Node>(8);

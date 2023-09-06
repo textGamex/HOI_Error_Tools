@@ -22,7 +22,7 @@ public class LeafContent : IEquatable<LeafContent>
         Position = position;
     }
 
-    private LeafContent(string key, Value value, Position position)
+    protected LeafContent(string key, Value value, Position position)
     {
         Key = key;
         Value = value;
