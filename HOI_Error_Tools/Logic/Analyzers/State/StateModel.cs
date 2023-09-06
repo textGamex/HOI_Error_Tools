@@ -1,10 +1,10 @@
-﻿using CWTools.Process;
+﻿using System;
+using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.Util;
 using HOI_Error_Tools.Logic.HOIParser;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 
 namespace HOI_Error_Tools.Logic.Analyzers.State;
@@ -13,18 +13,17 @@ public partial class StateFileAnalyzer
 {
     public sealed class StateModel
     {
-        public IReadOnlyList<LeafContent> Ids { get; }
-        public IReadOnlyList<LeafContent> Manpowers { get; }
-        public IReadOnlyList<LeafContent> Names { get; }
-        public IReadOnlyList<LeafContent> OwnCoreTags { get; } = ImmutableList<LeafContent>.Empty;
-        public IReadOnlyList<LeavesNodeWithCondition> BuildingNodes { get; } = ImmutableList<LeavesNodeWithCondition>.Empty;
-        public IReadOnlyList<LeafContent> StateCategories { get; }
-        public IReadOnlyList<LeafContent> Owners { get; } = ImmutableList<LeafContent>.Empty;
-        public IReadOnlyList<LeavesNode> BuildingsByProvince { get; }
-            = ImmutableList<LeavesNode>.Empty;
-        public IReadOnlyList<LeavesNode> ResourceNodes { get; }
-        public IReadOnlyList<LeafValueNode> ProvinceNodes { get; } 
-        public IReadOnlyList<LeafValueNode> VictoryPointNodes { get; } = ImmutableList<LeafValueNode>.Empty;
+        public IReadOnlyList<LeafContent> Ids { get; } = Array.Empty<LeafContent>();
+        public IReadOnlyList<LeafContent> Manpowers { get; } = Array.Empty<LeafContent>();
+        public IReadOnlyList<LeafContent> Names { get; } = Array.Empty<LeafContent>();
+        public IReadOnlyList<LeafContent> OwnCoreTags { get; } = Array.Empty<LeafContent>();
+        public IReadOnlyList<LeavesNodeWithCondition> BuildingNodes { get; } = Array.Empty<LeavesNodeWithCondition>();
+        public IReadOnlyList<LeafContent> StateCategories { get; } = Array.Empty<LeafContent>();
+        public IReadOnlyList<LeafContent> Owners { get; } = Array.Empty<LeafContent>();
+        public IReadOnlyList<LeavesNode> BuildingsByProvince { get; } = Array.Empty<LeavesNode>();
+        public IReadOnlyList<LeavesNode> ResourceNodes { get; } = Array.Empty<LeavesNode>();
+        public IReadOnlyList<LeafValueNode> ProvinceNodes { get; } = Array.Empty<LeafValueNode>();
+        public IReadOnlyList<LeafValueNode> VictoryPointNodes { get; } = Array.Empty<LeafValueNode>();
         public bool IsEmptyFile { get; }
 
         public StateModel(Node rootNode)
