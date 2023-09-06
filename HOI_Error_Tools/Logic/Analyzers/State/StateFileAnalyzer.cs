@@ -7,6 +7,8 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using HOI_Error_Tools.Logic.Analyzers.Util;
+using Microsoft.Extensions.DependencyInjection;
+using NLog;
 
 namespace HOI_Error_Tools.Logic.Analyzers.State;
 
@@ -27,12 +29,12 @@ public partial class StateFileAnalyzer : AnalyzerBase
     private readonly List<ErrorMessage> _errorList = new();
 
     private static readonly ConcurrentDictionary<uint, ParameterFileInfo> ExistingIds = new();
-
     /// <summary>
     /// 已经分配的 Provinces, 用于检查重复分配错误
     /// </summary>
     private static readonly ConcurrentDictionary<uint, ParameterFileInfo> ExistingProvinces = new();
-
+    private static readonly ILogger Log = App.Current.Services.GetRequiredService<ILogger>();
+    
     public StateFileAnalyzer(string filePath, GameResources resources) : base(filePath)
     {
         _registeredProvince = resources.RegisteredProvinceSet;
@@ -152,8 +154,11 @@ public partial class StateFileAnalyzer : AnalyzerBase
             }
             else
             {
-                bool result = ExistingIds.TryAdd(id, new ParameterFileInfo(FilePath, idLeaf.Position));
-                Debug.Assert(result, $"{nameof(ExistingIds)} 添加元素失败");
+                var info = new ParameterFileInfo(FilePath, idLeaf.Position);
+                if (!ExistingIds.TryAdd(id, info))
+                {
+                    Log.Warn("{Id}={Info} 添加失败", id, info);
+                }
             }
         }
         _errorList.AddRange(Helper.AssertKeywordIsOnly(model.Ids, ScriptKeyWords.Id));
@@ -252,12 +257,8 @@ public partial class StateFileAnalyzer : AnalyzerBase
 
         foreach (var ownerLeaf in model.Owners)
         {
-            var owner = ownerLeaf.ValueText;
-            if (!_registeredCountriesTag.Contains(owner))
-            {
-                _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    ErrorCode.CountryTagNotExists, FilePath, ownerLeaf.Position, $"国家Tag '{owner}' 未注册"));
-            }
+            var ownerTag = ownerLeaf.ValueText;
+            CheckCountryTag(ownerTag, ownerLeaf.Position);
         }
 
         _errorList.AddRange(Helper.AssertKeywordIsOnly(model.Owners, ScriptKeyWords.Owner));
@@ -390,21 +391,20 @@ public partial class StateFileAnalyzer : AnalyzerBase
             if (!ExistingProvinces.TryGetValue(provinceId, out var infoOfExistingValue))
             {
                 if (!ExistingProvinces.TryAdd(provinceId, new ParameterFileInfo(FilePath, position)))
-                {
-                    throw new ArgumentException("ExistingProvinces 添加失败");
+                { 
+                    Log.Warn(CultureInfo.InvariantCulture,
+                        "Province {Province} 向 {VarName} 添加失败", provinceId, nameof(ExistingProvinces));
                 }
                 continue;
             }
+            
             var fileInfo = new List<ParameterFileInfo>
             {
                 new (FilePath, position),
                 new (infoOfExistingValue.FilePath, infoOfExistingValue.Position)
             };
-            _errorList.Add(new ErrorMessage(
-                ErrorCode.UniqueValueIsRepeated,
-                fileInfo,
-                $"Province '{provinceId}' 在不同文件中重复分配",
-                ErrorLevel.Error));
+            _errorList.Add(new ErrorMessage(ErrorCode.UniqueValueIsRepeated, fileInfo, 
+                $"Province '{provinceId}' 在不同文件中重复分配", ErrorLevel.Error));
         }
     }
 

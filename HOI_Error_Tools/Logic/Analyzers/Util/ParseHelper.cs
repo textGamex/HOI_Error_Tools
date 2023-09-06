@@ -36,11 +36,12 @@ public static class ParseHelper
             .Select(LeafContent.FromCWToolsLeaf);
     }
 
-    public static IEnumerable<LeafContentWithCondition> GetLeafContentsWithConditionInChildren(Node rootNode, string leafKeyword)
+    public static IEnumerable<LeafContentWithCondition> GetLeafContentsWithConditionInChildren(Node rootNode,
+        string leafKeyword)
     {
         var list = new List<LeafContentWithCondition>();
         var condition = Condition.Empty;
-        foreach (var node in GetAllIfAndDateNode(rootNode).Prepend(rootNode))
+        foreach (var node in GetAllNodes(rootNode))
         {
             var leaves = node.Leafs(leafKeyword);
             if (Value.TryParseDate(node.Key, out var date))
@@ -76,7 +77,7 @@ public static class ParseHelper
     /// <returns></returns>
     private static IEnumerable<Leaf> GetAllLeafInAllChildren(Node rootNode, string leafKeyword)
     {
-        var nodeList = GetAllIfAndDateNode(rootNode).Append(rootNode);
+        var nodeList = GetAllNodes(rootNode);
         return nodeList.SelectMany(node => node.Leafs(leafKeyword));
     }
 
@@ -88,7 +89,7 @@ public static class ParseHelper
     /// <returns></returns>
     private static IEnumerable<Leaf> GetAllLeafInAllChildren(Node rootNode, IReadOnlySet<string> leafKeywords)
     {
-        var nodes = GetAllIfAndDateNode(rootNode).Append(rootNode);
+        var nodes = GetAllNodes(rootNode);
         var leafList = new List<Leaf>(16);
         foreach (var node in nodes)
         {
@@ -117,7 +118,7 @@ public static class ParseHelper
     /// <returns></returns>
     public static IEnumerable<LeavesNode> GetAllLeafContentInRootNode(Node rootNode, string nodeKey)
     {
-        var nodeList = GetAllEligibleNodeInAll(rootNode, nodeKey);
+        var nodeList = GetEligibleNodeInAllNodes(rootNode, nodeKey);
         return nodeList
             .Select(node => 
                 new LeavesNode(node.Key, GetAllLeafContentInCurrentNode(node), new Position(node.Position)))
@@ -128,7 +129,7 @@ public static class ParseHelper
         string nodeKey)
     {
         var result = new List<LeavesNodeWithCondition>();
-        foreach (var node in GetAllIfAndDateNode(rootNode).Prepend(rootNode))
+        foreach (var node in GetAllNodes(rootNode))
         {
             var condition = Condition.Empty;
             var nodes = node.Childs(nodeKey);
@@ -150,12 +151,12 @@ public static class ParseHelper
     /// <returns></returns>
     public static IEnumerable<LeafValueNode> GetLeafValueNodesInChildren(Node rootNode, string keyword)
     {
-        return GetLeafValueNodesInChildren(() => GetAllEligibleNodeInAll(rootNode, keyword));
+        return GetLeafValueNodesInChildren(() => GetEligibleNodeInAllNodes(rootNode, keyword));
     }
 
     public static IEnumerable<LeafValueNode> GetLeafValueNodesInChildren(Node rootNode, IReadOnlySet<string> keywordSet)
     {
-        return GetLeafValueNodesInChildren(() => GetAllEligibleNodeInAll(rootNode, keywordSet));
+        return GetLeafValueNodesInChildren(() => GetEligibleNodeInAllNodes(rootNode, keywordSet));
     }
 
     private static IEnumerable<LeafValueNode> GetLeafValueNodesInChildren(Func<IEnumerable<Node>> nodesSource)
@@ -184,25 +185,35 @@ public static class ParseHelper
     /// <param name="rootNode"></param>
     /// <param name="keyword"></param>
     /// <returns></returns>
-    private static IEnumerable<Node> GetAllEligibleNodeInAll(Node rootNode, string keyword)
+    private static IEnumerable<Node> GetEligibleNodeInAllNodes(Node rootNode, string keyword)
     {
-        return GetAllEligibleNodeInAll(rootNode, nodes =>
+        return GetEligibleNodeInAllNodes(rootNode, nodes =>
             nodes.SelectMany(node => node.Childs(keyword)));
     }
 
-    private static IEnumerable<Node> GetAllEligibleNodeInAll(Node rootNode, IReadOnlySet<string> keywordSet)
+    private static IEnumerable<Node> GetEligibleNodeInAllNodes(Node rootNode, IReadOnlySet<string> keywordSet)
     {
-        return GetAllEligibleNodeInAll(rootNode, nodes =>
+        return GetEligibleNodeInAllNodes(rootNode, nodes =>
             nodes.SelectMany(node => node.Nodes.Where(n => keywordSet.Contains(n.Key))));
     }
 
-    private static IEnumerable<Node> GetAllEligibleNodeInAll(Node rootNode, Func<IEnumerable<Node>,
+    private static IEnumerable<Node> GetEligibleNodeInAllNodes(Node rootNode, Func<IEnumerable<Node>,
         IEnumerable<Node>> selector)
     {
-        var nodeList = GetAllIfAndDateNode(rootNode).Append(rootNode);
+        var nodeList = GetAllNodes(rootNode);
         return selector(nodeList);
     }
 
+    /// <summary>
+    /// 获得全部节点 (if, else, Date, rootNode)
+    /// </summary>
+    /// <param name="rootNode"></param>
+    /// <returns></returns>
+    private static IEnumerable<Node> GetAllNodes(Node rootNode)
+    {
+        return GetAllIfAndDateNode(rootNode).Prepend(rootNode);
+    }
+    
     /// <summary>
     /// 获得 <c>rootNode</c> 下的 if/else/date 节点, 不包含 <c>rootNode</c>.
     /// </summary>
