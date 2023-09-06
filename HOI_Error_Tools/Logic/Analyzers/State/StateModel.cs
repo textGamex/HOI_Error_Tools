@@ -49,14 +49,14 @@ public partial class StateFileAnalyzer
             }
 
             var historyNode = stateNode.Child(ScriptKeyWords.History).Value;
-            BuildingNodes = ParseHelper.GetAllLeafContentWithConditionsInRootNode(historyNode, "buildings").ToList();
+            BuildingNodes = ParseHelper.GetAllLeafContentWithConditionsInRootNode(historyNode, ScriptKeyWords.Buildings).ToList();
             var buildingsByProvince = new List<LeavesNode>();
             if (historyNode.Has(ScriptKeyWords.Buildings))
             {
                 var buildingsNode = historyNode.Child(ScriptKeyWords.Buildings).Value;
                 foreach (var provinceNode in buildingsNode.Nodes)
                 {
-                    var provinceBuildings = ParseHelper.GetAllLeafContentInCurrentNode(provinceNode).ToList();
+                    var provinceBuildings = ParseHelper.GetAllLeafContentInCurrentNode(provinceNode);
                     buildingsByProvince.Add(
                         new LeavesNode(provinceNode.Key, provinceBuildings, new Position(provinceNode.Position)));
                 }
