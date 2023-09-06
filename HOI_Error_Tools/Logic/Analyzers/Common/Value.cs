@@ -82,7 +82,7 @@ public class Value : IEquatable<Value>
 
     public static bool IsDateString(string text)
     {
-        return DateOnly.TryParse(text, out _);
+        return TryParseDate(text, out _);
     }
 
     public static bool TryParseDate(string text, out DateOnly date)
