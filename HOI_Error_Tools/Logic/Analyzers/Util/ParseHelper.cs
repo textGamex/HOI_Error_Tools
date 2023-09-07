@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
@@ -39,18 +40,8 @@ public static class ParseHelper
     public static IEnumerable<LeafContentWithCondition> GetLeafContentsWithConditionInChildren(Node rootNode,
         string leafKeyword)
     {
-        var list = new List<LeafContentWithCondition>();
-        var condition = Condition.Empty;
-        foreach (var node in GetAllNodes(rootNode))
-        {
-            var leaves = node.Leafs(leafKeyword);
-            if (Value.TryParseDate(node.Key, out var date))
-            {
-                condition = new Condition(date);
-            }
-            list.AddRange(leaves.Select(leaf => LeafContentWithCondition.Create(leaf, condition)));
-        }
-        return list;
+        return GetValueWithCondition<LeafContentWithCondition, Leaf>(rootNode, node => node.Leafs(leafKeyword),
+            (leaves, condition) => leaves.Select(leaf => LeafContentWithCondition.Create(leaf, condition)));
     }
 
     /// <summary>
@@ -128,19 +119,26 @@ public static class ParseHelper
     public static IEnumerable<LeavesNodeWithCondition> GetAllLeafContentWithConditionsInRootNode(Node rootNode,
         string nodeKey)
     {
-        var result = new List<LeavesNodeWithCondition>();
+        return GetValueWithCondition<LeavesNodeWithCondition, Node>(rootNode, node => node.Childs(nodeKey), 
+            (nodes, condition) => nodes.Select(n => 
+                new LeavesNodeWithCondition(n.Key, GetAllLeafContentInCurrentNode(n), new Position(n.Position), condition)));
+    }
+
+    private static IEnumerable<T> GetValueWithCondition<T,TU>(Node rootNode, Func<Node,IEnumerable<TU>> func, 
+        Func<IEnumerable<TU>, Condition, IEnumerable<T>> action)
+    {
+        var list = new List<T>();
         foreach (var node in GetAllNodes(rootNode))
         {
             var condition = Condition.Empty;
-            var nodes = node.Childs(nodeKey);
+            var enumerable = func(node);
             if (Value.TryParseDate(node.Key, out var date))
             {
                 condition = new Condition(date);
             }
-            result.AddRange(nodes.Select(n => 
-                new LeavesNodeWithCondition(n.Key, GetAllLeafContentInCurrentNode(n), new Position(n.Position), condition)));
+            list.AddRange(action(enumerable, condition));
         }
-        return result;
+        return list;
     }
 
     /// <summary>
