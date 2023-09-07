@@ -31,7 +31,8 @@
 	- [x] Buildings
 	- [x] Resources
 	- [x] Provinces
-	- [ ] Local Supplies
+	- [x] Local Supplies
+	- [x] add_claim_by
 	- [ ] 不同剧本支持
 - history\countries 文件夹下的国家定义文件
 	- [x] Puppets

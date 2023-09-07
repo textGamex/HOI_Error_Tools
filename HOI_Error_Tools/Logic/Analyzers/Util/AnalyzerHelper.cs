@@ -32,7 +32,7 @@ public sealed class AnalyzerHelper
     }
 
     /// <summary>
-    /// 断言 <c>keyword</c> 只出现一次, 如果出现多次返回 <c>ErrorMessage</c>, 否则返回空集合
+    /// 断言 <c>keyword</c> 只出现一次, 如果出现多次返回 <see cref="ErrorMessage"/>, 如果未出现或者只出现一次, 返回空集合
     /// </summary>
     /// <param name="leaves"></param>
     /// <returns></returns>

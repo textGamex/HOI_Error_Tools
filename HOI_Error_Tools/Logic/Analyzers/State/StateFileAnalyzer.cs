@@ -72,8 +72,17 @@ public partial class StateFileAnalyzer : AnalyzerBase
         AnalyzeHasCoreTags(stateModel);
         AnalyzeControllerTags(stateModel);
         AnalyzeClaimCountryTags(stateModel);
+        AnalyzeLocalSupplies(stateModel);
         AssertResourcesTypeIsRegistered(stateModel);
+        
+        
         return _errorList;
+    }
+
+    private void AnalyzeLocalSupplies(StateModel stateModel)
+    {
+        _errorList.AddRange(Helper.AssertValueTypeIsExpected(stateModel.LocalSupplies, Value.Types.Float));
+        _errorList.AddRange(Helper.AssertKeywordIsOnly(stateModel.LocalSupplies));
     }
 
     private void AnalyzeClaimCountryTags(StateModel stateModel)
@@ -522,5 +531,10 @@ public partial class StateFileAnalyzer : AnalyzerBase
     {
         ExistingProvinces.Clear();
         ExistingIds.Clear();
+    }
+
+    private static class Keywords
+    {
+        public const string LocalSupplies = "local_supplies";
     }
 }
