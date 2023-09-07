@@ -40,6 +40,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
         {
             return _errorList;
         }
+        
         var model = new CountryDefineFileModel(rootNode);
         AnalyzePopularities(model);
         AnalyzeIdeas(model);

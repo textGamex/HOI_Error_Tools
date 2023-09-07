@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers.Common;
@@ -8,7 +10,7 @@ namespace HOI_Error_Tools.Logic.Analyzers.CountryDefine;
 
 public partial class CountryDefineFileAnalyzer
 {
-    private sealed class CountryDefineFileModel
+    public sealed class CountryDefineFileModel
     {
         public IReadOnlyList<LeavesNode> SetPopularitiesList { get; }
         public IReadOnlyList<LeafValueNode> OwnIdeaNodes { get; }
@@ -22,8 +24,12 @@ public partial class CountryDefineFileAnalyzer
         public IReadOnlyList<LeafContent> GiveGuaranteeCountriesTag { get; }
         public IReadOnlyList<LeafContent> OwnCharacters { get; }
         public IReadOnlyList<LeafContent> OwnOobs { get; }
-
+        
         private readonly Node _rootNode;
+
+        private static readonly WeakReference<ImmutableHashSet<string>?> OwnOobsKeywords = new(null);
+        private static readonly WeakReference<ImmutableHashSet<string>?> OwnCharactersKeywords = new(null);
+        private static readonly WeakReference<ImmutableHashSet<string>?> OwnIdeasKeywords = new(null);
 
         public CountryDefineFileModel(Node rootNode)
         {
@@ -42,39 +48,36 @@ public partial class CountryDefineFileAnalyzer
             OwnCharacters = GetOwnCharacters();
             OwnOobs = GetOwnOobs();
         }
-
+        
         private IReadOnlyList<LeafContent> GetOwnOobs()
         {
-            var keywords = new HashSet<string>(4)
+            if (!OwnOobsKeywords.TryGetTarget(out var keywords))
             {
-                "oob",
-                "set_oob",
-                "set_naval_oob",
-                "set_air_oob"
-            };
+                keywords = ImmutableHashSet.CreateRange(new[] { "oob", "set_oob", "set_naval_oob", "set_air_oob" });
+                OwnOobsKeywords.SetTarget(keywords);
+            }
             return ParseHelper.GetLeafContentsInChildren(_rootNode, keywords)
                 .ToList();
         }
 
         private IReadOnlyList<LeafValueNode> GetOwnIdeas()
         {
-            var set = new HashSet<string>(2)
+            if (!OwnIdeasKeywords.TryGetTarget(out var keywords))
             {
-                "add_ideas",
-                "remove_ideas",
-            };
-            return ParseHelper.GetLeafValueNodesInChildren(_rootNode, set)
+                keywords = ImmutableHashSet.CreateRange(new[] { "add_ideas", "remove_ideas" });
+                OwnIdeasKeywords.SetTarget(keywords);
+            }
+            return ParseHelper.GetLeafValueNodesInChildren(_rootNode, keywords)
                 .ToList();
         }
-
+        
         private IReadOnlyList<LeafContent> GetOwnCharacters()
         {
-            var keywords = new HashSet<string>(3)
+            if (!OwnCharactersKeywords.TryGetTarget(out var keywords))
             {
-                "recruit_character",
-                "promote_character",
-                "retire_character"
-            };
+                keywords = ImmutableHashSet.CreateRange(new[] { "recruit_character", "promote_character", "retire_character" });
+                OwnCharactersKeywords.SetTarget(keywords);
+            }
             return ParseHelper.GetLeafContentsInChildren(_rootNode, keywords)
                 .ToList();
         }
