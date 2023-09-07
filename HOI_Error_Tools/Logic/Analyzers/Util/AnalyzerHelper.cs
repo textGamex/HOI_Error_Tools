@@ -1,5 +1,4 @@
-﻿using System;
-using HOI_Error_Tools.Logic.Analyzers.Common;
+﻿using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using System.Collections.Generic;
 using System.IO;
@@ -45,6 +44,11 @@ public sealed class AnalyzerHelper
             : Enumerable.Empty<ErrorMessage>();
     }
 
+    /// <summary>
+    /// 仅允许每个不同的条件语句存在唯一一条相同指令.
+    /// </summary>
+    /// <param name="leaves"></param>
+    /// <returns></returns>
     public IEnumerable<ErrorMessage> AssertKeywordIsOnly(IReadOnlyCollection<LeafContentWithCondition> leaves)
     {
         if (leaves.Count <= 1)
@@ -56,8 +60,8 @@ public sealed class AnalyzerHelper
         var errorList = new List<ErrorMessage>();
         foreach (var leaf in leaves)
         {
-            var isRepeatedController = map.TryGetValue(leaf.Condition, out var oldLeaf);
-            if (isRepeatedController)
+            var isRepeated = map.TryGetValue(leaf.Condition, out var oldLeaf);
+            if (isRepeated)
             {
                 var fileInfos = new ParameterFileInfo[]
                 {
