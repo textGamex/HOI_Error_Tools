@@ -48,7 +48,8 @@ public static class ParseHelper
     /// 获得 <c>rootNode</c> 中所有拥有 <c>leafKeywords</c> 中的一个的 <see cref="LeafContent"/>. (包括 if else 语句和 Date 语句).
     /// </summary>
     /// <remarks>
-    /// 如果要一次性获得多个不同 <c>Key</c> 的 <c>LeafContent</c>, 优先使用此方法, 而不是多次调用 <see cref="GetLeafContentsInChildren(CWTools.Process.Node,string)"/>,
+    /// 如果要一次性获得多个不同 <c>Key</c> 的 <c>LeafContent</c>, 优先使用此方法,
+    /// 而不是多次调用 <see cref="GetLeafContentsInChildren(CWTools.Process.Node,string)"/>,
     /// 此方法的性能优于多次调用 <see cref="GetLeafContentsInChildren(CWTools.Process.Node,string)"/>.
     /// </remarks>
     /// <param name="rootNode"></param>

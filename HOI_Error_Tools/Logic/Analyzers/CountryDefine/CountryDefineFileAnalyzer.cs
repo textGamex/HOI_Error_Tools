@@ -292,7 +292,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
         // TODO: 未定义的首都 State
 
         _errorList.AddRange(Helper.AssertValueTypeIsExpected(model.Capitals, Value.Types.Integer));
-        _errorList.AddRange(Helper.AssertKeywordIsOnly(model.Capitals, capitalKey));
+        _errorList.AddRange(Helper.AssertKeywordIsOnly(model.Capitals));
     }
 
     private void AnalyzePuppets(CountryDefineFileModel model)

@@ -34,15 +34,46 @@ public sealed class AnalyzerHelper
     /// <summary>
     /// 断言 <c>keyword</c> 只出现一次, 如果出现多次返回 <c>ErrorMessage</c>, 否则返回空集合
     /// </summary>
-    /// <param name="enumerable"></param>
-    /// <param name="keyword"></param>
+    /// <param name="leaves"></param>
     /// <returns></returns>
-    public IEnumerable<ErrorMessage> AssertKeywordIsOnly(IReadOnlyCollection<LeafContent> enumerable, string keyword)
+    public IEnumerable<ErrorMessage> AssertKeywordIsOnly(IReadOnlyCollection<LeafContent> leaves)
     {
-        return enumerable.Count > 1
-            ? new[] { new ErrorMessage(ErrorCode.KeywordIsRepeated, 
-                enumerable.Select(item => new ParameterFileInfo(_filePath, item.Position)), $"文件 '{_fileName}' 中存在重复的 '{keyword}' 关键字", ErrorLevel.Error) }
+        return leaves.Count > 1
+            ? new[] { new ErrorMessage(ErrorCode.KeywordIsRepeated, leaves.Select(item =>
+                    new ParameterFileInfo(_filePath, item.Position)), 
+                $"文件 '{_fileName}' 中存在重复的 '{leaves.First().Key}' 关键字", ErrorLevel.Error) }
             : Enumerable.Empty<ErrorMessage>();
+    }
+
+    public IEnumerable<ErrorMessage> AssertKeywordIsOnly(IReadOnlyCollection<LeafContentWithCondition> leaves)
+    {
+        if (leaves.Count <= 1)
+        {
+            return Enumerable.Empty<ErrorMessage>();
+        }
+
+        var map = new Dictionary<Condition, LeafContentWithCondition>(leaves.Count);
+        var errorList = new List<ErrorMessage>();
+        foreach (var leaf in leaves)
+        {
+            var isRepeatedController = map.TryGetValue(leaf.Condition, out var oldLeaf);
+            if (isRepeatedController)
+            {
+                var fileInfos = new ParameterFileInfo[]
+                {
+                    new (_filePath, leaf.Position),
+                    new (_filePath, oldLeaf!.Position)
+                };
+                errorList.Add(new ErrorMessage(ErrorCode.UniqueValueIsRepeated, fileInfos, 
+                    $"文件 {_filePath} 中语句 '{leaf.Key}' 重复", ErrorLevel.Error));
+            }
+            else
+            {
+                map.Add(leaf.Condition, leaf);
+            }
+        }
+
+        return errorList;
     }
 
     public IEnumerable<ErrorMessage> AssertKeywordsIsValid(LeavesNode node, IReadOnlySet<string> keywords)

@@ -19,7 +19,7 @@ public partial class StateFileAnalyzer
         public IReadOnlyList<LeafContent> OwnCoreTags { get; } = Array.Empty<LeafContent>();
         public IReadOnlyList<LeavesNodeWithCondition> BuildingNodes { get; } = Array.Empty<LeavesNodeWithCondition>();
         public IReadOnlyList<LeafContent> StateCategories { get; } = Array.Empty<LeafContent>();
-        public IReadOnlyList<LeafContent> Owners { get; } = Array.Empty<LeafContent>();
+        public IReadOnlyList<LeafContentWithCondition> Owners { get; } = Array.Empty<LeafContentWithCondition>();
         public IReadOnlyList<LeavesNode> BuildingsByProvince { get; } = Array.Empty<LeavesNode>();
         public IReadOnlyList<LeavesNode> ResourceNodes { get; } = Array.Empty<LeavesNode>();
         public IReadOnlyList<LeafValueNode> ProvinceNodes { get; } = Array.Empty<LeafValueNode>();
@@ -64,7 +64,7 @@ public partial class StateFileAnalyzer
             }
 
             BuildingsByProvince = buildingsByProvince;
-            Owners = ParseHelper.GetLeafContents(historyNode, ScriptKeyWords.Owner).ToList();
+            Owners = ParseHelper.GetLeafContentsWithConditionInChildren(historyNode, ScriptKeyWords.Owner).ToList();
             OwnCoreTags = ParseHelper.GetLeafContentsInChildren(historyNode, "add_core_of").ToList();
             VictoryPointNodes = ParseHelper.GetLeafValueNodesInChildren(historyNode, "victory_points").ToList();
         }

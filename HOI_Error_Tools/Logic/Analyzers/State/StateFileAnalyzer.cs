@@ -1,9 +1,7 @@
 ﻿using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using HOI_Error_Tools.Logic.Analyzers.Util;
@@ -84,26 +82,9 @@ public partial class StateFileAnalyzer : AnalyzerBase
             return;
         }
 
-        var dictionary = new Dictionary<string, LeafContentWithCondition>(stateModel.ControllerTags.Count);
+        _errorList.AddRange(Helper.AssertKeywordIsOnly(stateModel.ControllerTags));
         foreach (var controllerTag in stateModel.ControllerTags)
         {
-            var isRepeatedController = dictionary.TryGetValue(controllerTag.ValueText, out var oldLeaf) && 
-                                       controllerTag.Condition == oldLeaf.Condition;
-            if (isRepeatedController)
-            {
-                var fileInfos = new ParameterFileInfo[]
-                {
-                    new (FilePath, controllerTag.Position),
-                    new (FilePath, oldLeaf!.Position)
-                };
-                _errorList.Add(new ErrorMessage(ErrorCode.UniqueValueIsRepeated, fileInfos, 
-                    "语句 controller 重复", ErrorLevel.Error));
-            }
-            else
-            {
-                dictionary.Add(controllerTag.ValueText, controllerTag);
-            }
-
             CheckCountryTag(controllerTag.ValueText, controllerTag.Position);
         }
     }
@@ -161,7 +142,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
                 }
             }
         }
-        _errorList.AddRange(Helper.AssertKeywordIsOnly(model.Ids, ScriptKeyWords.Id));
+        _errorList.AddRange(Helper.AssertKeywordIsOnly(model.Ids));
     }
 
     private void AnalyzeVictoryPoints(StateModel model, IReadOnlySet<string> provinceInStateSet)
@@ -260,8 +241,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
             var ownerTag = ownerLeaf.ValueText;
             CheckCountryTag(ownerTag, ownerLeaf.Position);
         }
-
-        _errorList.AddRange(Helper.AssertKeywordIsOnly(model.Owners, ScriptKeyWords.Owner));
+        _errorList.AddRange(Helper.AssertKeywordIsOnly(model.Owners));
     }
 
     private void AnalyzeName(StateModel model)
@@ -274,7 +254,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
         }
 
         _errorList.AddRange(Helper.AssertValueTypeIsExpected(model.Names, Value.Types.String));
-        _errorList.AddRange(Helper.AssertKeywordIsOnly(model.Names, ScriptKeyWords.Name));
+        _errorList.AddRange(Helper.AssertKeywordIsOnly(model.Names));
     }
 
     private void AnalyzeManpower(StateModel model)
@@ -295,7 +275,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
             }
         }
 
-        _errorList.AddRange(Helper.AssertKeywordIsOnly(model.Manpowers, ScriptKeyWords.Manpower));
+        _errorList.AddRange(Helper.AssertKeywordIsOnly(model.Manpowers));
     }
 
     private void AnalyzeStateCategory(StateModel model)
@@ -319,7 +299,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
             _errorList.AddRange(Helper.AssertValueTypeIsExpected(stateCategoryLeaf, Value.Types.String));
         }
 
-        _errorList.AddRange(Helper.AssertKeywordIsOnly(model.StateCategories, ScriptKeyWords.StateCategory));
+        _errorList.AddRange(Helper.AssertKeywordIsOnly(model.StateCategories));
     }
 
     /// <summary>
