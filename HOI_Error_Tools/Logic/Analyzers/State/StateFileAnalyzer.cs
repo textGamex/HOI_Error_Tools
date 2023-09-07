@@ -71,8 +71,17 @@ public partial class StateFileAnalyzer : AnalyzerBase
         AnalyzeOwner(stateModel);
         AnalyzeHasCoreTags(stateModel);
         AnalyzeControllerTags(stateModel);
+        AnalyzeClaimCountryTags(stateModel);
         AssertResourcesTypeIsRegistered(stateModel);
         return _errorList;
+    }
+
+    private void AnalyzeClaimCountryTags(StateModel stateModel)
+    {
+        foreach (var leaf in stateModel.ClaimCountryTags)
+        {
+            CheckCountryTag(leaf.ValueText, leaf.Position);
+        }
     }
 
     private void AnalyzeControllerTags(StateModel stateModel)
@@ -422,7 +431,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
             }
             else
             {
-                existingBuildings.Add(buildingType, new List<Position>() { building.Position });
+                existingBuildings.Add(buildingType, new List<Position>{ building.Position });
             }
 
             // 建筑类型和建筑等级是否为整数可以一起判断
