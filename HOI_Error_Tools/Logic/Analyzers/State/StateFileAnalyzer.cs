@@ -69,19 +69,25 @@ public partial class StateFileAnalyzer : AnalyzerBase
         AnalyzeVictoryPoints(stateModel, provinceInStateSet);
         AnalyzeBuildings(stateModel);
         AnalyzeOwner(stateModel);
-        AnalyzeHasCoreTags(stateModel);
+        AnalyzeOwnCoreTags(stateModel);
         AnalyzeControllerTags(stateModel);
         AnalyzeClaimCountryTags(stateModel);
         AnalyzeLocalSupplies(stateModel);
         AssertResourcesTypeIsRegistered(stateModel);
-        
         
         return _errorList;
     }
 
     private void AnalyzeLocalSupplies(StateModel stateModel)
     {
-        _errorList.AddRange(Helper.AssertValueTypeIsExpected(stateModel.LocalSupplies, Value.Types.Float));
+        foreach (var leaf in stateModel.LocalSupplies)
+        {
+            if (!leaf.Value.IsNumber)
+            {
+                _errorList.Add(
+                    ErrorMessageFactory.CreateInvalidValueErrorMessage(FilePath, leaf, "number"));
+            }
+        }
         _errorList.AddRange(Helper.AssertKeywordIsOnly(stateModel.LocalSupplies));
     }
 
@@ -236,15 +242,6 @@ public partial class StateFileAnalyzer : AnalyzerBase
         }
     }
 
-    private void AnalyzeHasCoreTags(StateModel model)
-    {
-        foreach (var leaf in model.OwnCoreTags)
-        {
-            var tag = leaf.ValueText;
-            CheckCountryTag(tag, leaf.Position);
-        }
-    }
-
     private void AnalyzeOwner(StateModel model)
     {
         var error = Helper.AssertExistKeyword(model.Owners, ScriptKeyWords.Owner);
@@ -260,6 +257,32 @@ public partial class StateFileAnalyzer : AnalyzerBase
             CheckCountryTag(ownerTag, ownerLeaf.Position);
         }
         _errorList.AddRange(Helper.AssertKeywordIsOnly(model.Owners));
+    }
+
+    private void AnalyzeOwnCoreTags(StateModel model)
+    {
+        var map = new Dictionary<string, ParameterFileInfo>(model.OwnCoreTags.Count);
+        foreach (var leaf in model.OwnCoreTags)
+        {
+            var tag = leaf.ValueText;
+
+            if (map.TryGetValue(tag, out var parameterFileInfo))
+            {
+                var fileInfos = new[]
+                {
+                    new(FilePath, leaf.Position),
+                    parameterFileInfo
+                };
+                _errorList.Add(new ErrorMessage(ErrorCode.UniqueValueIsRepeated, fileInfos, 
+                    $"文件 '{FileName}' 中重复添加的 '{tag}' 地区核心", ErrorLevel.Warn));
+            }
+            else
+            {
+                map[tag] = new ParameterFileInfo(FilePath, leaf.Position);
+            }
+            
+            CheckCountryTag(tag, leaf.Position);
+        }
     }
 
     private void AnalyzeName(StateModel model)
