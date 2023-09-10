@@ -1,5 +1,6 @@
 ﻿using HOI_Error_Tools.Logic.Analyzers.Error;
 using System;
+using System.Collections.Generic;
 
 namespace HOI_Error_Tools.Logic.Analyzers.Common;
 
@@ -63,4 +64,23 @@ public class LeafContent : IEquatable<LeafContent>
     {
         return $"[{nameof(Key)}={Key}, {nameof(ValueText)}={ValueText}, {nameof(Position)}={Position}]";
     }
+
+    private sealed class LeafContentEqualityComparer : IEqualityComparer<LeafContent>
+    {
+        public bool Equals(LeafContent? x, LeafContent? y)
+        {
+            if (ReferenceEquals(x, y)) return true;
+            if (ReferenceEquals(x, null)) return false;
+            if (ReferenceEquals(y, null)) return false;
+            if (x.GetType() != y.GetType()) return false;
+            return x.Equals(y);
+        }
+
+        public int GetHashCode(LeafContent obj)
+        {
+            return obj.GetHashCode();
+        }
+    }
+
+    public static IEqualityComparer<LeafContent> LeafContentComparer { get; } = new LeafContentEqualityComparer();
 }
