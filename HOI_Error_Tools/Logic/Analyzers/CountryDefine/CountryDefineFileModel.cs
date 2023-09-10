@@ -37,14 +37,23 @@ public partial class CountryDefineFileAnalyzer
 
             SetPopularitiesList = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_popularities").ToList();
             OwnIdeaNodes = GetOwnIdeas();
-            OwnIdeaLeaves = ParseHelper.GetLeafContentsInChildren(rootNode, "add_idea").ToList();
             SetPoliticsList = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_politics").ToList();
-            Capitals = ParseHelper.GetLeafContentsInChildren(rootNode, "capital").ToList();
-            Puppets = ParseHelper.GetLeafContentsInChildren(rootNode, "puppet").ToList();
-            CountriesTagOfAddToFaction = ParseHelper.GetLeafContentsInChildren(rootNode, "add_to_faction").ToList();
+            var keywords = new HashSet<string>(5)
+            {
+                Keywords.AddIdea,
+                Keywords.Capital,
+                Keywords.Puppet,
+                Keywords.GiveGuarantee,
+                Keywords.AddToFaction
+            };
+            var leaves = ParseHelper.GetLeafContentsByKeywordsInChildren(rootNode, keywords);
+            OwnIdeaLeaves = leaves[Keywords.AddIdea];
+            Capitals = leaves[Keywords.Capital];
+            Puppets = leaves[Keywords.Puppet];
+            CountriesTagOfAddToFaction = leaves[Keywords.AddToFaction];
+            GiveGuaranteeCountriesTag = leaves[Keywords.GiveGuarantee];
             SetAutonomies = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_autonomy").ToList();
             SetTechnologies = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_technology").ToList();
-            GiveGuaranteeCountriesTag = ParseHelper.GetLeafContentsInChildren(rootNode, "give_guarantee").ToList();
             OwnCharacters = GetOwnCharacters();
             OwnOobs = GetOwnOobs();
         }
@@ -80,6 +89,15 @@ public partial class CountryDefineFileAnalyzer
             }
             return ParseHelper.GetLeafContentsInChildren(_rootNode, keywords)
                 .ToList();
+        }
+        
+        private static class Keywords
+        {
+            public const string AddIdea = "add_ideas";
+            public const string Capital = "capital";
+            public const string Puppet = "puppet";
+            public const string GiveGuarantee = "give_guarantee";
+            public const string AddToFaction = "add_to_faction";
         }
     }
 }

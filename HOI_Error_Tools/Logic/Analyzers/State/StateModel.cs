@@ -38,13 +38,22 @@ public partial class StateFileAnalyzer
             }
             var stateNode = rootNode.Child(ScriptKeyWords.State).Value;
 
-            Ids = ParseHelper.GetLeafContents(stateNode, ScriptKeyWords.Id).ToList();
-            Manpowers = ParseHelper.GetLeafContents(stateNode, ScriptKeyWords.Manpower).ToList();
-            Names = ParseHelper.GetLeafContents(stateNode, ScriptKeyWords.Name).ToList();
-            StateCategories = ParseHelper.GetLeafContents(stateNode, ScriptKeyWords.StateCategory).ToList();
+            var keywords = new HashSet<string>(5)
+            {
+                ScriptKeyWords.Id,
+                ScriptKeyWords.Manpower,
+                ScriptKeyWords.Name,
+                ScriptKeyWords.StateCategory,
+                Keywords.LocalSupplies,
+            };
+            var leavesMap = ParseHelper.GetLeafContentsByKeywordsInChildren(stateNode, keywords);
+            Ids = leavesMap[ScriptKeyWords.Id];
+            Manpowers = leavesMap[ScriptKeyWords.Manpower];
+            Names = leavesMap[ScriptKeyWords.Name];
+            StateCategories = leavesMap[ScriptKeyWords.StateCategory];
+            LocalSupplies = leavesMap[Keywords.LocalSupplies];
             ResourceNodes = ParseHelper.GetAllLeafContentInRootNode(stateNode, ScriptKeyWords.Resources).ToList();
             ProvinceNodes = ParseHelper.GetLeafValueNodesInChildren(stateNode, ScriptKeyWords.Provinces).ToList();
-            LocalSupplies = ParseHelper.GetLeafContents(stateNode, Keywords.LocalSupplies).ToList();
             
             if (stateNode.HasNot(ScriptKeyWords.History))
             {

@@ -246,6 +246,34 @@ public static class ParseHelper
         }
     }
 
+    public static Dictionary<string, List<LeafContent>> GetLeafContentsByKeywordsInChildren(Node rootNode,
+        IReadOnlySet<string> keywords)
+    {
+        var map = new Dictionary<string, List<LeafContent>>(keywords.Count);
+        var leaves = GetLeafContentsInChildren(rootNode, keywords);
+        foreach (var leaf in leaves)
+        {
+            if (map.TryGetValue(leaf.Key, out var list))
+            {
+                list.Add(leaf);
+            }
+            else
+            {
+                map[leaf.Key] = new List<LeafContent> { leaf };
+            }
+        }
+
+        foreach (var keyword in keywords)
+        {
+            if (!map.ContainsKey(keyword))
+            {
+                map[keyword] = new List<LeafContent>(0);
+            }
+        }
+        
+        return map;
+    }
+
     #region 文件解析相关
 
     /// <summary>
