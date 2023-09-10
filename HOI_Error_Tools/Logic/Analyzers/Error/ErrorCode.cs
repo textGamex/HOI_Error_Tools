@@ -62,5 +62,8 @@ public enum ErrorCode : uint
     TechnologyNotExists,
 
     [Description("人物不存在")]
-    CharacterNotExists
+    CharacterNotExists,
+    
+    [Description("国家 Tag 格式错误")]
+    CountryTagFormatIsInvalid,
 }

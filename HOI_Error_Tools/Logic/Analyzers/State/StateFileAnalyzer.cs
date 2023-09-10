@@ -93,7 +93,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
 
     private void AnalyzeClaimCountryTags(StateModel stateModel)
     {
-        CheckCountryTagsIsNonRedundant(stateModel.ClaimCountryTags);
+        CheckCountryTags(stateModel.ClaimCountryTags);
         foreach (var leaf in stateModel.ClaimCountryTags)
         {
             CheckCountryTag(leaf.ValueText, leaf.Position);
@@ -121,6 +121,12 @@ public partial class StateFileAnalyzer : AnalyzerBase
     /// <param name="position"></param>
     private void CheckCountryTag(string countryTag, Position position)
     {
+        if (countryTag.Length != 3)
+        {
+            _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                ErrorCode.CountryTagFormatIsInvalid, FilePath, position, $"Country Tag '{countryTag}' 格式错误"));
+        }
+        
         if (!_registeredCountriesTag.Contains(countryTag))
         {
             _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
@@ -202,9 +208,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
             if (!provinceInStateSet.Contains(provinceIdLeafValue.ValueText))
             {
                 _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    ErrorCode.ProvinceNotExistsInStateFile,
-                    FilePath,
-                    provinceIdLeafValue.Position,
+                    ErrorCode.ProvinceNotExistsInStateFile, FilePath, provinceIdLeafValue.Position,
                     $"Province '{provinceIdLeafValue.ValueText}' 未分配在 State '{FileName}' 中, 但却在此地有 VictoryPoints",
                     ErrorLevel.Warn));
             }
@@ -262,7 +266,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
 
     private void AnalyzeOwnCoreTags(StateModel model)
     {
-        CheckCountryTagsIsNonRedundant(model.OwnCoreTags);
+        CheckCountryTags(model.OwnCoreTags);
         foreach (var leaf in model.OwnCoreTags)
         {
             var tag = leaf.ValueText;
@@ -270,7 +274,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
         }
     }
 
-    private void CheckCountryTagsIsNonRedundant(IReadOnlyCollection<LeafContent> leaves)
+    private void CheckCountryTags(IReadOnlyCollection<LeafContent> leaves)
     {
         var map = new Dictionary<string, ParameterFileInfo>(leaves.Count);
         foreach (var leaf in leaves)
@@ -537,7 +541,6 @@ public partial class StateFileAnalyzer : AnalyzerBase
         }
 
         var resourceTypes = new Dictionary<string, ParameterFileInfo>(model.ResourceNodes.Count);
-        
         foreach (var resourceNode in model.ResourceNodes)
         {
             foreach (var resourceLeaf in resourceNode.Leaves)
@@ -545,6 +548,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
                 var resourceType = resourceLeaf.Key;
                 var amount = resourceLeaf.ValueText;
                 
+                // 检查 resourceType 是否重复声明
                 if (resourceTypes.TryGetValue(resourceType, out var fileInfo))
                 {
                     var fileInfos = new[]
@@ -559,13 +563,8 @@ public partial class StateFileAnalyzer : AnalyzerBase
                 {
                     resourceTypes[resourceType] = new ParameterFileInfo(FilePath, resourceLeaf.Position);
                 }
-                
-                if (!_resourcesTypeSet.Contains(resourceType))
-                {
-                    _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                        ErrorCode.InvalidValue,
-                        FilePath, resourceLeaf.Position, $"战略资源类型 '{resourceType}' 不存在"));
-                }
+
+                CheckResourceIsExisting(resourceType, resourceLeaf.Position);
 
                 if (!resourceLeaf.Value.IsNumber || resourceLeaf.Value.IsNegativeNumber)
                 {
@@ -574,6 +573,15 @@ public partial class StateFileAnalyzer : AnalyzerBase
                         FilePath, resourceLeaf.Position, $"战略资源数量 '{amount}' 无法转换为非负整数"));
                 }
             }
+        }
+    }
+
+    private void CheckResourceIsExisting(string  resourceType, Position position)
+    {
+        if (!_resourcesTypeSet.Contains(resourceType))
+        {
+            _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                ErrorCode.InvalidValue, FilePath, position, $"战略资源类型 '{resourceType}' 不存在"));
         }
     }
 
