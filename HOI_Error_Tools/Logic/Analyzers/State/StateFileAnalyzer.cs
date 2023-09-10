@@ -536,12 +536,30 @@ public partial class StateFileAnalyzer : AnalyzerBase
                 ErrorCode.ResourcesNodeNotOnly, FilePath, "战略资源应在同一个块中声明", ErrorLevel.Tip));
         }
 
+        var resourceTypes = new Dictionary<string, ParameterFileInfo>(model.ResourceNodes.Count);
+        
         foreach (var resourceNode in model.ResourceNodes)
         {
             foreach (var resourceLeaf in resourceNode.Leaves)
             {
                 var resourceType = resourceLeaf.Key;
                 var amount = resourceLeaf.ValueText;
+                
+                if (resourceTypes.TryGetValue(resourceType, out var fileInfo))
+                {
+                    var fileInfos = new[]
+                    {
+                        fileInfo,
+                        new ParameterFileInfo(FilePath, resourceLeaf.Position)
+                    };
+                    _errorList.Add(new ErrorMessage(ErrorCode.UniqueValueIsRepeated, fileInfos,
+                        $"文件 '{FileName}' 战略资源 '{resourceType}' 重复声明", ErrorLevel.Warn));
+                }
+                else
+                {
+                    resourceTypes[resourceType] = new ParameterFileInfo(FilePath, resourceLeaf.Position);
+                }
+                
                 if (!_resourcesTypeSet.Contains(resourceType))
                 {
                     _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
