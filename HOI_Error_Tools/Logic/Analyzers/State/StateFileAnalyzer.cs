@@ -15,7 +15,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
     /// <summary>
     /// 在文件中注册的省份ID
     /// </summary>
-    private readonly IReadOnlySet<uint> _registeredProvince;
+    private readonly IReadOnlySet<uint> _registeredProvinces;
 
     /// <summary>
     /// Key 为 建筑名称
@@ -35,7 +35,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
     
     public StateFileAnalyzer(string filePath, GameResources resources) : base(filePath)
     {
-        _registeredProvince = resources.RegisteredProvinceSet;
+        _registeredProvinces = resources.RegisteredProvinceSet;
         _registeredBuildings = resources.BuildingInfoMap;
         _resourcesTypeSet = resources.ResourcesType;
         _registeredStateCategories = resources.RegisteredStateCategories;
@@ -93,10 +93,10 @@ public partial class StateFileAnalyzer : AnalyzerBase
 
     private void AnalyzeClaimCountryTags(StateModel stateModel)
     {
-        CheckCountryTags(stateModel.ClaimCountryTags);
+        CheckCountryTagsUniqueness(stateModel.ClaimCountryTags);
         foreach (var leaf in stateModel.ClaimCountryTags)
         {
-            CheckCountryTag(leaf.ValueText, leaf.Position);
+            CheckCountryTagValidity(leaf.ValueText, leaf.Position);
         }
     }
 
@@ -110,16 +110,16 @@ public partial class StateFileAnalyzer : AnalyzerBase
         _errorList.AddRange(Helper.AssertKeywordIsOnly(stateModel.ControllerTags));
         foreach (var controllerTag in stateModel.ControllerTags)
         {
-            CheckCountryTag(controllerTag.ValueText, controllerTag.Position);
+            CheckCountryTagValidity(controllerTag.ValueText, controllerTag.Position);
         }
     }
 
     /// <summary>
-    /// 检查国家标签是否存在, 如果不存在则添加 <see cref="ErrorMessage"/> 到字段 <c>_errorList</c>
+    /// 检查国家标签是否合法, 如果不合法则添加 <see cref="ErrorMessage"/> 到字段 <c>_errorList</c>
     /// </summary>
-    /// <param name="countryTag"></param>
+    /// <param name="countryTag">国家标签</param>
     /// <param name="position"></param>
-    private void CheckCountryTag(string countryTag, Position position)
+    private void CheckCountryTagValidity(string countryTag, Position position)
     {
         if (countryTag.Length != 3)
         {
@@ -212,6 +212,8 @@ public partial class StateFileAnalyzer : AnalyzerBase
                     $"Province '{provinceIdLeafValue.ValueText}' 未分配在 State '{FileName}' 中, 但却在此地有 VictoryPoints",
                     ErrorLevel.Warn));
             }
+            CheckProvinceIsExisting(uint.Parse(provinceIdLeafValue.ValueText, CultureInfo.InvariantCulture),
+                provinceIdLeafValue.Position);
         }
     }
 
@@ -230,12 +232,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
                 continue;
             }
 
-            if (!_registeredProvince.Contains(provinceId))
-            {
-                _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    ErrorCode.ProvinceNotExistsInDefinitionCsvFile,
-                    FilePath, provinceNode.Position, $"Province '{provinceId}' 未在 'definition.csv' 文件中注册"));
-            }
+            CheckProvinceIsExisting(provinceId, provinceNode.Position);
 
             if (!provinceInStateSet.Contains(provinceIdText))
             {
@@ -244,6 +241,16 @@ public partial class StateFileAnalyzer : AnalyzerBase
                     FilePath, provinceNode.Position, 
                     $"Province '{provinceId}' 未分配在 State '{FileName}' 中, 但却在此地有 Province 建筑"));
             }
+        }
+    }
+
+    private void CheckProvinceIsExisting(uint provinceId, Position position)
+    {
+        if (!_registeredProvinces.Contains(provinceId))
+        {
+            _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
+                ErrorCode.ProvinceNotExistsInDefinitionCsvFile,
+                FilePath, position, $"Province '{provinceId}' 未在 'definition.csv' 文件中注册"));
         }
     }
 
@@ -259,22 +266,22 @@ public partial class StateFileAnalyzer : AnalyzerBase
         foreach (var ownerLeaf in model.Owners)
         {
             var ownerTag = ownerLeaf.ValueText;
-            CheckCountryTag(ownerTag, ownerLeaf.Position);
+            CheckCountryTagValidity(ownerTag, ownerLeaf.Position);
         }
         _errorList.AddRange(Helper.AssertKeywordIsOnly(model.Owners));
     }
 
     private void AnalyzeOwnCoreTags(StateModel model)
     {
-        CheckCountryTags(model.OwnCoreTags);
+        CheckCountryTagsUniqueness(model.OwnCoreTags);
         foreach (var leaf in model.OwnCoreTags)
         {
             var tag = leaf.ValueText;
-            CheckCountryTag(tag, leaf.Position);
+            CheckCountryTagValidity(tag, leaf.Position);
         }
     }
 
-    private void CheckCountryTags(IReadOnlyCollection<LeafContent> leaves)
+    private void CheckCountryTagsUniqueness(IReadOnlyCollection<LeafContent> leaves)
     {
         var map = new Dictionary<string, ParameterFileInfo>(leaves.Count);
         foreach (var leaf in leaves)
@@ -405,7 +412,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
     {
         foreach (var (provinceId, position) in provinces)
         {
-            if (!_registeredProvince.Contains(provinceId))
+            if (!_registeredProvinces.Contains(provinceId))
             {
                 _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                     ErrorCode.ProvinceNotExistsInDefinitionCsvFile,
