@@ -93,6 +93,7 @@ public partial class StateFileAnalyzer : AnalyzerBase
 
     private void AnalyzeClaimCountryTags(StateModel stateModel)
     {
+        CheckCountryTagsIsNonRedundant(stateModel.ClaimCountryTags);
         foreach (var leaf in stateModel.ClaimCountryTags)
         {
             CheckCountryTag(leaf.ValueText, leaf.Position);
@@ -261,8 +262,18 @@ public partial class StateFileAnalyzer : AnalyzerBase
 
     private void AnalyzeOwnCoreTags(StateModel model)
     {
-        var map = new Dictionary<string, ParameterFileInfo>(model.OwnCoreTags.Count);
+        CheckCountryTagsIsNonRedundant(model.OwnCoreTags);
         foreach (var leaf in model.OwnCoreTags)
+        {
+            var tag = leaf.ValueText;
+            CheckCountryTag(tag, leaf.Position);
+        }
+    }
+
+    private void CheckCountryTagsIsNonRedundant(IReadOnlyCollection<LeafContent> leaves)
+    {
+        var map = new Dictionary<string, ParameterFileInfo>(leaves.Count);
+        foreach (var leaf in leaves)
         {
             var tag = leaf.ValueText;
 
@@ -280,8 +291,6 @@ public partial class StateFileAnalyzer : AnalyzerBase
             {
                 map[tag] = new ParameterFileInfo(FilePath, leaf.Position);
             }
-            
-            CheckCountryTag(tag, leaf.Position);
         }
     }
 
