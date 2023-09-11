@@ -60,35 +60,34 @@ public partial class CountryDefineFileAnalyzer
         
         private IReadOnlyList<LeafContent> GetOwnOobs()
         {
-            if (!OwnOobsKeywords.TryGetTarget(out var keywords))
-            {
-                keywords = ImmutableHashSet.CreateRange(new[] { "oob", "set_oob", "set_naval_oob", "set_air_oob" });
-                OwnOobsKeywords.SetTarget(keywords);
-            }
-            return ParseHelper.GetLeafContentsInChildren(_rootNode, keywords)
-                .ToList();
+            return GetValueFromWeakReference(OwnOobsKeywords, 
+                () => new[] {"oob", "set_oob", "set_naval_oob", "set_air_oob"},
+                keywords => ParseHelper.GetLeafContentsInChildren(_rootNode, keywords).ToList());
         }
 
         private IReadOnlyList<LeafValueNode> GetOwnIdeas()
         {
-            if (!OwnIdeasKeywords.TryGetTarget(out var keywords))
-            {
-                keywords = ImmutableHashSet.CreateRange(new[] { "add_ideas", "remove_ideas" });
-                OwnIdeasKeywords.SetTarget(keywords);
-            }
-            return ParseHelper.GetLeafValueNodesInChildren(_rootNode, keywords)
-                .ToList();
+            return GetValueFromWeakReference(OwnIdeasKeywords, () => new[] { "add_ideas", "remove_ideas" }, 
+                keywords => ParseHelper.GetLeafValueNodesInChildren(_rootNode, keywords).ToList());
         }
         
         private IReadOnlyList<LeafContent> GetOwnCharacters()
         {
-            if (!OwnCharactersKeywords.TryGetTarget(out var keywords))
+            return GetValueFromWeakReference(OwnCharactersKeywords, 
+                () => new[] { "recruit_character", "promote_character", "retire_character" }, 
+                keywords => ParseHelper.GetLeafContentsInChildren(_rootNode, keywords).ToList());
+        }
+        
+        private static IReadOnlyList<T> GetValueFromWeakReference<T>(
+            WeakReference<ImmutableHashSet<string>?> weakReference, Func<IEnumerable<string>> keywords, 
+            Func<IReadOnlySet<string>, IReadOnlyList<T>> parseResult)
+        {
+            if (!weakReference.TryGetTarget(out var keys))
             {
-                keywords = ImmutableHashSet.CreateRange(new[] { "recruit_character", "promote_character", "retire_character" });
-                OwnCharactersKeywords.SetTarget(keywords);
+                keys = ImmutableHashSet.CreateRange(keywords());
+                weakReference.SetTarget(keys);
             }
-            return ParseHelper.GetLeafContentsInChildren(_rootNode, keywords)
-                .ToList();
+            return parseResult(keys);
         }
         
         private static class Keywords
