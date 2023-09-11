@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
@@ -298,14 +297,14 @@ public static class ParseHelper
         });
     }
 
-    private static Node? ParseFileToNode(string filePath, Action<ErrorMessage> action)
+    private static Node? ParseFileToNode(string filePath, Action<ErrorMessage> errorMessage)
     {
         var parser = new CWToolsParser(filePath);
         if (parser.IsSuccess)
         {
             return parser.GetResult();
         }
-        action(ErrorMessageFactory.CreateParseErrorMessage(filePath, parser.GetError()));
+        errorMessage(ErrorMessageFactory.CreateParseErrorMessage(filePath, parser.GetError()));
         return null;
     }
     #endregion

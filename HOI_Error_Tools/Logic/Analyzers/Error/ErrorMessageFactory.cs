@@ -21,7 +21,7 @@ public static class ErrorMessageFactory
     public static ErrorMessage CreateParseErrorMessage(string filePath, ParserError error)
     {
         return CreateSingleFileErrorWithPosition(ErrorCode.ParseError, filePath, new Position(error),
-            $"文件 '{Path.GetFileName(filePath)}' 解析错误");
+            $"文件 '{Path.GetFileName(filePath)}' 解析错误, 详细信息: {error.ErrorMessage}");
     }
 
     public static ErrorMessage CreateFailedStringToIntErrorMessage(string filePath, LeafContent leaf)
