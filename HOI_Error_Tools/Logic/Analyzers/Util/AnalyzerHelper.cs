@@ -69,7 +69,7 @@ public sealed class AnalyzerHelper
                     new (_filePath, oldLeaf!.Position)
                 };
                 errorList.Add(new ErrorMessage(ErrorCode.UniqueValueIsRepeated, fileInfos, 
-                    $"文件 {_filePath} 中语句 '{leaf.Key}' 重复", ErrorLevel.Error));
+                    $"文件 {_fileName} 中语句 '{leaf.Key}' 重复", ErrorLevel.Error));
             }
             else
             {
