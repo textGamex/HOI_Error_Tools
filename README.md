@@ -33,6 +33,7 @@
 	- [x] Provinces
 	- [x] Local Supplies
 	- [x] add_claim_by
+	- [x] controller
 	- [ ] 不同剧本支持
 - history\countries 文件夹下的国家定义文件
 	- [x] Puppets
@@ -40,6 +41,8 @@
 	- [x] Capitals
 	- [x] oob (仅检查是否存在)
 	- [x] recruit_character
+	- [x] promote_character
+	- [x] retire_character 
 	- [x] set_popularities
 	- [x] set_politics
 	- [x] set_technology
