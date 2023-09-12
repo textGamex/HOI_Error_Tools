@@ -29,6 +29,15 @@ public partial class StateFileAnalyzer
         public IReadOnlyList<LeafContent> LocalSupplies { get; } = Array.Empty<LeafContent>();
         public bool IsEmptyFile { get; }
 
+        private static readonly WeakReferenceKeywords LeafContentsKeywords = new(() => new []
+        {
+            ScriptKeyWords.Id,
+            ScriptKeyWords.Manpower,
+            ScriptKeyWords.Name,
+            ScriptKeyWords.StateCategory,
+            Keywords.LocalSupplies
+        });
+
         public StateModel(Node rootNode)
         {
             if (rootNode.HasNot(ScriptKeyWords.State))
@@ -37,16 +46,8 @@ public partial class StateFileAnalyzer
                 return;
             }
             var stateNode = rootNode.Child(ScriptKeyWords.State).Value;
-
-            var keywords = new HashSet<string>(5)
-            {
-                ScriptKeyWords.Id,
-                ScriptKeyWords.Manpower,
-                ScriptKeyWords.Name,
-                ScriptKeyWords.StateCategory,
-                Keywords.LocalSupplies,
-            };
-            var leavesMap = ParseHelper.GetLeafContentsByKeywordsInChildren(stateNode, keywords);
+            
+            var leavesMap = ParseHelper.GetLeafContentsByKeywordsInChildren(stateNode, LeafContentsKeywords.Keywords);
             Ids = leavesMap[ScriptKeyWords.Id];
             Manpowers = leavesMap[ScriptKeyWords.Manpower];
             Names = leavesMap[ScriptKeyWords.Name];

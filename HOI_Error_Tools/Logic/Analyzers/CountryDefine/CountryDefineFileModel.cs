@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Generic;
 using System.Linq;
 using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers.Common;
@@ -27,9 +25,14 @@ public partial class CountryDefineFileAnalyzer
         
         private readonly Node _rootNode;
 
-        private static readonly WeakReference<ImmutableHashSet<string>?> OwnOobsKeywords = new(null);
-        private static readonly WeakReference<ImmutableHashSet<string>?> OwnCharactersKeywords = new(null);
-        private static readonly WeakReference<ImmutableHashSet<string>?> OwnIdeasKeywords = new(null);
+        private static readonly WeakReferenceKeywords OwnOobsKeywords = 
+            new(() => new []{"oob", "set_oob", "set_naval_oob", "set_air_oob"});
+        private static readonly WeakReferenceKeywords OwnCharactersKeywords = 
+            new(() => new[] { "recruit_character", "promote_character", "retire_character" });
+        private static readonly WeakReferenceKeywords OwnIdeasKeywords = 
+            new(() => new []{Keywords.AddIdeas, "remove_ideas"});
+        private static readonly WeakReferenceKeywords LeafContentsKeywords = new(() => 
+            new []{Keywords.AddIdeas, Keywords.Capital, Keywords.Puppet, Keywords.GiveGuarantee, Keywords.AddToFaction});
 
         public CountryDefineFileModel(Node rootNode)
         {
@@ -38,16 +41,8 @@ public partial class CountryDefineFileAnalyzer
             SetPopularitiesList = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_popularities").ToList();
             OwnIdeaNodes = GetOwnIdeas();
             SetPoliticsList = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_politics").ToList();
-            var keywords = new HashSet<string>(5)
-            {
-                Keywords.AddIdea,
-                Keywords.Capital,
-                Keywords.Puppet,
-                Keywords.GiveGuarantee,
-                Keywords.AddToFaction
-            };
-            var leaves = ParseHelper.GetLeafContentsByKeywordsInChildren(rootNode, keywords);
-            OwnIdeaLeaves = leaves[Keywords.AddIdea];
+            var leaves = ParseHelper.GetLeafContentsByKeywordsInChildren(rootNode, LeafContentsKeywords.Keywords);
+            OwnIdeaLeaves = leaves[Keywords.AddIdeas];
             Capitals = leaves[Keywords.Capital];
             Puppets = leaves[Keywords.Puppet];
             CountriesTagOfAddToFaction = leaves[Keywords.AddToFaction];
@@ -60,39 +55,22 @@ public partial class CountryDefineFileAnalyzer
         
         private IReadOnlyList<LeafContent> GetOwnOobs()
         {
-            return GetValueFromWeakReference(OwnOobsKeywords, 
-                () => new[] {"oob", "set_oob", "set_naval_oob", "set_air_oob"},
-                keywords => ParseHelper.GetLeafContentsInChildren(_rootNode, keywords).ToList());
+            return ParseHelper.GetLeafContentsInChildren(_rootNode, OwnOobsKeywords.Keywords).ToList();
         }
 
         private IReadOnlyList<LeafValueNode> GetOwnIdeas()
         {
-            return GetValueFromWeakReference(OwnIdeasKeywords, () => new[] { "add_ideas", "remove_ideas" }, 
-                keywords => ParseHelper.GetLeafValueNodesInChildren(_rootNode, keywords).ToList());
+            return ParseHelper.GetLeafValueNodesInChildren(_rootNode, OwnIdeasKeywords.Keywords).ToList();
         }
         
         private IReadOnlyList<LeafContent> GetOwnCharacters()
         {
-            return GetValueFromWeakReference(OwnCharactersKeywords, 
-                () => new[] { "recruit_character", "promote_character", "retire_character" }, 
-                keywords => ParseHelper.GetLeafContentsInChildren(_rootNode, keywords).ToList());
-        }
-        
-        private static IReadOnlyList<T> GetValueFromWeakReference<T>(
-            WeakReference<ImmutableHashSet<string>?> weakReference, Func<IEnumerable<string>> keywords, 
-            Func<IReadOnlySet<string>, IReadOnlyList<T>> parseResult)
-        {
-            if (!weakReference.TryGetTarget(out var keys))
-            {
-                keys = ImmutableHashSet.CreateRange(keywords());
-                weakReference.SetTarget(keys);
-            }
-            return parseResult(keys);
+            return ParseHelper.GetLeafContentsInChildren(_rootNode, OwnCharactersKeywords.Keywords).ToList();
         }
         
         private static class Keywords
         {
-            public const string AddIdea = "add_ideas";
+            public const string AddIdeas = "add_ideas";
             public const string Capital = "capital";
             public const string Puppet = "puppet";
             public const string GiveGuarantee = "give_guarantee";
