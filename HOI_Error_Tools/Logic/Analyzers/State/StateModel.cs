@@ -5,6 +5,7 @@ using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.Util;
 using HOI_Error_Tools.Logic.HOIParser;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
 
@@ -30,7 +31,7 @@ public partial class StateFileAnalyzer
         public IReadOnlyList<LeafContent> LocalSupplies { get; } = Array.Empty<LeafContent>();
         public bool IsEmptyFile { get; }
 
-        private static readonly WeakReferenceKeywords LeafContentsKeywords = new(() => new []
+        private static readonly ImmutableHashSet<string> LeafContentsKeywords = ImmutableHashSet.CreateRange(new []
         {
             ScriptKeyWords.Id,
             ScriptKeyWords.Manpower,
@@ -48,7 +49,7 @@ public partial class StateFileAnalyzer
             }
             var stateNode = rootNode.Child(ScriptKeyWords.State).Value;
             
-            var leavesMap = ParseHelper.GetLeafContentsByKeywordsInChildren(stateNode, LeafContentsKeywords.Keywords);
+            var leavesMap = ParseHelper.GetLeafContentsByKeywordsInChildren(stateNode, LeafContentsKeywords);
             Ids = leavesMap[ScriptKeyWords.Id];
             Manpowers = leavesMap[ScriptKeyWords.Manpower];
             Names = leavesMap[ScriptKeyWords.Name];

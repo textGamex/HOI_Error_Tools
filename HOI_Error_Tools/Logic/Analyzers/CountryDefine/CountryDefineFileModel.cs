@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers.Common;
@@ -25,13 +26,13 @@ public partial class CountryDefineFileAnalyzer
         
         private readonly Node _rootNode;
 
-        private static readonly WeakReferenceKeywords OwnOobsKeywords = 
-            new(() => new []{"oob", "set_oob", "set_naval_oob", "set_air_oob"});
-        private static readonly WeakReferenceKeywords OwnCharactersKeywords = 
-            new(() => new[] { "recruit_character", "promote_character", "retire_character" });
-        private static readonly WeakReferenceKeywords OwnIdeasKeywords = 
-            new(() => new []{Keywords.AddIdeas, "remove_ideas"});
-        private static readonly WeakReferenceKeywords LeafContentsKeywords = new(() => 
+        private static readonly ImmutableHashSet<string> OwnOobsKeywords = 
+            ImmutableHashSet.CreateRange(new []{"oob", "set_oob", "set_naval_oob", "set_air_oob"});
+        private static readonly ImmutableHashSet<string> OwnCharactersKeywords = 
+            ImmutableHashSet.CreateRange(new[] { "recruit_character", "promote_character", "retire_character" });
+        private static readonly ImmutableHashSet<string> OwnIdeasKeywords = 
+            ImmutableHashSet.CreateRange(new []{Keywords.AddIdeas, "remove_ideas"});
+        private static readonly ImmutableHashSet<string> LeafContentsKeywords = ImmutableHashSet.CreateRange( 
             new []{Keywords.AddIdeas, Keywords.Capital, Keywords.Puppet, Keywords.GiveGuarantee, Keywords.AddToFaction});
 
         public CountryDefineFileModel(Node rootNode)
@@ -41,7 +42,7 @@ public partial class CountryDefineFileAnalyzer
             SetPopularitiesList = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_popularities").ToList();
             OwnIdeaNodes = GetOwnIdeas();
             SetPoliticsList = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_politics").ToList();
-            var leaves = ParseHelper.GetLeafContentsByKeywordsInChildren(rootNode, LeafContentsKeywords.Keywords);
+            var leaves = ParseHelper.GetLeafContentsByKeywordsInChildren(rootNode, LeafContentsKeywords);
             OwnIdeaLeaves = leaves[Keywords.AddIdeas];
             Capitals = leaves[Keywords.Capital];
             Puppets = leaves[Keywords.Puppet];
@@ -55,17 +56,17 @@ public partial class CountryDefineFileAnalyzer
         
         private IReadOnlyList<LeafContent> GetOwnOobs()
         {
-            return ParseHelper.GetLeafContentsInChildren(_rootNode, OwnOobsKeywords.Keywords).ToList();
+            return ParseHelper.GetLeafContentsInChildren(_rootNode, OwnOobsKeywords).ToList();
         }
 
         private IReadOnlyList<LeafValueNode> GetOwnIdeas()
         {
-            return ParseHelper.GetLeafValueNodesInChildren(_rootNode, OwnIdeasKeywords.Keywords).ToList();
+            return ParseHelper.GetLeafValueNodesInChildren(_rootNode, OwnIdeasKeywords).ToList();
         }
         
         private IReadOnlyList<LeafContent> GetOwnCharacters()
         {
-            return ParseHelper.GetLeafContentsInChildren(_rootNode, OwnCharactersKeywords.Keywords).ToList();
+            return ParseHelper.GetLeafContentsInChildren(_rootNode, OwnCharactersKeywords).ToList();
         }
         
         private static class Keywords
