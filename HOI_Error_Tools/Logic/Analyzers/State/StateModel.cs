@@ -5,6 +5,7 @@ using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.Util;
 using HOI_Error_Tools.Logic.HOIParser;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace HOI_Error_Tools.Logic.Analyzers.State;
@@ -58,6 +59,8 @@ public partial class StateFileAnalyzer
             
             if (stateNode.HasNot(ScriptKeyWords.History))
             {
+                Log.Warn(CultureInfo.InvariantCulture,
+                    "{FileName} 不含有 'history' 节点", stateNode.Position.FileName);
                 return;
             }
 
