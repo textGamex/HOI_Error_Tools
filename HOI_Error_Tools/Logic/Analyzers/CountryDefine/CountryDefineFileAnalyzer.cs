@@ -10,7 +10,6 @@ namespace HOI_Error_Tools.Logic.Analyzers.CountryDefine;
 
 public partial class CountryDefineFileAnalyzer : AnalyzerBase
 {
-    private string CountryTag => FileName[..3];
     private readonly IReadOnlySet<string> _registeredCountriesTag;
     private readonly IReadOnlySet<string> _registeredIdeas;
     private readonly IReadOnlySet<string> _registeredIdeologies;
@@ -46,11 +45,9 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
         AnalyzeIdeas(model);
         AnalyzePolitics(model);
         AnalyzeCapitals(model);
-        AnalyzePuppets(model);
-        AnalyzeCountriesTagOfAddToFaction(model);
+        AnalyzeUsedCountryTags(model);
         AnalyzeSetAutonomys(model);
         AnalyzeSetTechnologies(model);
-        AnalyzeGiveGuaranteeCountriesTag(model);
         AnalyzeOwnCharacters(model);
         AnalyzeOwnOobs(model);
 
@@ -83,20 +80,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
             }
         }
     }
-
-    private void AnalyzeGiveGuaranteeCountriesTag(CountryDefineFileModel model)
-    {
-        foreach (var leafContent in model.GiveGuaranteeCountriesTag)
-        {
-            if (!_registeredCountriesTag.Contains(leafContent.ValueText))
-            {
-                _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                                       ErrorCode.CountryTagNotExists, FilePath, 
-                                       leafContent.Position, $"被 '{CountryTag}' 保障的国家 '{leafContent.ValueText}' 不存在"));
-            }
-        }
-    }
-
+    
     private void AnalyzeSetTechnologies(CountryDefineFileModel model)
     {
         foreach (var leavesNode in model.SetTechnologies)
@@ -275,7 +259,7 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
             if (sum != 100)
             {
                 _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    ErrorCode.InvalidValue, FilePath, popularities.Position, "政党支持率总和不为100"));
+                    ErrorCode.InvalidValue, FilePath, popularities.Position, "政党支持率总和不为 100"));
             }
         }
     }
@@ -296,38 +280,20 @@ public partial class CountryDefineFileAnalyzer : AnalyzerBase
         _errorList.AddRange(Helper.AssertKeywordIsOnly(model.Capitals));
     }
 
-    private void AnalyzePuppets(CountryDefineFileModel model)
+    private void AnalyzeUsedCountryTags(CountryDefineFileModel model)
     {
-        if (model.Puppets.Count == 0)
+        if (model.UsedCountryTags.Count == 0)
         {
             return;
         }
 
-        foreach (var puppet in model.Puppets)
-        {
-            if (!_registeredCountriesTag.Contains(puppet.ValueText))
-            {
-                _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                     ErrorCode.CountryTagNotExists,
-                     FilePath, puppet.Position, $"国家Tag '{puppet.ValueText}' 未定义, 却在 '{puppet.Key}' 中使用"));
-            }
-        }
-    }
-
-    private void AnalyzeCountriesTagOfAddToFaction(CountryDefineFileModel model)
-    {
-        if (model.CountriesTagOfAddToFaction.Count == 0)
-        {
-            return;
-        }
-
-        foreach (var leafContent in model.CountriesTagOfAddToFaction)
+        foreach (var leafContent in model.UsedCountryTags)
         {
             if (!_registeredCountriesTag.Contains(leafContent.ValueText))
             {
                 _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
-                    ErrorCode.CountryTagNotExists,
-                    FilePath, leafContent.Position, $"国家 Tag '{leafContent.ValueText}' 未注册, 却在 '{leafContent.Key}' 中使用"));
+                     ErrorCode.CountryTagNotExists,
+                     FilePath, leafContent.Position, $"国家Tag '{leafContent.ValueText}' 未定义, 却在 '{leafContent.Key}' 中使用"));
             }
         }
     }

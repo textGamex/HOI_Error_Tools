@@ -16,11 +16,9 @@ public partial class CountryDefineFileAnalyzer
         public IReadOnlyList<LeafContent> OwnIdeaLeaves { get; }
         public IReadOnlyList<LeavesNode> SetPoliticsList { get; }
         public IReadOnlyList<LeafContent> Capitals { get; }
-        public IReadOnlyList<LeafContent> Puppets { get; }
-        public IReadOnlyList<LeafContent> CountriesTagOfAddToFaction { get; }
+        public IReadOnlyList<LeafContent> UsedCountryTags { get; }
         public IReadOnlyList<LeavesNode> SetAutonomies { get; }
         public IReadOnlyList<LeavesNode> SetTechnologies { get; }
-        public IReadOnlyList<LeafContent> GiveGuaranteeCountriesTag { get; }
         public IReadOnlyList<LeafContent> OwnCharacters { get; }
         public IReadOnlyList<LeafContent> OwnOobs { get; }
         
@@ -33,7 +31,7 @@ public partial class CountryDefineFileAnalyzer
         private static readonly ImmutableHashSet<string> OwnIdeasKeywords = 
             ImmutableHashSet.CreateRange(new []{Keywords.AddIdeas, Keywords.RemoveIdeas});
         private static readonly ImmutableHashSet<string> LeafContentsKeywords = ImmutableHashSet.CreateRange( 
-            new []{Keywords.AddIdeas, Keywords.RemoveIdeas, Keywords.Capital, Keywords.Puppet, 
+            new []{Keywords.AddIdeas, Keywords.RemoveIdeas, Keywords.Capital, Keywords.Puppet, Keywords.EndPuppet, 
                 Keywords.GiveGuarantee, Keywords.AddToFaction});
 
         public CountryDefineFileModel(Node rootNode)
@@ -46,9 +44,8 @@ public partial class CountryDefineFileAnalyzer
             var leaves = ParseHelper.GetLeafContentsByKeywordsInChildren(rootNode, LeafContentsKeywords);
             OwnIdeaLeaves = leaves[Keywords.AddIdeas].Concat(leaves[Keywords.RemoveIdeas]).ToList();
             Capitals = leaves[Keywords.Capital];
-            Puppets = leaves[Keywords.Puppet];
-            CountriesTagOfAddToFaction = leaves[Keywords.AddToFaction];
-            GiveGuaranteeCountriesTag = leaves[Keywords.GiveGuarantee];
+            UsedCountryTags = leaves[Keywords.Puppet].Concat(leaves[Keywords.EndPuppet]).Concat(leaves[Keywords.AddToFaction])
+                .Concat(leaves[Keywords.GiveGuarantee]).ToList();
             SetAutonomies = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_autonomy").ToList();
             SetTechnologies = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_technology").ToList();
             OwnCharacters = GetOwnCharacters();
@@ -75,6 +72,7 @@ public partial class CountryDefineFileAnalyzer
             public const string AddIdeas = "add_ideas";
             public const string Capital = "capital";
             public const string Puppet = "puppet";
+            public const string EndPuppet = "end_puppet";
             public const string GiveGuarantee = "give_guarantee";
             public const string AddToFaction = "add_to_faction";
             public const string RemoveIdeas = "remove_ideas";
