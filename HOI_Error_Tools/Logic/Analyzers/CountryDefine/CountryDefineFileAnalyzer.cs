@@ -8,7 +8,7 @@ using HOI_Error_Tools.Logic.Analyzers.Util;
 
 namespace HOI_Error_Tools.Logic.Analyzers.CountryDefine;
 
-public partial class CountryDefineFileAnalyzer : AnalyzerBase
+public sealed partial class CountryDefineFileAnalyzer : AnalyzerBase
 {
     private readonly IReadOnlySet<string> _registeredCountriesTag;
     private readonly IReadOnlySet<string> _registeredIdeas;

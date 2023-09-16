@@ -10,7 +10,7 @@ using NLog;
 
 namespace HOI_Error_Tools.Logic.Analyzers.State;
 
-public partial class StateFileAnalyzer : AnalyzerBase
+public sealed partial class StateFileAnalyzer : AnalyzerBase
 {
     /// <summary>
     /// 在文件中注册的省份ID
