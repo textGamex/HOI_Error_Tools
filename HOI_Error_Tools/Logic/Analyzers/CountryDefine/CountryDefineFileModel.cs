@@ -30,9 +30,6 @@ public partial class CountryDefineFileAnalyzer
             ImmutableHashSet.CreateRange(new[] { "recruit_character", "promote_character", "retire_character" });
         private static readonly ImmutableHashSet<string> OwnIdeasKeywords = 
             ImmutableHashSet.CreateRange(new []{Keywords.AddIdeas, Keywords.RemoveIdeas});
-        private static readonly ImmutableHashSet<string> LeafContentsKeywords = ImmutableHashSet.CreateRange( 
-            new []{Keywords.AddIdeas, Keywords.RemoveIdeas, Keywords.Capital, Keywords.Puppet, Keywords.EndPuppet, 
-                Keywords.GiveGuarantee, Keywords.AddToFaction});
 
         public CountryDefineFileModel(Node rootNode)
         {
@@ -41,11 +38,16 @@ public partial class CountryDefineFileAnalyzer
             SetPopularitiesList = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_popularities").ToList();
             OwnIdeaNodes = GetOwnIdeas();
             SetPoliticsList = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_politics").ToList();
-            var leaves = ParseHelper.GetLeafContentsByKeywordsInChildren(rootNode, LeafContentsKeywords);
-            OwnIdeaLeaves = leaves[Keywords.AddIdeas].Concat(leaves[Keywords.RemoveIdeas]).ToList();
-            Capitals = leaves[Keywords.Capital];
-            UsedCountryTags = leaves[Keywords.Puppet].Concat(leaves[Keywords.EndPuppet]).Concat(leaves[Keywords.AddToFaction])
-                .Concat(leaves[Keywords.GiveGuarantee]).ToList();
+            var target = new ParserTargetKeywords();
+            var ideaLeavesToken = target.Add(Keywords.AddIdeas, Keywords.RemoveIdeas);
+            var capitalsToken = target.Add(Keywords.Capital);
+            var usedCountryTagsToken = target.Add(Keywords.Puppet, Keywords.EndPuppet, Keywords.AddToFaction,
+                Keywords.GiveGuarantee, "remove_core_of", "remove_claim_by", "release_puppet", "release",
+                "give_military_access");
+            var leafParserResult = new LeafContentParser(target).Parse(rootNode);
+            OwnIdeaLeaves = leafParserResult[ideaLeavesToken];
+            Capitals = leafParserResult[capitalsToken];
+            UsedCountryTags = leafParserResult[usedCountryTagsToken];
             SetAutonomies = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_autonomy").ToList();
             SetTechnologies = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_technology").ToList();
             OwnCharacters = GetOwnCharacters();
