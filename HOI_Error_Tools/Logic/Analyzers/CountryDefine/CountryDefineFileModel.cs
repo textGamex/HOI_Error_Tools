@@ -23,11 +23,7 @@ public partial class CountryDefineFileAnalyzer
         public IReadOnlyList<LeafContent> OwnOobs { get; }
         
         private readonly Node _rootNode;
-
-        private static readonly ImmutableHashSet<string> OwnOobsKeywords = 
-            ImmutableHashSet.CreateRange(new []{"oob", "set_oob", "set_naval_oob", "set_air_oob"});
-        private static readonly ImmutableHashSet<string> OwnCharactersKeywords = 
-            ImmutableHashSet.CreateRange(new[] { "recruit_character", "promote_character", "retire_character" });
+        
         private static readonly ImmutableHashSet<string> OwnIdeasKeywords = 
             ImmutableHashSet.CreateRange(new []{Keywords.AddIdeas, Keywords.RemoveIdeas});
 
@@ -38,35 +34,28 @@ public partial class CountryDefineFileAnalyzer
             SetPopularitiesList = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_popularities").ToList();
             OwnIdeaNodes = GetOwnIdeas();
             SetPoliticsList = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_politics").ToList();
+            
             var target = new ParserTargetKeywords();
             var ideaLeavesToken = target.Add(Keywords.AddIdeas, Keywords.RemoveIdeas);
             var capitalsToken = target.Add(Keywords.Capital);
+            var oobToken = target.Add("oob", "set_oob", "set_naval_oob", "set_air_oob");
+            var charactersToken = target.Add("recruit_character", "promote_character", "retire_character");
             var usedCountryTagsToken = target.Add(Keywords.Puppet, Keywords.EndPuppet, Keywords.AddToFaction,
                 Keywords.GiveGuarantee, "remove_core_of", "remove_claim_by", "release_puppet", "release",
                 "give_military_access");
             var leafParserResult = new LeafContentParser(target).Parse(rootNode);
+            OwnOobs = leafParserResult[oobToken];
             OwnIdeaLeaves = leafParserResult[ideaLeavesToken];
             Capitals = leafParserResult[capitalsToken];
             UsedCountryTags = leafParserResult[usedCountryTagsToken];
+            OwnCharacters = leafParserResult[charactersToken];
             SetAutonomies = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_autonomy").ToList();
             SetTechnologies = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_technology").ToList();
-            OwnCharacters = GetOwnCharacters();
-            OwnOobs = GetOwnOobs();
         }
         
-        private IReadOnlyList<LeafContent> GetOwnOobs()
-        {
-            return ParseHelper.GetLeafContentsInChildren(_rootNode, OwnOobsKeywords).ToList();
-        }
-
         private IReadOnlyList<LeafValueNode> GetOwnIdeas()
         {
             return ParseHelper.GetLeafValueNodesInChildren(_rootNode, OwnIdeasKeywords).ToList();
-        }
-        
-        private IReadOnlyList<LeafContent> GetOwnCharacters()
-        {
-            return ParseHelper.GetLeafContentsInChildren(_rootNode, OwnCharactersKeywords).ToList();
         }
         
         private static class Keywords
