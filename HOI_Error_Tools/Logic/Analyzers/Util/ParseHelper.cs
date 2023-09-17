@@ -249,25 +249,15 @@ public static class ParseHelper
         IReadOnlySet<string> keywords)
     {
         var map = new Dictionary<string, List<LeafContent>>(keywords.Count);
+        foreach (var keyword in keywords)
+        {
+            map[keyword] = new List<LeafContent>();
+        }
+        
         var leaves = GetLeafContentsInChildren(rootNode, keywords);
         foreach (var leaf in leaves)
         {
-            if (map.TryGetValue(leaf.Key, out var list))
-            {
-                list.Add(leaf);
-            }
-            else
-            {
-                map[leaf.Key] = new List<LeafContent> { leaf };
-            }
-        }
-
-        foreach (var keyword in keywords)
-        {
-            if (!map.ContainsKey(keyword))
-            {
-                map[keyword] = new List<LeafContent>(0);
-            }
+            map[leaf.Key].Add(leaf);
         }
         
         return map;
