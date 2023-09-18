@@ -62,7 +62,7 @@ public partial class MainWindowModel : ObservableObject
         _messageBox = messageBox;
 
         tracker.Configure<MainWindowModel>()
-            .Id(w => "MainUI")
+            .Id(_ => "MainUI")
             .Properties(w => new { w.GameRootPath, w.ModRootPath })
             .PersistOn(nameof(PropertyChanged));
         tracker.Track(this);
