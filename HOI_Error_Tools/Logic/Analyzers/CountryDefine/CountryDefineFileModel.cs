@@ -21,6 +21,7 @@ public partial class CountryDefineFileAnalyzer
         public IReadOnlyList<LeavesNode> SetTechnologies { get; }
         public IReadOnlyList<LeafContent> OwnCharacters { get; }
         public IReadOnlyList<LeafContent> OwnOobs { get; }
+        public IReadOnlyList<LeavesNode> UsedVariable { get; }
         
         private readonly Node _rootNode;
         
@@ -34,6 +35,7 @@ public partial class CountryDefineFileAnalyzer
             SetPopularitiesList = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_popularities").ToList();
             OwnIdeaNodes = GetOwnIdeas();
             SetPoliticsList = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_politics").ToList();
+            UsedVariable = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_variable").ToList();
             
             var target = new ParserTargetKeywords();
             var ideaLeavesToken = target.Add(Keywords.AddIdeas, Keywords.RemoveIdeas);

@@ -1,4 +1,5 @@
-﻿using HOI_Error_Tools.Logic.Analyzers.Common;
+﻿using System;
+using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using System.Collections.Generic;
 using System.IO;
@@ -130,5 +131,32 @@ public sealed class AnalyzerHelper
             ? Enumerable.Empty<ErrorMessage>()
             : new[] { ErrorMessageFactory.CreateInvalidValueErrorMessage(
                 _filePath, leaf, expectedType.GetName() ?? string.Empty) };
+    }
+
+    public IEnumerable<ErrorMessage> AssertValueIsOnly(IReadOnlyCollection<LeafContent> leaves, Func<string, string> repeatedValue,
+        Func<LeafContent, string> valueSelector)
+    {
+        var map = new Dictionary<string, ParameterFileInfo>(leaves.Count);
+        var errorList = new List<ErrorMessage>();
+        foreach (var leaf in leaves)
+        {
+            var value = valueSelector(leaf);
+            if (map.TryGetValue(value, out var parameterFileInfo))
+            {
+                var fileInfos = new[]
+                {
+                    new(_filePath, leaf.Position),
+                    parameterFileInfo
+                };
+                errorList.Add(new ErrorMessage(ErrorCode.UniqueValueIsRepeated, fileInfos, repeatedValue(value),
+                    ErrorLevel.Warn));
+            }
+            else
+            {
+                map[value] = new ParameterFileInfo(_filePath, leaf.Position);
+            }
+        }
+        
+        return errorList;
     }
 }

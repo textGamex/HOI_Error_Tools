@@ -50,8 +50,46 @@ public sealed partial class CountryDefineFileAnalyzer : AnalyzerBase
         AnalyzeSetTechnologies(model);
         AnalyzeOwnCharacters(model);
         AnalyzeOwnOobs(model);
+        AnalyzeUsedVariable(model.UsedVariable);
 
         return _errorList;
+    }
+
+    private void AnalyzeUsedVariable(IReadOnlyCollection<LeavesNode> usedVariable)
+    {
+        // examples: 
+        // set_variable = { var = wehrmacht_anger value = 0 } or
+        // set_variable = { SWI_neutral_opinion = 10 }
+        var leavesList = new List<LeafContent>(usedVariable.Count);
+        foreach (var leavesNode in usedVariable)
+        {
+            var leaves = leavesNode.Leaves.ToList();
+            if (leaves.Count == 2)
+            {
+                if (!leaves[0].Key.Equals("var", StringComparison.OrdinalIgnoreCase) ||
+                    !leaves[1].Key.Equals("value", StringComparison.OrdinalIgnoreCase))
+                {
+                    _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(ErrorCode.FormatIsInvalid,
+                        FilePath, leavesNode.Position, "set_variable 关键字使用错误"));
+                    continue;
+                }
+                    
+                var variableName = leaves[0].ValueText;
+                var variableValue = leaves[1].Value;
+                leavesList.Add(new LeafContent(variableName, variableValue, leavesNode.Position));
+            }
+            else if (leaves.Count == 1)
+            {
+                leavesList.Add(leaves[0]);
+            }
+            else
+            {
+                _errorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(ErrorCode.FormatIsInvalid,
+                    FilePath, leavesNode.Position, "set_variable 格式错误"));
+            }
+        }
+        _errorList.AddRange(Helper.AssertValueIsOnly(leavesList, variableName => $"重复设置的变量 '{variableName}'",
+            leaf => leaf.Key));
     }
 
     private void AnalyzeOwnOobs(CountryDefineFileModel model)

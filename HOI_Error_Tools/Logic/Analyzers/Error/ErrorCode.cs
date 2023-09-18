@@ -66,4 +66,7 @@ public enum ErrorCode : uint
     
     [Description("国家 Tag 格式错误")]
     CountryTagFormatIsInvalid,
+    
+    [Description("无效的格式")]
+    FormatIsInvalid
 }

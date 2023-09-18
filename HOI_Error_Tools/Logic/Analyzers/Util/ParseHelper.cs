@@ -81,7 +81,7 @@ public static class ParseHelper
     private static IEnumerable<Leaf> GetAllLeafInAllChildren(Node rootNode, IReadOnlySet<string> leafKeywords)
     {
         var nodes = GetAllNodes(rootNode);
-        var leafList = new List<Leaf>(16);
+        var leafList = new List<Leaf>(8);
         foreach (var node in nodes)
         {
             leafList.AddRange(node.Leaves.Where(leaf => leafKeywords.Contains(leaf.Key)));

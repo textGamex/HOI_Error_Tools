@@ -283,26 +283,8 @@ public sealed partial class StateFileAnalyzer : AnalyzerBase
 
     private void CheckCountryTagsUniqueness(IReadOnlyCollection<LeafContent> leaves)
     {
-        var map = new Dictionary<string, ParameterFileInfo>(leaves.Count);
-        foreach (var leaf in leaves)
-        {
-            var tag = leaf.ValueText;
-
-            if (map.TryGetValue(tag, out var parameterFileInfo))
-            {
-                var fileInfos = new[]
-                {
-                    new(FilePath, leaf.Position),
-                    parameterFileInfo
-                };
-                _errorList.Add(new ErrorMessage(ErrorCode.UniqueValueIsRepeated, fileInfos, 
-                    $"文件 '{FileName}' 中重复添加的 '{tag}' 地区核心", ErrorLevel.Warn));
-            }
-            else
-            {
-                map[tag] = new ParameterFileInfo(FilePath, leaf.Position);
-            }
-        }
+        _errorList.AddRange(Helper.AssertValueIsOnly(leaves, tag => $"文件 '{FileName}' 中重复添加的 {tag} 地区核心", 
+            leaf => leaf.ValueText));
     }
 
     private void AnalyzeName(StateModel model)
