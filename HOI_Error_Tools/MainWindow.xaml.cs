@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using HOI_Error_Tools.Logic.Messages;
 using Microsoft.Toolkit.Uwp.Notifications;
 using NLog;
+using MessageBox = System.Windows.MessageBox;
 
 namespace HOI_Error_Tools;
 
@@ -42,6 +43,27 @@ public partial class MainWindow : Window
         {
             var settingsWindow = App.Current.Services.GetRequiredService<SettingsWindowView>(); 
             settingsWindow.ShowDialog();
+        });
+        
+        WeakReferenceMessenger.Default.Register<MainWindow, AppUpdateMessage>(this, (_, updateInfo)=>
+        {
+            if (updateInfo.HasNewVersion)
+            {
+                if (MessageBox.Show("检测到有新版本更新, 是否前往下载?", "有新版本", MessageBoxButton.YesNo) ==
+                    MessageBoxResult.Yes)
+                {
+                    var info = new System.Diagnostics.ProcessStartInfo()
+                    {
+                        FileName = updateInfo.NewVersionAppUrl.ToString(),
+                        UseShellExecute = true,
+                    };
+                    System.Diagnostics.Process.Start(info);
+                }
+            }
+            else
+            {
+                MessageBox.Show("您的版本为最新, 无需更新", "提示");
+            }
         });
     }
 

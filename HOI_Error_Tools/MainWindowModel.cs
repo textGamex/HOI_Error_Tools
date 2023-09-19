@@ -16,6 +16,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
+using AppUpdate;
+using AppUpdate.Services;
 using HOI_Error_Tools.Services;
 using Jot;
 using Microsoft.Extensions.DependencyInjection;
@@ -54,6 +56,8 @@ public partial class MainWindowModel : ObservableObject
     private readonly IErrorMessageService _errorMessageService;
     private readonly IMessageBox _messageBox;
     private readonly ILogger _log;
+    
+    private static readonly AppVersion Version = new("v0.2.1-alpha");
 
     public MainWindowModel(ILogger logger, Tracker tracker, IErrorMessageService errorMessageService, IMessageBox messageBox)
     {
@@ -194,5 +198,13 @@ public partial class MainWindowModel : ObservableObject
     private static void ClickSettingsButton()
     {
         WeakReferenceMessenger.Default.Send(App.Current.Services.GetRequiredService<GlobalSettings>());
+    }
+
+    [RelayCommand]
+    private static async Task CheckAppUpdateAsync()
+    {
+        var api = new GitHubApi("textGamex", "HOI_Error_Tools", Version);
+        WeakReferenceMessenger.Default.Send(new AppUpdateMessage(await api.HasLatestAsync(), 
+            new Uri("https://github.com/textGamex/HOI_Error_Tools/releases")));
     }
 }

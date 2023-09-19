@@ -44,6 +44,8 @@
                     Command="{Binding ClickProjectLinkButtonCommand, Mode=Default}"
                     Header="GitHub"
                     Icon="{materialDesign:PackIcon Kind=Github}" />
+                <MenuItem Header="检查更新" Command="{Binding CheckAppUpdateCommand}" 
+                          Icon="{materialDesign:PackIcon Kind=Update}"></MenuItem>
             </Menu>
         </materialDesign:Card>
 

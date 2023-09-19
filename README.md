@@ -2,7 +2,7 @@
 
 ## 介绍
 
-> 本项目是一个用于分析HOI4代码错误的工具.
+> 本项目是一个用于分析 Hearts of Iron IV (钢铁雄心4 / HOI4) 代码错误的工具.
 >
 > 使用`C#`编写, 基于`.NET 7`, 使用`WPF`作为GUI框架, 采用 MVVM 模式.
 
@@ -14,9 +14,10 @@
 ## 功能
 
 - [x] 分析代码文件, 生产错误信息.
+- [x] 抑制错误
+- [x] 检查更新
 - [ ] 多语言支持
 - [ ] 一键修复部分错误
-- [x] 抑制错误
 ---
 ## 错误检查范围
 
@@ -62,3 +63,4 @@
 - MVVM工具包: `CommunityToolkit.Mvvm`
 - HOI4解析库: 经过定向优化的`CWTools_Plus` (原项目: `CWTools`)
 - WPF 主题: `MaterialDesignInXamlToolkit`
+- App 更新检查库: [`AppUpdate`](https://github.com/textGamex/AppUpdate)
