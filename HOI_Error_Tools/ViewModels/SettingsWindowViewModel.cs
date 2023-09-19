@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Globalization;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HOI_Error_Tools.Logic;
@@ -21,7 +23,8 @@ public partial class SettingsWindowViewModel : ObservableObject
     [RelayCommand]
     private void WindowClosed()
     {
-        _settings.Save();
-        _log.Info("设置已保存到: {Path}", GlobalSettings.SettingsFolderPath.ToFilePath());
+        Task.Run(async () => await _settings.SaveAsync());
+        _log.Info(CultureInfo.InvariantCulture,
+            "设置已保存到: {Path}", GlobalSettings.SettingsFolderPath.ToFilePath());
     }
 }

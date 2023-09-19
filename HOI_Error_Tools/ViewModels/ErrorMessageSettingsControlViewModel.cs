@@ -8,6 +8,7 @@ using NLog;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using Humanizer;
 
@@ -74,7 +75,7 @@ public partial class ErrorMessageSettingsControlViewModel : ObservableObject
             return;
         }
         ProcessChangedErrorCodes();
-        _settings.Save();
+        Task.Run(async () => await _settings.SaveAsync());
 
         new ToastContentBuilder()
             .AddText("设置已保存")

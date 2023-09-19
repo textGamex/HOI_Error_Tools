@@ -35,13 +35,12 @@ public sealed class GlobalSettings
         InhibitedErrorTypes = new HashSet<ErrorType>();
     }
 
-    public void Save()
+    public async Task SaveAsync()
     {
-        //TODO: 改为异步
         if (!Directory.Exists(SettingsFolderPath))
         {
-            Directory.CreateDirectory(SettingsFolderPath);
+             _ = Directory.CreateDirectory(SettingsFolderPath);
         }
-        File.WriteAllTextAsync(SettingsFilePath, JsonConvert.SerializeObject(this, Formatting.Indented));
+        await File.WriteAllTextAsync(SettingsFilePath, JsonConvert.SerializeObject(this, Formatting.Indented));
     }
 }
