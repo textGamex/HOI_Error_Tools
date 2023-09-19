@@ -1,4 +1,5 @@
-﻿using CsvHelper;
+﻿using System;
+using CsvHelper;
 using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers;
 using HOI_Error_Tools.Logic.Analyzers.Common;
@@ -352,7 +353,8 @@ public class GameResources
         var separateBuilder = ImmutableHashSet.CreateBuilder<string>();
         foreach (var leaf in result.Leaves)
         {
-            if (leaf.Key == "dynamic_tags" && leaf.ValueText == ScriptKeyWords.Yes)
+            if (leaf.Key.Equals("dynamic_tags", StringComparison.OrdinalIgnoreCase) &&
+                leaf.ValueText.Equals(ScriptKeyWords.Yes, StringComparison.OrdinalIgnoreCase))
             {
                 separateBuilder.Clear();
                 break;
