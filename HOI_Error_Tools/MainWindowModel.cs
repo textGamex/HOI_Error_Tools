@@ -71,6 +71,10 @@ public partial class MainWindowModel : ObservableObject
             .PersistOn(nameof(PropertyChanged));
         tracker.Track(this);
 
+        if (App.Current.Services.GetRequiredService<GlobalSettings>().EnableAutoCheckUpdate)
+        {
+            Task.Run(async () => await CheckAppUpdateAsync());
+        }
 #if DEBUG
         //ModRootFolderPath = @"D:\STEAM\steamapps\workshop\content\394360\2171092591"; // 碧蓝航线
         //ModRootFolderPath = @"D:\STEAM\steamapps\workshop\content\394360\2820469328"; // 明日方舟

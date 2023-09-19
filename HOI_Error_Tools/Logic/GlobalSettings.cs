@@ -13,13 +13,15 @@ public sealed class GlobalSettings
     public HashSet<ErrorCode> InhibitedErrorCodes { get; }
     public HashSet<ErrorType> InhibitedErrorTypes { get; }
     public bool EnableParseCompletionPrompt { get; set; } = true;
+    public bool EnableAutoCheckUpdate { get; set; } = true;
 
     private static readonly string SettingsFilePath = Path.Combine(SettingsFolderPath, "MainSettings.json");
     public static GlobalSettings Load()
     {
         if (File.Exists(SettingsFilePath))
         {
-            return JsonConvert.DeserializeObject<GlobalSettings>(File.ReadAllText(SettingsFilePath)) ?? throw new ArgumentNullException();
+            return JsonConvert.DeserializeObject<GlobalSettings>(File.ReadAllText(SettingsFilePath)) ??
+                   throw new ArgumentNullException();
         }
         else
         {
@@ -35,6 +37,7 @@ public sealed class GlobalSettings
 
     public void Save()
     {
+        //TODO: 改为异步
         if (!Directory.Exists(SettingsFolderPath))
         {
             Directory.CreateDirectory(SettingsFolderPath);

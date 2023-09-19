@@ -13,12 +13,14 @@ public partial class CommonSettingsControlViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _enableParseCompletionPrompt;
-
+    [ObservableProperty]
+    private bool _enableAutoCheckUpdate;
 
     public CommonSettingsControlViewModel(GlobalSettings globalSettings, ILogger log)
     {
         _globalSettings = globalSettings;
         EnableParseCompletionPrompt = _globalSettings.EnableParseCompletionPrompt;
+        EnableAutoCheckUpdate = _globalSettings.EnableAutoCheckUpdate;
         _log = log;
 
         PropertyChanged += CommonSettingsControlViewModel_PropertyChanged;
@@ -26,10 +28,16 @@ public partial class CommonSettingsControlViewModel : ObservableObject
 
     private void CommonSettingsControlViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(EnableParseCompletionPrompt))
+        switch (e.PropertyName)
         {
-            _globalSettings.EnableParseCompletionPrompt = EnableParseCompletionPrompt;
+            case nameof(EnableParseCompletionPrompt):
+                _globalSettings.EnableParseCompletionPrompt = EnableParseCompletionPrompt;
+                break;
+            case nameof(EnableAutoCheckUpdate):
+                _globalSettings.EnableAutoCheckUpdate = EnableAutoCheckUpdate;
+                break;
         }
+
         _log.Debug(CultureInfo.InvariantCulture, "Changed value: {Value}", e.PropertyName);
     }
 }
