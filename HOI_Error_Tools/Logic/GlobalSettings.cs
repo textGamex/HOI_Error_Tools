@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using Newtonsoft.Json;
@@ -41,6 +42,7 @@ public sealed class GlobalSettings
         {
              _ = Directory.CreateDirectory(SettingsFolderPath);
         }
-        await File.WriteAllTextAsync(SettingsFilePath, JsonConvert.SerializeObject(this, Formatting.Indented));
+        await File.WriteAllTextAsync(SettingsFilePath, JsonConvert.SerializeObject(this, Formatting.Indented), 
+            Encoding.UTF8);
     }
 }
