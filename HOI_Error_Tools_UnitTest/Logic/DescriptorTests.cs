@@ -1,4 +1,5 @@
 ﻿using HOI_Error_Tools.Logic;
+using HOI_Error_Tools.Logic.Game;
 
 namespace HOI_Error_Tools_UnitTest.Logic;
 

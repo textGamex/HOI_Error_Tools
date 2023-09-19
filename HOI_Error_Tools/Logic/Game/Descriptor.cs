@@ -1,15 +1,15 @@
 ﻿using System;
-using HOI_Error_Tools.Logic.Analyzers;
-using HOI_Error_Tools.Logic.HOIParser;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Windows.Media.Imaging;
+using HOI_Error_Tools.Logic.Analyzers;
+using HOI_Error_Tools.Logic.HOIParser;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
 
-namespace HOI_Error_Tools.Logic;
+namespace HOI_Error_Tools.Logic.Game;
 
 /// <summary>
 /// MOD描述文件类

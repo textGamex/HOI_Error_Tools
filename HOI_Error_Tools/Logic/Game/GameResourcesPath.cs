@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using HOI_Error_Tools.Logic.Analyzers;
 using NLog;
 
-namespace HOI_Error_Tools.Logic;
+namespace HOI_Error_Tools.Logic.Game;
 
 /// <summary>
 /// 管理游戏资源路径

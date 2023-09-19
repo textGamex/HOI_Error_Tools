@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using HOI_Error_Tools.Logic.Analyzers.Util;
+using HOI_Error_Tools.Logic.Game;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
 

@@ -5,6 +5,7 @@ using System.Linq;
 using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.Util;
+using HOI_Error_Tools.Logic.Game;
 
 namespace HOI_Error_Tools.Logic.Analyzers.CountryDefine;
 

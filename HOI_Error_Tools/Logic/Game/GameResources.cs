@@ -1,11 +1,4 @@
 ﻿using System;
-using CsvHelper;
-using CWTools.Process;
-using HOI_Error_Tools.Logic.Analyzers;
-using HOI_Error_Tools.Logic.Analyzers.Common;
-using HOI_Error_Tools.Logic.Analyzers.Error;
-using HOI_Error_Tools.Logic.HOIParser;
-using NLog;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -13,9 +6,15 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using CsvHelper;
+using CWTools.Process;
+using HOI_Error_Tools.Logic.Analyzers;
+using HOI_Error_Tools.Logic.Analyzers.Common;
+using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.Util;
+using HOI_Error_Tools.Logic.HOIParser;
 
-namespace HOI_Error_Tools.Logic;
+namespace HOI_Error_Tools.Logic.Game;
 
 public class GameResources
 {
