@@ -1,6 +1,8 @@
 ﻿using Jot.Storage;
 using Jot;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Windows;
 using AppUpdate;
 using AppUpdate.Services;
@@ -10,12 +12,18 @@ using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using HOI_Error_Tools.View;
 using HOI_Error_Tools.ViewModels;
+using Microsoft.AppCenter;
+using Microsoft.AppCenter.Analytics;
+using Microsoft.AppCenter.Crashes;
+using ByteSizeLib;
+using LogLevel = Microsoft.AppCenter.LogLevel;
 using MessageBox = HOI_Error_Tools.Services.MessageBox;
 
 namespace HOI_Error_Tools;
 
 public partial class App : Application
 {
+    public const string AppVersion = "v0.2.1-alpha";
     public new static App Current => (App)Application.Current;
     public IServiceProvider Services { get; }
 
@@ -34,7 +42,7 @@ public partial class App : Application
         services.AddSingleton<Tracker>(_ => new Tracker(new JsonFileStore(GlobalSettings.SettingsFolderPath)));
         services.AddSingleton<GlobalSettings>(_ => GlobalSettings.Load());
         services.AddSingleton<IMessageBox, MessageBox>();
-        services.AddSingleton<AppVersion>(_ => new AppVersion("v0.2.1-alpha"));
+        services.AddSingleton<AppVersion>(_ => new AppVersion(AppVersion));
         services.AddTransient<ServiceBase, GitHubApi>(sp =>
             new GitHubApi("textGamex", "HOI_Error_Tools", sp.GetRequiredService<AppVersion>()));
 
@@ -70,6 +78,12 @@ public partial class App : Application
 
     private void App_OnStartup(object sender, StartupEventArgs e)
     {
+        AppCenter.SetMaxStorageSizeAsync((long)ByteSize.FromMebiBytes(25).Bytes);
+        AppCenter.LogLevel = LogLevel.Info;
+        AppCenter.Start(PrivateData.AppSecret, typeof(Analytics), typeof(Crashes));
+        var countryCode = RegionInfo.CurrentRegion.TwoLetterISORegionName;
+        AppCenter.SetCountryCode(countryCode);
+        
         MainWindow = Services.GetRequiredService<MainWindow>();
         MainWindow.Show();
     }

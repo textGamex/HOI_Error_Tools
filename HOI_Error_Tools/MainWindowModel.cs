@@ -11,6 +11,7 @@ using NLog;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,6 +23,8 @@ using HOI_Error_Tools.Services;
 using Jot;
 using Microsoft.Extensions.DependencyInjection;
 using HOI_Error_Tools.Logic.Messages;
+using Microsoft.AppCenter;
+using Microsoft.AppCenter.Analytics;
 
 namespace HOI_Error_Tools;
 
@@ -71,7 +74,7 @@ public partial class MainWindowModel : ObservableObject
 
         if (App.Current.Services.GetRequiredService<GlobalSettings>().EnableAutoCheckUpdate)
         {
-            Task.Run(async () => await CheckAppUpdateAsync(true));
+            Task.Run(() => CheckAppUpdateAsync(true));
         }
 #if DEBUG
         //ModRootFolderPath = @"D:\STEAM\steamapps\workshop\content\394360\2171092591"; // 碧蓝航线
@@ -194,8 +197,9 @@ public partial class MainWindowModel : ObservableObject
             UseShellExecute = true,
         };
         _ = Process.Start(info);
+        Analytics.TrackEvent("Open project link");
     }
-
+    
     [RelayCommand]
     private static void ClickSettingsButton()
     {
@@ -206,6 +210,7 @@ public partial class MainWindowModel : ObservableObject
     private static async Task CheckAppUpdateAsync()
     {
         await CheckAppUpdateAsync(false);
+        Analytics.TrackEvent("Manual check app update");
     }
 
     private static async Task CheckAppUpdateAsync(bool silentCheck)
