@@ -2,6 +2,8 @@
 using Jot;
 using System;
 using System.Windows;
+using AppUpdate;
+using AppUpdate.Services;
 using HOI_Error_Tools.Logic;
 using HOI_Error_Tools.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,6 +34,9 @@ public partial class App : Application
         services.AddSingleton<Tracker>(_ => new Tracker(new JsonFileStore(GlobalSettings.SettingsFolderPath)));
         services.AddSingleton<GlobalSettings>(_ => GlobalSettings.Load());
         services.AddSingleton<IMessageBox, MessageBox>();
+        services.AddSingleton<AppVersion>(_ => new AppVersion("v0.2.1-alpha"));
+        services.AddTransient<ServiceBase, GitHubApi>(sp =>
+            new GitHubApi("textGamex", "HOI_Error_Tools", sp.GetRequiredService<AppVersion>()));
 
         services.AddSingleton<MainWindow>(sp => 
             new MainWindow() { DataContext = sp.GetRequiredService<MainWindowModel>() });

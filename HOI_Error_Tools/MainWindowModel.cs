@@ -56,8 +56,6 @@ public partial class MainWindowModel : ObservableObject
     private readonly IErrorMessageService _errorMessageService;
     private readonly IMessageBox _messageBox;
     private readonly ILogger _log;
-    
-    private static readonly AppVersion Version = new("v0.2.1-alpha");
 
     public MainWindowModel(ILogger logger, Tracker tracker, IErrorMessageService errorMessageService, IMessageBox messageBox)
     {
@@ -207,7 +205,7 @@ public partial class MainWindowModel : ObservableObject
     [RelayCommand]
     private static async Task CheckAppUpdateAsync()
     {
-        var api = new GitHubApi("textGamex", "HOI_Error_Tools", Version);
+        var api = App.Current.Services.GetRequiredService<ServiceBase>();
         WeakReferenceMessenger.Default.Send(new AppUpdateMessage(await api.HasLatestAsync(), 
             new Uri("https://github.com/textGamex/HOI_Error_Tools/releases")));
     }
