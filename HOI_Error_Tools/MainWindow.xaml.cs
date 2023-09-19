@@ -62,7 +62,10 @@ public partial class MainWindow : Window
             }
             else
             {
-                MessageBox.Show("您的版本为最新, 无需更新", "提示");
+                if (!updateInfo.SilentCheck)
+                {
+                    MessageBox.Show("您的版本为最新, 无需更新", "提示");
+                }
             }
         });
     }

@@ -16,7 +16,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
-using AppUpdate;
 using AppUpdate.Services;
 using HOI_Error_Tools.Services;
 using Jot;
@@ -71,7 +70,7 @@ public partial class MainWindowModel : ObservableObject
 
         if (App.Current.Services.GetRequiredService<GlobalSettings>().EnableAutoCheckUpdate)
         {
-            Task.Run(async () => await CheckAppUpdateAsync());
+            Task.Run(async () => await CheckAppUpdateAsync(true));
         }
 #if DEBUG
         //ModRootFolderPath = @"D:\STEAM\steamapps\workshop\content\394360\2171092591"; // 碧蓝航线
@@ -205,8 +204,13 @@ public partial class MainWindowModel : ObservableObject
     [RelayCommand]
     private static async Task CheckAppUpdateAsync()
     {
+        await CheckAppUpdateAsync(false);
+    }
+
+    private static async Task CheckAppUpdateAsync(bool silentCheck)
+    {
         var api = App.Current.Services.GetRequiredService<ServiceBase>();
         WeakReferenceMessenger.Default.Send(new AppUpdateMessage(await api.HasLatestAsync(), 
-            new Uri("https://github.com/textGamex/HOI_Error_Tools/releases")));
+            new Uri("https://github.com/textGamex/HOI_Error_Tools/releases"), silentCheck));
     }
 }
