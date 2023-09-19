@@ -49,8 +49,8 @@ public partial class MainWindow : Window
         {
             if (updateInfo.HasNewVersion)
             {
-                if (MessageBox.Show("检测到有新版本更新, 是否前往下载?", "有新版本", MessageBoxButton.YesNo) ==
-                    MessageBoxResult.Yes)
+                if (MessageBox.Show("检测到有新版本更新, 是否前往下载?", "有新版本", MessageBoxButton.YesNo, 
+                        MessageBoxImage.Question) == MessageBoxResult.Yes)
                 {
                     var info = new System.Diagnostics.ProcessStartInfo()
                     {
@@ -64,7 +64,7 @@ public partial class MainWindow : Window
             {
                 if (!updateInfo.SilentCheck)
                 {
-                    MessageBox.Show("您的版本为最新, 无需更新", "提示");
+                    MessageBox.Show("您的版本为最新, 无需更新", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
         });
