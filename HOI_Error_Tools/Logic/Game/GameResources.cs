@@ -13,6 +13,8 @@ using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.Util;
 using HOI_Error_Tools.Logic.HOIParser;
+using Microsoft.Extensions.DependencyInjection;
+using NLog;
 
 namespace HOI_Error_Tools.Logic.Game;
 
@@ -40,7 +42,7 @@ public class GameResources
     private readonly GameResourcesPath _gameResourcesPath;
 
     private static readonly ConcurrentBag<ErrorMessage> ErrorMessageCache = new();
-    //private static readonly ILogger Log = App.Current.Services.GetRequiredService<ILogger>();
+    private static readonly ILogger Log = App.Current.Services.GetRequiredService<ILogger>();
 
     public GameResources(string gameRootPath, string modRootPath) 
         : this(new GameResourcesPath(gameRootPath, modRootPath))
@@ -483,12 +485,20 @@ public class GameResources
     /// <returns></returns>
     private IEnumerable<uint> GetRegisteredProvinceSet()
     {
-        var set = new HashSet<uint>(13275);
+        var set = new HashSet<uint>(13257);
         using var reader = new StreamReader(_gameResourcesPath.ProvincesDefinitionFilePath, Encoding.UTF8);
         using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+        uint lineCount = 0;
+
         while (csv.Read())
         {
-            var line = csv.GetField(0) ?? string.Empty;
+            ++lineCount;
+            var line = csv.GetField(0);
+            if (line is null)
+            {
+                line = string.Empty;
+                Log.Warn(CultureInfo.InvariantCulture, "definition.csv Line: {Line} 读取错误, 已赋值为空字符串", lineCount);
+            }
             string id = line[0..line.IndexOf(';')];
             set.Add(uint.Parse(id, CultureInfo.InvariantCulture));
         }
