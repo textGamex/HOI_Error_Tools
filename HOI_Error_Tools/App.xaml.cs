@@ -22,7 +22,7 @@ namespace HOI_Error_Tools;
 
 public partial class App : Application
 {
-    public const string AppVersion = "v0.2.1-alpha";
+    public const string AppVersion = "v0.2.2-alpha";
     public new static App Current => (App)Application.Current;
     public IServiceProvider Services { get; } = ConfigureServices();
 
