@@ -7,7 +7,7 @@ using HOI_Error_Tools.Logic.Analyzers.Util;
 
 namespace HOI_Error_Tools.Logic.Analyzers.CountryDefine;
 
-public partial class CountryDefineFileAnalyzer
+public sealed partial class CountryDefineFileAnalyzer
 {
     public sealed class CountryDefineFileModel
     {

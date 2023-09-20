@@ -2,7 +2,7 @@
 
 namespace HOI_Error_Tools.Logic.Analyzers.Common;
 
-public class Value : IEquatable<Value>
+public sealed class Value : IEquatable<Value>
 {
     public string Text { get; }
     public bool IsInt => Type == Types.Integer;

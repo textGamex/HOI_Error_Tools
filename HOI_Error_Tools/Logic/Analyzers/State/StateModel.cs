@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace HOI_Error_Tools.Logic.Analyzers.State;
 
-public partial class StateFileAnalyzer
+public sealed partial class StateFileAnalyzer
 {
     public sealed class StateModel
     {

@@ -14,7 +14,7 @@ namespace HOI_Error_Tools.Logic.Game;
 /// <summary>
 /// MOD描述文件类
 /// </summary>
-public class Descriptor
+public sealed class Descriptor
 {
     public string Name { get; } = string.Empty;
     public string SupportedVersion { get; } = string.Empty;
