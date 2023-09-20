@@ -1,7 +1,6 @@
 ﻿using Jot.Storage;
 using Jot;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Windows;
 using AppUpdate;
@@ -25,12 +24,7 @@ public partial class App : Application
 {
     public const string AppVersion = "v0.2.1-alpha";
     public new static App Current => (App)Application.Current;
-    public IServiceProvider Services { get; }
-
-    public App()
-    {
-        Services = ConfigureServices();
-    }
+    public IServiceProvider Services { get; } = ConfigureServices();
 
     private static IServiceProvider ConfigureServices()
     {
