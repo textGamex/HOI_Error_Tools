@@ -264,7 +264,8 @@ public class GameResources
         return map;
     }
 
-    private static void MergeMap(Dictionary<string, ParameterFileInfo> mainMap, IReadOnlyDictionary<string, ParameterFileInfo> secondaryMap)
+    private static void MergeMap(Dictionary<string, ParameterFileInfo> mainMap,
+        IReadOnlyDictionary<string, ParameterFileInfo> secondaryMap)
     {
         foreach (var (ideaKey, fileInfo) in secondaryMap)
         {
@@ -430,7 +431,7 @@ public class GameResources
             // 排除特殊值, fuel_silo 类型没有最大等级
             const string fuelSilo = "fuel_silo";
             if (buildingNode.Has(fuelSilo)
-                && buildingNode.Leafs(fuelSilo).First().ValueText == ScriptKeyWords.Yes)
+                && buildingNode.Leafs(fuelSilo).First().ValueText.Equals(ScriptKeyWords.Yes, StringComparison.OrdinalIgnoreCase))
             {
                 map.Add(buildingTypeName, new BuildingInfo(buildingTypeName, 1));
                 continue;
