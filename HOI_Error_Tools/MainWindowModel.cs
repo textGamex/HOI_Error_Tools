@@ -156,8 +156,16 @@ public partial class MainWindowModel : ObservableObject
     {
         Debug.Assert(_descriptor != null, nameof(_descriptor) + " != null");
 
+        var timestamp = Stopwatch.GetTimestamp();
         var gameResourcesPath = new GameResourcesPath(GameRootPath, ModRootPath, _descriptor);
+        _log.Info(CultureInfo.InvariantCulture, 
+            "GameResourcesPath 加载耗时: {Time} ms", Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds);
+
+        timestamp = Stopwatch.GetTimestamp();
         var gameResources = new GameResources(gameResourcesPath);
+        _log.Info(CultureInfo.InvariantCulture,
+            "GameResources 加载耗时: {Time} ms", Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds);
+
         _fileSum = gameResourcesPath.FileSum;
 
         var analyzers = 
