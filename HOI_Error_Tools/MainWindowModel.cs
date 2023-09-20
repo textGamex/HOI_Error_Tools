@@ -142,12 +142,10 @@ public partial class MainWindowModel : ObservableObject
         StartParseButtonText = "分析中, 请稍等...";
         LoadingCircleIsRunning = true;
 
-        var oTime = new Stopwatch();
         _log.Info("开始分析");
-        oTime.Start();
+        var timestamp = Stopwatch.GetTimestamp();
         await StartAnalyzersAsync();
-        oTime.Stop();
-        var elapsedTime = oTime.Elapsed;
+        var elapsedTime = Stopwatch.GetElapsedTime(timestamp);
         WeakReferenceMessenger.Default.Send(new AnalysisCompleteMessage(_fileSum, elapsedTime));
 
         _log.Info("分析完成, 用时: {Second:F1} s, {Millisecond:F0} ms",

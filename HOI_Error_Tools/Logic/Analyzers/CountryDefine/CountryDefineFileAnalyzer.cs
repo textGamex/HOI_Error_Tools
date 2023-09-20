@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using ByteSizeLib;
 using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.Util;
 using HOI_Error_Tools.Logic.Game;
+using Microsoft.Extensions.DependencyInjection;
+using NLog;
 
 namespace HOI_Error_Tools.Logic.Analyzers.CountryDefine;
 
@@ -19,7 +24,8 @@ public sealed partial class CountryDefineFileAnalyzer : AnalyzerBase
     //private readonly IReadOnlySet<string> _registeredEquipments;
     private readonly IReadOnlySet<string> _registeredCharacters;
     private readonly IReadOnlySet<string> _registeredOobFileNames;
-    private readonly List<ErrorMessage> _errorList = new ();
+    private readonly List<ErrorMessage> _errorList = new(5);
+    private static readonly ILogger Log = App.Current.Services.GetRequiredService<ILogger>();
 
     public CountryDefineFileAnalyzer(string filePath, GameResources resources) : base(filePath)
     {

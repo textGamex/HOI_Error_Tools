@@ -25,7 +25,7 @@ public sealed partial class StateFileAnalyzer : AnalyzerBase
     private readonly IReadOnlySet<string> _resourcesTypeSet;
     private readonly IReadOnlySet<string> _registeredStateCategories;
     private readonly IReadOnlySet<string> _registeredCountriesTag;
-    private readonly List<ErrorMessage> _errorList = new();
+    private readonly List<ErrorMessage> _errorList = new(5);
 
     private static readonly ConcurrentDictionary<uint, ParameterFileInfo> ExistingIds = new();
     /// <summary>
