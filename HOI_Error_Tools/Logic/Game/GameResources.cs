@@ -496,8 +496,8 @@ public class GameResources
             var line = csv.GetField(0);
             if (line is null)
             {
-                line = string.Empty;
-                Log.Warn(CultureInfo.InvariantCulture, "definition.csv Line: {Line} 读取错误, 已赋值为空字符串", lineCount);
+                Log.Warn(CultureInfo.InvariantCulture, "definition.csv 读取错误, 已跳过行数为 {Line} 的值", lineCount);
+                continue;
             }
             string id = line[0..line.IndexOf(';')];
             set.Add(uint.Parse(id, CultureInfo.InvariantCulture));
