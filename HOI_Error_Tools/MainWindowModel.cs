@@ -189,13 +189,15 @@ public partial class MainWindowModel : ObservableObject
             return;
         }
 
+        var totalMilliseconds = Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds;
         _log.Info(CultureInfo.InvariantCulture, 
-            "GameResourcesPath 加载耗时: {Time} ms", Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds);
+            "GameResourcesPath 加载耗时: {Time} ms", totalMilliseconds);
 
         timestamp = Stopwatch.GetTimestamp();
         var gameResources = new GameResources(gameResourcesPath);
+        totalMilliseconds = Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds;
         _log.Info(CultureInfo.InvariantCulture,
-            "GameResources 加载耗时: {Time} ms", Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds);
+            "GameResources 加载耗时: {Time} ms", totalMilliseconds);
 
         _fileSum = gameResourcesPath.FileSum;
 

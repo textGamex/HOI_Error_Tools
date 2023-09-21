@@ -5,7 +5,9 @@ using System.Collections.Immutable;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using CsvHelper;
 using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers;
@@ -23,22 +25,22 @@ public class GameResources
     public static IReadOnlyCollection<ErrorMessage> ErrorMessages => ErrorMessageCache;
     public IReadOnlySet<uint> RegisteredProvinceSet => _registeredProvinces;
     public IReadOnlyDictionary<string, BuildingInfo> BuildingInfoMap => _buildingInfos;
-    public IReadOnlySet<string> ResourcesType { get; }
-    public IReadOnlySet<string> RegisteredStateCategories { get; }
-    public IReadOnlySet<string> RegisteredCountriesTag { get; }
-    public IReadOnlySet<string> RegisteredIdeologies { get; }
-    public IReadOnlySet<string> RegisteredIdeas { get; }
+    public IReadOnlySet<string> ResourcesType { get; private set; }
+    public IReadOnlySet<string> RegisteredStateCategories { get; private set; }
+    public IReadOnlySet<string> RegisteredCountriesTag { get; private set; }
+    public IReadOnlySet<string> RegisteredIdeologies { get; private set; }
+    public IReadOnlySet<string> RegisteredIdeas { get; private set; }
     //public IReadOnlySet<string> RegisteredEquipmentSet { get; }
-    public IReadOnlySet<string> RegisteredTechnologiesSet { get; }
-    public IReadOnlySet<string> RegisteredAutonomousState { get; }
-    public IReadOnlySet<string> RegisteredCharacters { get; }
+    public IReadOnlySet<string> RegisteredTechnologiesSet { get; private set; }
+    public IReadOnlySet<string> RegisteredAutonomousState { get; private set; }
+    public IReadOnlySet<string> RegisteredCharacters { get; private set; }
     /// <summary>
     /// 文件名, 不包含文件后缀
     /// </summary>
-    public IReadOnlySet<string> RegisteredOobFileNames { get; }
+    public IReadOnlySet<string> RegisteredOobFileNames { get; private set; }
 
-    private readonly ImmutableDictionary<string, BuildingInfo> _buildingInfos;
-    private readonly ImmutableHashSet<uint> _registeredProvinces;
+    private ImmutableDictionary<string, BuildingInfo> _buildingInfos;
+    private ImmutableHashSet<uint> _registeredProvinces;
     private readonly GameResourcesPath _gameResourcesPath;
 
     private static readonly ConcurrentBag<ErrorMessage> ErrorMessageCache = new();
@@ -52,19 +54,27 @@ public class GameResources
     public GameResources(GameResourcesPath paths)
     {
         _gameResourcesPath = paths;
-        _registeredProvinces = ImmutableHashSet.CreateRange(GetRegisteredProvinceSet());
-        _buildingInfos = GetRegisteredBuildings();
-        ResourcesType = GetResourcesType();
-        RegisteredStateCategories = GetRegisteredStateCategories();
-        RegisteredCountriesTag = GetCountriesTag();
-        RegisteredIdeologies = GetRegisteredIdeologies();
-        var registeredIdeaTag = GetRegisteredIdeaTags();
-        RegisteredIdeas = GetRegisteredIdeas(registeredIdeaTag.ToList());
+        var tasks = new[]
+        {
+            Task.Run(() => _registeredProvinces = GetRegisteredProvinceSet()),
+            Task.Run(() => _buildingInfos = GetRegisteredBuildings()),
+            Task.Run(() => ResourcesType = GetResourcesType()),
+            Task.Run(() => RegisteredStateCategories = GetRegisteredStateCategories()),
+            Task.Run(() => RegisteredCountriesTag = GetCountriesTag()),
+            Task.Run(() => RegisteredIdeologies = GetRegisteredIdeologies()),
+            Task.Run(() => RegisteredTechnologiesSet = GetRegisteredTechnologies()),
+            Task.Run(() => RegisteredAutonomousState = GetRegisteredAutonomousState()),
+            Task.Run(() => RegisteredCharacters = GetRegisteredCharacters()),
+            Task.Run(() => RegisteredOobFileNames = GetExistOobFiles()),
+            Task.Run((() =>
+            {
+                var registeredIdeaTag = GetRegisteredIdeaTags();
+                RegisteredIdeas = GetRegisteredIdeas(registeredIdeaTag.ToList());
+            })), 
+        };
+        
         //RegisteredEquipmentSet = GetRegisteredEquipment();
-        RegisteredTechnologiesSet = GetRegisteredTechnologies();
-        RegisteredAutonomousState = GetRegisteredAutonomousState();
-        RegisteredCharacters = GetRegisteredCharacters();
-        RegisteredOobFileNames = GetExistOobFiles();
+        Task.WaitAll(tasks);
     }
 
     private IReadOnlySet<string> GetExistOobFiles()
@@ -208,7 +218,7 @@ public class GameResources
         return ideaTagList.Distinct();
     }
 
-    private IReadOnlySet<string> GetRegisteredIdeas(IReadOnlyList<string> registeredIdeaTag)
+    private IReadOnlySet<string> GetRegisteredIdeas(List<string> registeredIdeaTag)
     {
         var map = new Dictionary<string, ParameterFileInfo>(8);
 
@@ -233,10 +243,11 @@ public class GameResources
         return map.Select(item => item.Key).ToImmutableHashSet();
     }
 
-    private static IReadOnlyDictionary<string, ParameterFileInfo> TryGetIdeas(Node rootNode, string filePath, IEnumerable<string> keywords)
+    private static IReadOnlyDictionary<string, ParameterFileInfo> TryGetIdeas(Node rootNode, string filePath,
+        List<string> keywords)
     {
         var map = new Dictionary<string, ParameterFileInfo>(64);
-        foreach (var keyword in keywords)
+        foreach (var keyword in CollectionsMarshal.AsSpan(keywords))
         {
             if (rootNode.HasNot(keyword))
             {
@@ -483,7 +494,7 @@ public class GameResources
     /// 所有 Province 在文件 Hearts of Iron IV\map\definition.csv 中定义
     /// </remarks>
     /// <returns></returns>
-    private IEnumerable<uint> GetRegisteredProvinceSet()
+    private ImmutableHashSet<uint> GetRegisteredProvinceSet()
     {
         var set = new HashSet<uint>(13257);
         using var reader = new StreamReader(_gameResourcesPath.ProvincesDefinitionFilePath, Encoding.UTF8);
@@ -505,7 +516,7 @@ public class GameResources
 
         // 去除 ID 为 0 的未知省份
         set.Remove(0);
-        return set;
+        return ImmutableHashSet.CreateRange(set);
     }
 
     private IReadOnlySet<string> GetResourcesType()
