@@ -3,4 +3,5 @@
 public interface IMessageBox
 {
     void Show(string message, string? caption = null);
+    void ErrorTip(string message, string? caption = null);
 }

@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
@@ -23,8 +24,8 @@ using HOI_Error_Tools.Services;
 using Jot;
 using Microsoft.Extensions.DependencyInjection;
 using HOI_Error_Tools.Logic.Messages;
-using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
+using Microsoft.AppCenter.Crashes;
 
 namespace HOI_Error_Tools;
 
@@ -84,21 +85,31 @@ public partial class MainWindowModel : ObservableObject
 
     partial void OnModRootPathChanged(string? oldValue, string newValue)
     {
-        var descriptorPath = Path.Combine(newValue, "descriptor.mod");
+        var descriptorPath = Path.Combine(newValue, Descriptor.FileName);
         if (!File.Exists(descriptorPath))
         {
             _modRootPath = oldValue!;
-            _messageBox.Show("此文件夹不存在 descriptor.mod 文件", "错误");
+            _messageBox.ErrorTip($"此文件夹不存在 {Descriptor.FileName} 文件");
             _log.Warn("Modification root path change failed: \n path {Path} is not exist", descriptorPath);
             return;
         }
-        var descriptor = new Descriptor(descriptorPath);
-        ModName = descriptor.Name;
-        ModTags = string.Join(", ", descriptor.Tags);
-        ModImage = descriptor.Picture;
-        ModId = descriptor.RemoteFileId;
 
-        _descriptor = descriptor;
+        try
+        {
+            var descriptor = new Descriptor(descriptorPath);
+            ModName = descriptor.Name;
+            ModTags = string.Join(", ", descriptor.Tags);
+            ModImage = descriptor.Picture;
+            ModId = descriptor.RemoteFileId;
+
+            _descriptor = descriptor;
+        }
+        catch (IOException e)
+        {
+            _log.Error(e, "{FileName} 文件加载错误, path: {Path}", Descriptor.FileName, descriptorPath);
+            _messageBox.ErrorTip($"{Descriptor.FileName} 文件加载错误, 路径: {descriptorPath}");
+            return;
+        }
         _log.Debug("Modification root path changed");
     }
 
@@ -135,7 +146,7 @@ public partial class MainWindowModel : ObservableObject
     {
         if (string.IsNullOrEmpty(GameRootPath) || string.IsNullOrEmpty(ModRootPath))
         {
-            _messageBox.Show("未选择资源路径", "错误");
+            _messageBox.ErrorTip("未选择资源路径");
             return;
         }
 
@@ -195,14 +206,24 @@ public partial class MainWindowModel : ObservableObject
     }
 
     [RelayCommand]
-    private static void ClickProjectLinkButton()
+    private void ClickProjectLinkButton()
     {
         var info = new ProcessStartInfo()
         {
             FileName = "https://github.com/textGamex/HOI_Error_Tools",
             UseShellExecute = true,
         };
-        _ = Process.Start(info);
+        try
+        {
+            _ = Process.Start(info);
+        }
+        catch (Exception e)
+        {
+            const string message = "项目主页打开失败";
+            _log.Error(e, message);
+            Crashes.TrackError(e);
+            _messageBox.ErrorTip(message);
+        }
         Analytics.TrackEvent("Open project link");
     }
     
@@ -213,16 +234,24 @@ public partial class MainWindowModel : ObservableObject
     }
 
     [RelayCommand]
-    private static async Task CheckAppUpdateAsync()
+    private async Task CheckAppUpdateAsync()
     {
         await CheckAppUpdateAsync(false);
         Analytics.TrackEvent("Manual check app update");
     }
 
-    private static async Task CheckAppUpdateAsync(bool silentCheck)
+    private async Task CheckAppUpdateAsync(bool silentCheck)
     {
-        var api = App.Current.Services.GetRequiredService<ServiceBase>();
-        WeakReferenceMessenger.Default.Send(new AppUpdateMessage(await api.HasLatestAsync(), 
-            new Uri("https://github.com/textGamex/HOI_Error_Tools/releases"), silentCheck));
+        var api = App.Current.Services.GetRequiredService<UpdateServiceBase>();
+        try
+        {
+            WeakReferenceMessenger.Default.Send(new AppUpdateMessage(await api.HasLatestAsync(),
+                new Uri("https://github.com/textGamex/HOI_Error_Tools/releases"), silentCheck));
+        }
+        catch (HttpRequestException e)
+        {
+            _log.Error(e, "检查更新失败");
+            _messageBox.ErrorTip("网络异常, 检查更新失败");
+        }
     }
 }

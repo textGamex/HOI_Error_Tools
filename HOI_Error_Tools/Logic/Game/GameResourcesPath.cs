@@ -43,10 +43,17 @@ public sealed class GameResourcesPath
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
     public GameResourcesPath(string gameRootFolderPath, string modRootFolderPath) 
-        : this(gameRootFolderPath, modRootFolderPath, new Descriptor(Path.Combine(modRootFolderPath, "descriptor.mod")))
+        : this(gameRootFolderPath, modRootFolderPath, new Descriptor(Path.Combine(modRootFolderPath, Descriptor.FileName)))
     {
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="gameRootFolderPath"></param>
+    /// <param name="modRootFolderPath"></param>
+    /// <param name="descriptor"></param>
+    /// <exception cref="DirectoryNotFoundException">需要的文件夹不存在</exception>
     public GameResourcesPath(string gameRootFolderPath, string modRootFolderPath, Descriptor descriptor)
     {
         if (!Directory.Exists(gameRootFolderPath))

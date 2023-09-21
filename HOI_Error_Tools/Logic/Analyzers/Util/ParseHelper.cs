@@ -6,6 +6,7 @@ using HOI_Error_Tools.Logic.HOIParser;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 
 namespace HOI_Error_Tools.Logic.Analyzers.Util;
@@ -270,6 +271,8 @@ public static class ParseHelper
     /// </summary>
     /// <param name="errorMessages">错误信息集合</param>
     /// <param name="filePath">文件绝对路径</param>
+    /// <exception cref="IOException"></exception>
+    /// <exception cref="FileNotFoundException"></exception>
     /// <returns>root Node</returns>
     public static Node? ParseFileToNode(ICollection<ErrorMessage> errorMessages, string filePath)
     {

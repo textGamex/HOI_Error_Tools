@@ -16,6 +16,7 @@ namespace HOI_Error_Tools.Logic.Game;
 /// </summary>
 public sealed class Descriptor
 {
+    public const string FileName = "descriptor.mod";
     public string Name { get; } = string.Empty;
     public string SupportedVersion { get; } = string.Empty;
     public string Version { get; } = string.Empty;
@@ -39,6 +40,7 @@ public sealed class Descriptor
     /// </summary>
     /// <param name="filePath">描述文件的绝对路径</param>
     /// <exception cref="FileNotFoundException">当文件不存在时</exception>
+    /// <exception cref="IOException"></exception>
     public Descriptor(string filePath)
     {
         var parser = new CWToolsParser(filePath);

@@ -23,6 +23,7 @@ public class CWToolsParser
     /// </summary>
     /// <param name="filePath"></param>
     /// <exception cref="FileNotFoundException">如果文件不存在</exception>
+    /// <exception cref="IOException"></exception>
     public CWToolsParser(string filePath)
     {
         FilePath = File.Exists(filePath) ? filePath : throw new FileNotFoundException($"找不到文件: {filePath}", filePath);

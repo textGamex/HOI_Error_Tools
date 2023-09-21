@@ -37,7 +37,7 @@ public partial class App : Application
         services.AddSingleton<GlobalSettings>(_ => GlobalSettings.Load());
         services.AddSingleton<IMessageBox, MessageBox>();
         services.AddSingleton<AppVersion>(_ => new AppVersion(AppVersion));
-        services.AddTransient<ServiceBase, GitHubApi>(sp =>
+        services.AddTransient<UpdateServiceBase, GitHubApi>(sp =>
             new GitHubApi("textGamex", "HOI_Error_Tools", sp.GetRequiredService<AppVersion>()));
 
         services.AddSingleton<MainWindow>(sp => 

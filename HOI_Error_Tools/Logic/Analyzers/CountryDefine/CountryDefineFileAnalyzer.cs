@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using ByteSizeLib;
+using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.Util;
@@ -41,7 +42,20 @@ public sealed partial class CountryDefineFileAnalyzer : AnalyzerBase
 
     public override IEnumerable<ErrorMessage> GetErrorMessages()
     {
-        var rootNode = ParseHelper.ParseFileToNode(_errorList, FilePath);
+        Node? rootNode = null;
+        try
+        {
+            rootNode = ParseHelper.ParseFileToNode(_errorList, FilePath);
+        }
+        catch (FileNotFoundException e)
+        {
+            Log.Error(e, "解析的文件不存在, path: {Path}", FilePath);
+        }
+        catch (IOException e)
+        {
+            Log.Error(e, "发生 IO 错误, path: {Path}", FilePath);
+        }
+
         if (rootNode is null)
         {
             return _errorList;

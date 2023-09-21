@@ -510,6 +510,7 @@ public class GameResources
 
     private IReadOnlySet<string> GetResourcesType()
     {
+         
         var builder = ImmutableHashSet.CreateBuilder<string>();
         foreach (var path in _gameResourcesPath.ResourcesTypeFilePathList)
         {
@@ -566,13 +567,21 @@ public class GameResources
     }
 
     /// <summary>
-    /// 解析文件, 如果解析失败, 将错误信息添加到 <see cref="ErrorMessageCache"/>, 返回<c>null</c>
+    /// 解析文件, 如果解析失败, 将错误信息添加到 <see cref="ErrorMessageCache"/>, 返回 <c>null</c>
     /// </summary>
     /// <param name="filePath">文件绝对路径</param>
     /// <returns>root Node</returns>
     private static Node? ParseFile(string filePath)
     {
-        return ParseHelper.ParseFileToNode(ErrorMessageCache, filePath);
+        try
+        {
+            return ParseHelper.ParseFileToNode(ErrorMessageCache, filePath);
+        }
+        catch (IOException e)
+        {
+            Log.Error(e, "{Path} 解析失败", filePath);
+            return null;
+        }
     }
 
     public static void ClearErrorMessagesCache()
