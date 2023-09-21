@@ -168,7 +168,27 @@ public partial class MainWindowModel : ObservableObject
         Debug.Assert(_descriptor != null, nameof(_descriptor) + " != null");
 
         var timestamp = Stopwatch.GetTimestamp();
-        var gameResourcesPath = new GameResourcesPath(GameRootPath, ModRootPath, _descriptor);
+        GameResourcesPath? gameResourcesPath = null;
+        try
+        {
+            gameResourcesPath = new GameResourcesPath(GameRootPath, ModRootPath, _descriptor);
+        }
+        catch (DirectoryNotFoundException e)
+        {
+            _log.Error(e);
+            _messageBox.ErrorTip(e.Message);
+        }
+        catch (FileNotFoundException e)
+        {
+            _log.Error(e);
+            _messageBox.ErrorTip(e.Message);
+        }
+
+        if (gameResourcesPath is null)
+        {
+            return;
+        }
+
         _log.Info(CultureInfo.InvariantCulture, 
             "GameResourcesPath 加载耗时: {Time} ms", Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds);
 

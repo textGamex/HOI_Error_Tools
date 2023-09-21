@@ -55,6 +55,7 @@ public sealed class GameResourcesPath
     /// <param name="modRootFolderPath"></param>
     /// <param name="descriptor"></param>
     /// <exception cref="DirectoryNotFoundException">需要的文件夹不存在</exception>
+    /// <exception cref="FileNotFoundException"></exception>
     public GameResourcesPath(string gameRootFolderPath, string modRootFolderPath, Descriptor descriptor)
     {
         if (!Directory.Exists(gameRootFolderPath))

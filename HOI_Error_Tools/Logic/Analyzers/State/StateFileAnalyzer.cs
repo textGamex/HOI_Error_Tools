@@ -1,5 +1,4 @@
-﻿using System;
-using HOI_Error_Tools.Logic.Analyzers.Common;
+﻿using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
