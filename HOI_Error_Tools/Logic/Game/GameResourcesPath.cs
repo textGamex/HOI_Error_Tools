@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using HOI_Error_Tools.Logic.Analyzers;
+using Microsoft.Extensions.DependencyInjection;
 using NLog;
 
 namespace HOI_Error_Tools.Logic.Game;
@@ -40,7 +41,7 @@ public sealed class GameResourcesPath
     private readonly ImmutableList<string> _buildingsFilePathList;
     private readonly ImmutableList<string> _resourcesTypeFilePathList;
     private readonly Descriptor _descriptor;
-    private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+    private static readonly ILogger Log = App.Current.Services.GetRequiredService<ILogger>();
 
     public GameResourcesPath(string gameRootFolderPath, string modRootFolderPath) 
         : this(gameRootFolderPath, modRootFolderPath, new Descriptor(Path.Combine(modRootFolderPath, Descriptor.FileName)))
