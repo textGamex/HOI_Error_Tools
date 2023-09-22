@@ -2,7 +2,9 @@
 using Jot;
 using System;
 using System.Globalization;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using AppUpdate;
 using AppUpdate.Services;
 using HOI_Error_Tools.Logic;
@@ -24,6 +26,9 @@ public partial class App : Application
     public const string AppVersion = "v0.2.2-alpha";
     public new static App Current => (App)Application.Current;
     public IServiceProvider Services { get; } = ConfigureServices();
+
+    private static readonly ILogger Log = Current.Services.GetRequiredService<ILogger>();
+    private static readonly IMessageBox MessageBox = Current.Services.GetRequiredService<IMessageBox>();
 
     private static IServiceProvider ConfigureServices()
     {
@@ -71,13 +76,49 @@ public partial class App : Application
 
     private void App_OnStartup(object sender, StartupEventArgs e)
     {
+        SetAppCenter();
+        AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
+        Application.Current.DispatcherUnhandledException += OnDispatcherUnhandledException;
+        TaskScheduler.UnobservedTaskException += TaskSchedulerOnUnobservedTaskException;
+        MainWindow = Services.GetRequiredService<MainWindow>();
+        MainWindow.Show();
+    }
+
+    private static void TaskSchedulerOnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
+    {
+        foreach (var exception in e.Exception.InnerExceptions)
+        {
+            Log.Error(exception);
+        }
+        ErrorTip();
+    }
+
+    private static void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+    {
+        Log.Error(e.Exception);
+        ErrorTip();
+    }
+
+    private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+    {
+        Log.Error((Exception)e.ExceptionObject);
+        ErrorTip();
+    }
+
+    private static void ErrorTip()
+    {
+        MessageBox.ErrorTip("未知错误, 请联系作者并提供程序目录下 Logs 目录下的日志文件");
+    }
+
+    private static void SetAppCenter()
+    {
+#if DEBUG
+        AppCenter.SetEnabledAsync(false);
+#endif
         AppCenter.SetMaxStorageSizeAsync((long)ByteSize.FromMebiBytes(25).Bytes);
         AppCenter.LogLevel = LogLevel.Info;
         AppCenter.Start(PrivateData.AppSecret, typeof(Analytics), typeof(Crashes));
         var countryCode = RegionInfo.CurrentRegion.TwoLetterISORegionName;
         AppCenter.SetCountryCode(countryCode);
-
-        MainWindow = Services.GetRequiredService<MainWindow>();
-        MainWindow.Show();
     }
 }
