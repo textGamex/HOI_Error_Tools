@@ -276,4 +276,26 @@ public partial class MainWindowModel : ObservableObject
             _messageBox.ErrorTip("网络异常, 检查更新失败");
         }
     }
+
+    [RelayCommand]
+    private void OpenIssues()
+    {
+        var info = new ProcessStartInfo()
+        {
+            FileName = "https://github.com/textGamex/HOI_Error_Tools/issues/new",
+            UseShellExecute = true,
+        };
+        try
+        {
+            _ = Process.Start(info);
+        }
+        catch (Exception e)
+        {
+            const string message = "GitHub issues 打开失败";
+            _log.Error(e, message);
+            Crashes.TrackError(e);
+            _messageBox.ErrorTip(message);
+        }
+        Analytics.TrackEvent("Open issues link");
+    }
 }
