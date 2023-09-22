@@ -521,7 +521,6 @@ public class GameResources
 
     private IReadOnlySet<string> GetResourcesType()
     {
-         
         var builder = ImmutableHashSet.CreateBuilder<string>();
         foreach (var path in _gameResourcesPath.ResourcesTypeFilePathList)
         {

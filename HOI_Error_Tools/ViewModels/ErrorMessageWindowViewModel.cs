@@ -102,9 +102,9 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
             return;
         }
 
-        foreach (var item in list.Cast<ErrorMessageWindowViewModelVo>().ToArray())
+        foreach (var item in list)
         {
-            _errorMessage.Remove(item);
+            _errorMessage.Remove((ErrorMessageWindowViewModelVo)item);
         }
         FilteredErrorMessage.Refresh();
     }
