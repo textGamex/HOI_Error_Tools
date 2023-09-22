@@ -17,7 +17,6 @@ using Microsoft.AppCenter.Crashes;
 using ByteSizeLib;
 using LogLevel = Microsoft.AppCenter.LogLevel;
 using MessageBox = HOI_Error_Tools.Services.MessageBox;
-
 namespace HOI_Error_Tools;
 
 public partial class App : Application
@@ -77,7 +76,7 @@ public partial class App : Application
         AppCenter.Start(PrivateData.AppSecret, typeof(Analytics), typeof(Crashes));
         var countryCode = RegionInfo.CurrentRegion.TwoLetterISORegionName;
         AppCenter.SetCountryCode(countryCode);
-        
+
         MainWindow = Services.GetRequiredService<MainWindow>();
         MainWindow.Show();
     }

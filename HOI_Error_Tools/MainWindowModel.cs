@@ -217,8 +217,7 @@ public partial class MainWindowModel : ObservableObject
             errorList.AddRange(error);
         }
         errorList.AddRange(GameResources.ErrorMessages);
-        var result = errorList.ToImmutable();
-        _errorMessageService.SetErrorMessages(result);
+        _errorMessageService.SetErrorMessages(errorList.ToImmutable());
     }
 
     [RelayCommand]
@@ -253,6 +252,7 @@ public partial class MainWindowModel : ObservableObject
     private static void ClickSettingsButton()
     {
         WeakReferenceMessenger.Default.Send(App.Current.Services.GetRequiredService<GlobalSettings>());
+        Analytics.TrackEvent("Open settings menu");
     }
 
     [RelayCommand]

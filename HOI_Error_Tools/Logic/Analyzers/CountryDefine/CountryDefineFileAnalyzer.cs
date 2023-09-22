@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using ByteSizeLib;
 using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers.Common;
 using HOI_Error_Tools.Logic.Analyzers.Error;
@@ -226,6 +225,7 @@ public sealed partial class CountryDefineFileAnalyzer : AnalyzerBase
             ErrorList.AddRange(Helper.AssertValueTypeIsExpected(leavesNode, keyMap));
 
             var rulingParty = TryGetLeafContent(leavesNode, rulingPartyKey);
+            // TODO: 减少重复代码 (检查关键字是否存在)
             if (rulingParty is null)
             {
                 continue;

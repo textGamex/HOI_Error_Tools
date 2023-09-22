@@ -39,9 +39,12 @@ public sealed class AnalyzerHelper
     public IEnumerable<ErrorMessage> AssertKeywordIsOnly(IReadOnlyCollection<LeafContent> leaves)
     {
         return leaves.Count > 1
-            ? new[] { new ErrorMessage(ErrorCode.KeywordIsRepeated, leaves.Select(item =>
-                    new ParameterFileInfo(_filePath, item.Position)), 
-                $"文件 '{_fileName}' 中存在重复的 '{leaves.First().Key}' 关键字", ErrorLevel.Error) }
+            ? new[]
+            {
+                new ErrorMessage(ErrorCode.KeywordIsRepeated,
+                    leaves.Select(item => new ParameterFileInfo(_filePath, item.Position)),
+                    $"文件 '{_fileName}' 中存在重复的 '{leaves.First().Key}' 关键字", ErrorLevel.Error)
+            }
             : Enumerable.Empty<ErrorMessage>();
     }
 
