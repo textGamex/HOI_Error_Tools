@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using ByteSizeLib;
@@ -6,6 +7,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HOI_Error_Tools.Logic;
 using HOI_Error_Tools.Logic.Analyzers.Util;
+using HOI_Error_Tools.Services;
+using Microsoft.AppCenter.Analytics;
 using NLog;
 
 namespace HOI_Error_Tools.ViewModels;
@@ -24,12 +27,15 @@ public partial class CommonSettingsControlViewModel : ObservableObject
     [ObservableProperty] 
     private string _logFilesSize;
 
-    public CommonSettingsControlViewModel(GlobalSettings globalSettings, ILogger log)
+    private readonly IMessageBox _messageBox;
+
+    public CommonSettingsControlViewModel(GlobalSettings globalSettings, ILogger log, IMessageBox messageBox)
     {
         _globalSettings = globalSettings;
         EnableParseCompletionPrompt = _globalSettings.EnableParseCompletionPrompt;
         EnableAutoCheckUpdate = _globalSettings.EnableAutoCheckUpdate;
         _log = log;
+        _messageBox = messageBox;
         LogFilesSize = GetLogFilesSize();
 
         PropertyChanged += CommonSettingsControlViewModel_PropertyChanged;
@@ -68,10 +74,19 @@ public partial class CommonSettingsControlViewModel : ObservableObject
     {
         foreach (var filePath in Directory.GetFiles(App.LogsFolderPath))
         {
-            File.Delete(filePath);
-            _log.Debug(CultureInfo.InvariantCulture, "Delete file: {Path}", filePath);
+            try
+            {
+                File.Delete(filePath);
+                _log.Debug(CultureInfo.InvariantCulture, "Delete file: {Path}", filePath);
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                _log.Warn(e);
+                _messageBox.ErrorTip($"文件: {filePath} 删除失败");
+            }
         }
-
+        
         LogFilesSize = GetLogFilesSize();
+        Analytics.TrackEvent("Clear Logs folder");
     }
 }
