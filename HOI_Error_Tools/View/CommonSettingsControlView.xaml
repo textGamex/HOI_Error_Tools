@@ -28,6 +28,13 @@
                     Style="{StaticResource MaterialDesignSwitchToggleButton}" />
                 <TextBlock Margin="7" Text="启动时自动检查更新" />
             </WrapPanel>
+
+            <StackPanel>
+                <Button Command="{Binding ClearLogsFolderCommand, Mode=Default}" Content="清理 Logs 文件" />
+                <TextBlock
+                    HorizontalAlignment="Center"
+                    Text="{Binding LogFilesSize, Mode=Default}" />
+            </StackPanel>
         </WrapPanel>
     </Grid>
 </UserControl>
