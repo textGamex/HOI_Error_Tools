@@ -13,11 +13,10 @@ using HOI_Error_Tools.Logic;
 using HOI_Error_Tools.Services;
 using Humanizer;
 using Microsoft.Extensions.DependencyInjection;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows.Data;
 using EnumsNET;
-
 namespace HOI_Error_Tools.ViewModels;
 
 public partial class ErrorMessageWindowViewModel : ObservableObject
@@ -38,7 +37,7 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
     private readonly IErrorFileInfoService _errorFileInfoService;
     private readonly GlobalSettings _settings;
 
-    //private static readonly ILogger Log = App.Current.Services.GetRequiredService<ILogger>();
+    private static readonly ILogger Log = App.Current.Services.GetRequiredService<ILogger>();
 
     public ErrorMessageWindowViewModel(
         IErrorMessageService errorMessageService,
@@ -112,7 +111,12 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
     [RelayCommand]
     private void SelectionChanged(IList selectedItems)
     {
-        _selectedItems = selectedItems.Cast<ErrorMessageWindowViewModelVo>().ToArray();
+        var items = new List<ErrorMessageWindowViewModelVo>(selectedItems.Count);
+        for (int i = 0; i < selectedItems.Count; i++)
+        {
+            items.Add(Unsafe.As<ErrorMessageWindowViewModelVo>(selectedItems[i])!);
+        }
+        _selectedItems = items;
         OnPropertyChanged(nameof(DeleteMenuItemHeader));
     }
 
