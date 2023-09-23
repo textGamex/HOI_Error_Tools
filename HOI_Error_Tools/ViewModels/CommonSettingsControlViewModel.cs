@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using HOI_Error_Tools.Logic;
@@ -38,6 +39,7 @@ public partial class CommonSettingsControlViewModel : ObservableObject
                 break;
         }
 
-        _log.Debug(CultureInfo.InvariantCulture, "Changed value: {Value}", e.PropertyName);
+        _log.Debug(CultureInfo.InvariantCulture, "Changed value: {ValueName} to {Value}", e.PropertyName, 
+            typeof(CommonSettingsControlViewModel).GetProperty(e.PropertyName ?? string.Empty)?.GetValue(this));
     }
 }

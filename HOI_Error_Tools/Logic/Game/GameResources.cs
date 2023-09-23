@@ -437,12 +437,12 @@ public class GameResources
     private static IDictionary<string, BuildingInfo> ParseBuildingInfosToMap(string filePath, Node buildingsNode)
     {
         var map = new Dictionary<string, BuildingInfo>(16);
+        const string fuelSilo = "fuel_silo";
         foreach (var buildingNode in buildingsNode.Nodes)
         {
             var buildingTypeName = buildingNode.Key;
 
             // 排除特殊值, fuel_silo 类型没有最大等级
-            const string fuelSilo = "fuel_silo";
             if (buildingNode.Has(fuelSilo)
                 && buildingNode.Leafs(fuelSilo).First().ValueText.Equals(ScriptKeyWords.Yes, StringComparison.OrdinalIgnoreCase))
             {
@@ -589,7 +589,7 @@ public class GameResources
         }
         catch (IOException e)
         {
-            Log.Error(e, "{Path} 解析失败", filePath);
+            Log.Error(e, "IO 错误, {Path} 解析失败", filePath);
             return null;
         }
     }
