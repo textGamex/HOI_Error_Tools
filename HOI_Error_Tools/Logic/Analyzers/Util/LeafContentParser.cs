@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers.Common;
 
@@ -18,7 +19,7 @@ public class LeafContentParser
         foreach (var keywords in _targetKeywords.TargetKeywords.Values)
         {
             var sharedList = new List<LeafContent>();
-            foreach (var keyword in keywords)
+            foreach (var keyword in CollectionsMarshal.AsSpan(keywords))
             {
                 map[keyword] = sharedList;
             }

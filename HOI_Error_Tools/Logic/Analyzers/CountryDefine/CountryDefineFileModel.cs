@@ -40,7 +40,7 @@ public sealed partial class CountryDefineFileAnalyzer
             var target = new ParserTargetKeywords();
             var ideaLeavesToken = target.Add(Keywords.AddIdeas, Keywords.RemoveIdeas);
             var capitalsToken = target.Add(Keywords.Capital);
-            var oobToken = target.Add("oob", "set_oob", "set_naval_oob", "set_air_oob");
+            var oobToken = target.Add("oob", "set_oob", "set_naval_oob", "set_air_oob", "load_oob");
             var charactersToken = target.Add("recruit_character", "promote_character", "retire_character");
             var usedCountryTagsToken = target.Add(Keywords.Puppet, Keywords.EndPuppet, Keywords.AddToFaction,
                 Keywords.GiveGuarantee, "remove_core_of", "remove_claim_by", "release_puppet", "release",
