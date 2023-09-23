@@ -12,12 +12,22 @@
     mc:Ignorable="d">
 
     <Grid>
-        <WrapPanel>
-            <TextBlock Margin="7" Text="解析完成时通知" />
-            <ToggleButton IsChecked="{Binding EnableParseCompletionPrompt, Mode=Default}" Style="{StaticResource MaterialDesignSwitchToggleButton}" />
-            
-            <TextBlock Margin="7" Text="启动时自动检查更新" />
-            <ToggleButton IsChecked="{Binding EnableAutoCheckUpdate, Mode=Default}" Style="{StaticResource MaterialDesignSwitchToggleButton}" />
+        <WrapPanel Orientation="Vertical">
+            <WrapPanel>
+                <ToggleButton
+                    Margin="7"
+                    IsChecked="{Binding EnableParseCompletionPrompt, Mode=Default}"
+                    Style="{StaticResource MaterialDesignSwitchToggleButton}" />
+                <TextBlock Margin="7" Text="解析完成时弹出通知" />
+            </WrapPanel>
+
+            <WrapPanel>
+                <ToggleButton
+                    Margin="7"
+                    IsChecked="{Binding EnableAutoCheckUpdate, Mode=Default}"
+                    Style="{StaticResource MaterialDesignSwitchToggleButton}" />
+                <TextBlock Margin="7" Text="启动时自动检查更新" />
+            </WrapPanel>
         </WrapPanel>
     </Grid>
 </UserControl>
