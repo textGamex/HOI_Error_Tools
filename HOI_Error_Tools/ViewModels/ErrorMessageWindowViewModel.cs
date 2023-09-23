@@ -14,9 +14,11 @@ using HOI_Error_Tools.Services;
 using Humanizer;
 using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows.Data;
 using EnumsNET;
+
 namespace HOI_Error_Tools.ViewModels;
 
 public partial class ErrorMessageWindowViewModel : ObservableObject
@@ -101,10 +103,14 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
             return;
         }
 
-        foreach (var item in list)
+        for (var index = 0; index < list.Count; index++)
         {
-            _errorMessage.Remove((ErrorMessageWindowViewModelVo)item);
+            Debug.Assert(list[index] is ErrorMessageWindowViewModelVo, 
+                "item class type is not ErrorMessageWindowViewModelVo");
+            var item = Unsafe.As<ErrorMessageWindowViewModelVo>(list[index])!;
+            _errorMessage.Remove(item);
         }
+
         FilteredErrorMessage.Refresh();
     }
 
@@ -114,6 +120,8 @@ public partial class ErrorMessageWindowViewModel : ObservableObject
         var items = new List<ErrorMessageWindowViewModelVo>(selectedItems.Count);
         for (int i = 0; i < selectedItems.Count; i++)
         {
+            Debug.Assert(selectedItems[i] is ErrorMessageWindowViewModelVo, 
+                "item class type is not ErrorMessageWindowViewModelVo");
             items.Add(Unsafe.As<ErrorMessageWindowViewModelVo>(selectedItems[i])!);
         }
         _selectedItems = items;
