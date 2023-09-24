@@ -11,29 +11,35 @@
     d:DesignWidth="800"
     mc:Ignorable="d">
 
+    <UserControl.Resources>
+        <Style
+            x:Key="ToggleButtonStyle"
+            BasedOn="{StaticResource MaterialDesignSwitchToggleButton}"
+            TargetType="ToggleButton">
+            <Setter Property="Margin" Value="7" />
+        </Style>
+
+        <Style x:Key="TextBlackStyle" TargetType="TextBlock">
+            <Setter Property="Margin" Value="7" />
+            <Setter Property="FontSize" Value="13" />
+        </Style>
+    </UserControl.Resources>
+
     <Grid>
         <WrapPanel Orientation="Vertical">
             <WrapPanel>
-                <ToggleButton
-                    Margin="7"
-                    IsChecked="{Binding EnableParseCompletionPrompt, Mode=Default}"
-                    Style="{StaticResource MaterialDesignSwitchToggleButton}" />
-                <TextBlock Margin="7" Text="解析完成时弹出通知" />
+                <ToggleButton IsChecked="{Binding EnableParseCompletionPrompt, Mode=Default}" Style="{StaticResource ToggleButtonStyle}" />
+                <TextBlock Style="{StaticResource TextBlackStyle}" Text="解析完成时弹出通知" />
             </WrapPanel>
 
             <WrapPanel>
-                <ToggleButton
-                    Margin="7"
-                    IsChecked="{Binding EnableAutoCheckUpdate, Mode=Default}"
-                    Style="{StaticResource MaterialDesignSwitchToggleButton}" />
-                <TextBlock Margin="7" Text="启动时自动检查更新" />
+                <ToggleButton IsChecked="{Binding EnableAutoCheckUpdate, Mode=Default}" Style="{StaticResource ToggleButtonStyle}" />
+                <TextBlock Style="{StaticResource TextBlackStyle}" Text="启动时自动检查更新" />
             </WrapPanel>
 
             <StackPanel>
                 <Button Command="{Binding ClearLogsFolderCommand, Mode=Default}" Content="清理 Logs 文件" />
-                <TextBlock
-                    HorizontalAlignment="Center"
-                    Text="{Binding LogFilesSize, Mode=Default}" />
+                <TextBlock HorizontalAlignment="Center" Text="{Binding LogFilesSize, Mode=Default}" />
             </StackPanel>
         </WrapPanel>
     </Grid>
