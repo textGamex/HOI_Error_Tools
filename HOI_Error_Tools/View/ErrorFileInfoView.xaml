@@ -30,6 +30,15 @@
                 <DataGridTextColumn Binding="{Binding FilePath, Mode=Default}" Header="文件路径" />
                 <DataGridTextColumn Binding="{Binding ErrorLine, Mode=Default}" Header="行号" />
             </DataGrid.Columns>
+
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem
+                        Command="{Binding OpenFileInVsCodeCommand, Mode=Default}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}, Path=PlacementTarget.SelectedItem, Mode=Default}"
+                        Header="使用 VSCode 打开" />
+                </ContextMenu>
+            </DataGrid.ContextMenu>
         </DataGrid>
     </Grid>
 </Window>
