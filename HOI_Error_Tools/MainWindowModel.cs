@@ -142,7 +142,7 @@ public partial class MainWindowModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task StartParse()
+    private async Task StartParseAsync()
     {
         if (string.IsNullOrEmpty(GameRootPath) || string.IsNullOrEmpty(ModRootPath))
         {
