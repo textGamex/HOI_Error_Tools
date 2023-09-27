@@ -223,7 +223,7 @@ public partial class MainWindowModel : ObservableObject
     [RelayCommand]
     private void ClickAboutButton()
     {
-        _messageBox.Show($".NET: {Environment.Version}\n 作者: textGamex");
+        _messageBox.Show($".NET: {Environment.Version}\n 作者: textGamex \n 软件版本: {App.AppVersion}", "关于");
     }
 
     [RelayCommand]
