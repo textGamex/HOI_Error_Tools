@@ -125,19 +125,19 @@ public static class ParseHelper
                 new LeavesNodeWithCondition(n.Key, GetAllLeafContentInCurrentNode(n), new Position(n.Position), condition)));
     }
 
-    private static IEnumerable<T> GetValueWithCondition<T,TU>(Node rootNode, Func<Node,IEnumerable<TU>> func, 
-        Func<IEnumerable<TU>, Condition, IEnumerable<T>> action)
+    private static IEnumerable<TResult> GetValueWithCondition<TResult, TTarget>(Node rootNode, Func<Node,IEnumerable<TTarget>> dataSource, 
+        Func<IEnumerable<TTarget>, Condition, IEnumerable<TResult>> result)
     {
-        var list = new List<T>();
+        var list = new List<TResult>();
         foreach (var node in GetAllNodes(rootNode))
         {
             var condition = Condition.Empty;
-            var enumerable = func(node);
+            var enumerable = dataSource(node);
             if (Value.TryParseDate(node.Key, out var date))
             {
                 condition = new Condition(date);
             }
-            list.AddRange(action(enumerable, condition));
+            list.AddRange(result(enumerable, condition));
         }
         return list;
     }
