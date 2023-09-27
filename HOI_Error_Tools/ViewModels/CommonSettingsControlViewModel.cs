@@ -24,6 +24,9 @@ public partial class CommonSettingsControlViewModel : ObservableObject
     [ObservableProperty] 
     private bool _enableAutoCheckUpdate;
 
+    [ObservableProperty]
+    private bool _enableAppCenter;
+
     [ObservableProperty] 
     private string _logFilesSize;
 
@@ -34,6 +37,7 @@ public partial class CommonSettingsControlViewModel : ObservableObject
         _globalSettings = globalSettings;
         EnableParseCompletionPrompt = _globalSettings.EnableParseCompletionPrompt;
         EnableAutoCheckUpdate = _globalSettings.EnableAutoCheckUpdate;
+        EnableAppCenter = _globalSettings.EnableAppCenter;
         _log = log;
         _messageBox = messageBox;
         LogFilesSize = GetLogFilesSize();
@@ -50,6 +54,9 @@ public partial class CommonSettingsControlViewModel : ObservableObject
                 break;
             case nameof(EnableAutoCheckUpdate):
                 _globalSettings.EnableAutoCheckUpdate = EnableAutoCheckUpdate;
+                break;
+            case nameof(EnableAppCenter):
+                _globalSettings.EnableAppCenter =  EnableAppCenter;
                 break;
         }
 

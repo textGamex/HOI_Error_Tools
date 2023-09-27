@@ -116,6 +116,8 @@ public partial class App : Application
     {
 #if DEBUG
         AppCenter.SetEnabledAsync(false);
+#elif RELEASE
+        AppCenter.SetEnabledAsync(Current.Services.GetRequiredService<GlobalSettings>().EnableAppCenter);
 #endif
         AppCenter.SetMaxStorageSizeAsync((long)ByteSize.FromMebiBytes(25).Bytes);
         AppCenter.LogLevel = LogLevel.Info;

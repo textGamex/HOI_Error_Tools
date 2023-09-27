@@ -37,6 +37,11 @@
                 <TextBlock Style="{StaticResource TextBlackStyle}" Text="启动时自动检查更新" />
             </WrapPanel>
 
+            <WrapPanel>
+                <ToggleButton IsChecked="{Binding EnableAppCenter, Mode=Default}" Style="{StaticResource ToggleButtonStyle}" />
+                <TextBlock Style="{StaticResource TextBlackStyle}" Text="允许 App Center" />
+            </WrapPanel>
+
             <StackPanel>
                 <Button Command="{Binding ClearLogsFolderCommand, Mode=Default}" Content="清理 Logs 文件" />
                 <TextBlock HorizontalAlignment="Center" Text="{Binding LogFilesSize, Mode=Default}" />

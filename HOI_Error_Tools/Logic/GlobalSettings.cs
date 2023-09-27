@@ -15,6 +15,7 @@ public sealed class GlobalSettings
     public HashSet<ErrorType> InhibitedErrorTypes { get; }
     public bool EnableParseCompletionPrompt { get; set; } = true;
     public bool EnableAutoCheckUpdate { get; set; } = true;
+    public bool EnableAppCenter { get; set; } = true;
 
     private static readonly string SettingsFilePath = Path.Combine(SettingsFolderPath, "MainSettings.json");
     public static GlobalSettings Load()
