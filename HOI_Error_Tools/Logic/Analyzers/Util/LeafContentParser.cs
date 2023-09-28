@@ -5,18 +5,13 @@ using HOI_Error_Tools.Logic.Analyzers.Common;
 
 namespace HOI_Error_Tools.Logic.Analyzers.Util;
 
-public class LeafContentParser
+public static class LeafContentParser
 {
-    public LeafContentParser(ParserTargetKeywords targetKeywords)
+    public static void ParseValueToObject<T>(ParserTargetKeywords parserTargetKeywords, T obj, Node rootNode)
     {
-        _targetKeywords = targetKeywords;
-    }
-
-    public Dictionary<ParserTargetKeywords.KeywordGroupToken, List<LeafContent>> Parse(Node rootNode)
-    {
-        var targetKeywords = _targetKeywords.Keywords;
+        var targetKeywords = parserTargetKeywords.Keywords;
         var map = new Dictionary<string, List<LeafContent>>(targetKeywords.Count);
-        foreach (var keywords in _targetKeywords.TargetKeywords.Values)
+        foreach (var keywords in parserTargetKeywords.TargetKeywords.Values)
         {
             var sharedList = new List<LeafContent>();
             foreach (var keyword in CollectionsMarshal.AsSpan(keywords))
@@ -24,22 +19,23 @@ public class LeafContentParser
                 map[keyword] = sharedList;
             }
         }
-        
+
         var leaves = ParseHelper.GetLeafContentsInChildren(rootNode, targetKeywords);
         foreach (var leaf in leaves)
         {
             map[leaf.Key].Add(leaf);
         }
-        
-        var result = new Dictionary<ParserTargetKeywords.KeywordGroupToken, List<LeafContent>>(_targetKeywords.TargetKeywords.Count);
-        foreach (var item in _targetKeywords.TargetKeywords.Keys)
+
+        var result = new Dictionary<ParserTargetKeywords.KeywordGroupToken, List<LeafContent>>(parserTargetKeywords.TargetKeywords.Count);
+        foreach (var item in parserTargetKeywords.TargetKeywords.Keys)
         {
-            var keywordsList = _targetKeywords.TargetKeywords[item];
+            var keywordsList = parserTargetKeywords.TargetKeywords[item];
             result.Add(item, map[keywordsList[0]]);
         }
 
-        return result;
+        foreach (var (propertyName, value) in parserTargetKeywords.ObjectPropertiesSetter)
+        {
+            typeof(T).GetProperty(propertyName)?.SetValue(obj, result[value]);
+        }
     }
-
-    private readonly ParserTargetKeywords _targetKeywords;
 }
