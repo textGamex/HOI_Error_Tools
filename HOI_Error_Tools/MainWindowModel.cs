@@ -9,7 +9,6 @@ using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic.Analyzers.State;
 using NLog;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -211,13 +210,13 @@ public partial class MainWindowModel : ObservableObject
             .ToList();
         await Task.WhenAll(errorsTask);
 
-        var errorList = ImmutableList.CreateBuilder<ErrorMessage>();
+        var errorList = new List<ErrorMessage>(256);
         foreach (var error in errorsTask.Select(x => x.Result))
         {
             errorList.AddRange(error);
         }
         errorList.AddRange(GameResources.ErrorMessages);
-        _errorMessageService.SetErrorMessages(errorList.ToImmutable());
+        _errorMessageService.SetErrorMessages(errorList);
     }
 
     [RelayCommand]
