@@ -8,10 +8,10 @@ namespace HOI_Error_Tools.Logic.Analyzers.Util;
 
 public sealed partial class ParserTargetKeywords
 {
-    public IReadOnlyDictionary<KeywordGroupToken, List<string>> TargetKeywords => _map;
+    public IReadOnlyDictionary<KeywordGroupToken, List<string>> TargetKeywords => _keywordsMap;
     public IEnumerable<(string PropertyName, KeywordGroupToken Value)> ObjectPropertiesSetter => _propertiesValue;
-    public IReadOnlySet<string> Keywords => _map.SelectMany(item => item.Value).ToHashSet();
-    private readonly Dictionary<KeywordGroupToken, List<string>> _map = new(8);
+    public IReadOnlySet<string> Keywords => _keywordsMap.SelectMany(item => item.Value).ToHashSet();
+    private readonly Dictionary<KeywordGroupToken, List<string>> _keywordsMap = new(8);
     private readonly List<(string PropertyName, KeywordGroupToken Value)> _propertiesValue = new(8);
     private static readonly ILogger Log = App.Current.Services.GetRequiredService<ILogger>();
 
@@ -33,14 +33,14 @@ public sealed partial class ParserTargetKeywords
             }
         }
 #endif
-        _map.Add(token, keywords);
+        _keywordsMap.Add(token, keywords);
         _propertiesValue.Add((propertyName, token));
     }
 
     public void Bind(string propertyName, string keyword)
     {
         var token = new KeywordGroupToken(keyword);
-        _map.Add(token, new List<string>(1) { keyword });
+        _keywordsMap.Add(token, new List<string>(1) { keyword });
         _propertiesValue.Add((propertyName, token));
     }
 }
