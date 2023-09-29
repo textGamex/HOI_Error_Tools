@@ -33,7 +33,7 @@ public sealed partial class CountryDefineFileAnalyzer
             _rootNode = rootNode;
 
             SetPopularitiesList = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_popularities").ToList();
-            OwnIdeaNodes = GetOwnIdeas();
+            OwnIdeaNodes = ParseHelper.GetLeafValueNodesInChildren(_rootNode, OwnIdeasKeywords).ToList();
             SetPoliticsList = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_politics").ToList();
             UsedVariable = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_variable").ToList();
             
@@ -49,12 +49,7 @@ public sealed partial class CountryDefineFileAnalyzer
             SetAutonomies = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_autonomy").ToList();
             SetTechnologies = ParseHelper.GetAllLeafContentInRootNode(rootNode, "set_technology").ToList();
         }
-        
-        private IReadOnlyList<LeafValueNode> GetOwnIdeas()
-        {
-            return ParseHelper.GetLeafValueNodesInChildren(_rootNode, OwnIdeasKeywords).ToList();
-        }
-        
+
         private static class Keywords
         {
             public const string AddIdeas = "add_ideas";
