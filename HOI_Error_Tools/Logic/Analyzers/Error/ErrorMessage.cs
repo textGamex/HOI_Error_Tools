@@ -1,4 +1,5 @@
-﻿using HOI_Error_Tools.Logic.Analyzers.Common;
+﻿using System;
+using HOI_Error_Tools.Logic.Analyzers.Common;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -44,6 +45,11 @@ public class ErrorMessage
             }
             else
             {
+                if (type == ErrorType.Modification)
+                {
+                    return ErrorType.Mixing;
+                }
+
                 type = ErrorType.Game;
             }
         }
@@ -53,9 +59,10 @@ public class ErrorMessage
 
     private static bool IsModification(ParameterFileInfo info)
     {
-        const string localModPath = @"Hearts of Iron IV\mod\";
+        const string localModPath = @"Hearts of Iron IV\mod";
         const string steamModPath = @"steamapps\workshop";
 
-        return info.FilePath.Contains(localModPath) || info.FilePath.Contains(steamModPath);
+        return info.FilePath.Contains(localModPath) ||
+               info.FilePath.Contains(steamModPath);
     }
 }
