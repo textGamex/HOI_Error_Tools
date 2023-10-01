@@ -61,6 +61,6 @@
 - Json库: `Newtonsoft.Json`
 - DI框架: `Microsoft.Extensions.DependencyInjection`
 - MVVM工具包: `CommunityToolkit.Mvvm`
-- HOI4解析库: 经过定向优化的`CWTools_Plus` (原项目: [`CWTools`](https://github.com/cwtools/cwtools]))
+- HOI4解析库: 经过定向优化的`CWTools_Plus` (原项目: [`CWTools`](https://github.com/cwtools/cwtools))
 - WPF 主题: `MaterialDesignInXamlToolkit`
 - App 更新检查库: [`AppUpdate`](https://github.com/textGamex/AppUpdate)
