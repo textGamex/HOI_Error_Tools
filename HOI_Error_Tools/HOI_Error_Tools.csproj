@@ -37,7 +37,7 @@
 	<PackageReference Include="Jot" Version="2.1.17" />
 	<PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
 	<PackageReference Include="Microsoft.AppCenter.Analytics" Version="5.0.3" />
-	<PackageReference Include="Microsoft.AppCenter.Crashes" Version="5.0.2" />
+	<PackageReference Include="Microsoft.AppCenter.Crashes" Version="5.0.3" />
 	<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
 	<PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.3" />
 	<PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
