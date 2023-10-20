@@ -10,6 +10,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using HOI_Error_Tools.Logic.Util;
 using Humanizer;
 
 namespace HOI_Error_Tools.ViewModels;
@@ -77,9 +78,7 @@ public partial class ErrorMessageSettingsControlViewModel : ObservableObject
         ProcessChangedErrorCodes();
         Task.Run(async () => await _settings.SaveAsync());
 
-        new ToastContentBuilder()
-            .AddText("设置已保存")
-            .Show();
+        ToastService.Push("设置已保存");
     }
 
     [RelayCommand]

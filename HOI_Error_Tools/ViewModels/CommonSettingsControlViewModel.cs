@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HOI_Error_Tools.Logic;
 using HOI_Error_Tools.Logic.Analyzers.Util;
+using HOI_Error_Tools.Logic.Util;
 using HOI_Error_Tools.Services;
 using Microsoft.AppCenter.Analytics;
 using NLog;
@@ -79,7 +80,13 @@ public partial class CommonSettingsControlViewModel : ObservableObject
     [RelayCommand]
     private void ClearLogsFolder()
     {
-        foreach (var filePath in Directory.GetFiles(App.LogsFolderPath))
+        var files = Directory.GetFiles(App.LogsFolderPath);
+        if (files.Length == 0)
+        {
+            return;
+        }
+
+        foreach (var filePath in files)
         {
             try
             {
@@ -94,6 +101,7 @@ public partial class CommonSettingsControlViewModel : ObservableObject
         }
         
         LogFilesSize = GetLogFilesSize();
+        ToastService.Push("Logs 清理完成");
         Analytics.TrackEvent("Clear Logs folder");
     }
 }

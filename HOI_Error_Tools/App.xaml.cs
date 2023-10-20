@@ -103,7 +103,7 @@ public partial class App : Application
 
     private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
-        Log.Error((Exception)e.ExceptionObject);
+        Log.Error(e.ExceptionObject);
         ErrorTip();
     }
 

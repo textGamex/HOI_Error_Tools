@@ -148,11 +148,10 @@ public partial class MainWindowModel : ObservableObject
             _messageBox.ErrorTip("未选择资源路径");
             return;
         }
-
         StartParseButtonText = "分析中, 请稍等...";
         LoadingCircleIsRunning = true;
 
-        _log.Info("开始分析");
+        _log.Info("开始分析, 游戏目录: {GamePath}, Mod目录: {ModPath}", GameRootPath, ModRootPath);
         var timestamp = Stopwatch.GetTimestamp();
         await StartAnalyzersAsync();
         var elapsedTime = Stopwatch.GetElapsedTime(timestamp);
@@ -223,6 +222,7 @@ public partial class MainWindowModel : ObservableObject
     private void ClickAboutButton()
     {
         _messageBox.Show($".NET: {Environment.Version}\n 作者: textGamex \n 软件版本: {App.AppVersion}", "关于");
+        Analytics.TrackEvent("Click about button");
     }
 
     [RelayCommand]

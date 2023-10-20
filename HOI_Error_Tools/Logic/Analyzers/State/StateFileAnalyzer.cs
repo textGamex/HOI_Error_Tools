@@ -364,8 +364,6 @@ public sealed partial class StateFileAnalyzer : AnalyzerBase
     /// <summary>
     /// 如果 Provinces Key 不存在, 返回空集合
     /// </summary>
-    /// <remarks>
-    /// </remarks>
     /// <param name="model"></param>
     /// <returns></returns>
     private void AnalyzeProvinces(StateModel model)
@@ -430,7 +428,7 @@ public sealed partial class StateFileAnalyzer : AnalyzerBase
             if (!ExistingProvinces.TryGetValue(provinceId, out var infoOfExistingValue))
             {
                 if (!ExistingProvinces.TryAdd(provinceId, new ParameterFileInfo(FilePath, position)))
-                { 
+                {
                     Log.Warn(CultureInfo.InvariantCulture,
                         "Province {Province} 向 {VarName} 添加失败", provinceId, nameof(ExistingProvinces));
                 }

@@ -8,6 +8,7 @@ using HOI_Error_Tools.Logic.Game;
 using HOI_Error_Tools.Services;
 using Microsoft.Extensions.DependencyInjection;
 using HOI_Error_Tools.Logic.Messages;
+using HOI_Error_Tools.Logic.Util;
 using Microsoft.Toolkit.Uwp.Notifications;
 using NLog;
 using MessageBox = System.Windows.MessageBox;
@@ -81,10 +82,7 @@ public partial class MainWindow : Window
 
     private static void ParseCompletionToast(int fileSum, TimeSpan elapsedTime)
     {
-        new ToastContentBuilder()
-            .AddText("解析完成")
-            .AddText($"共解析 {fileSum} 文件, 用时 {elapsedTime.TotalSeconds:F1} 秒")
-            .Show();
+        ToastService.Push("解析完成", $"共解析 {fileSum} 文件, 用时 {elapsedTime.TotalSeconds:F1} 秒");
     }
 
     private void MainWindow_OnClosed(object? sender, EventArgs e)
