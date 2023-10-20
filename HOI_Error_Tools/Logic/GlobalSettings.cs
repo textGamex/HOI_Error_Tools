@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using HOI_Error_Tools.Logic.Analyzers.Error;
-using Newtonsoft.Json;
 
 namespace HOI_Error_Tools.Logic;
 
@@ -18,17 +18,14 @@ public sealed class GlobalSettings
     public bool EnableAppCenter { get; set; } = true;
 
     private static readonly string SettingsFilePath = Path.Combine(SettingsFolderPath, "MainSettings.json");
-    public static GlobalSettings Load()
+
+    public GlobalSettings(HashSet<ErrorCode> inhibitedErrorCodes, HashSet<ErrorType> inhibitedErrorTypes, bool enableParseCompletionPrompt, bool enableAutoCheckUpdate, bool enableAppCenter)
     {
-        if (File.Exists(SettingsFilePath))
-        {
-            return JsonConvert.DeserializeObject<GlobalSettings>(File.ReadAllText(SettingsFilePath)) ??
-                   throw new ArgumentNullException();
-        }
-        else
-        {
-             return new GlobalSettings();
-        }
+        InhibitedErrorCodes = inhibitedErrorCodes;
+        InhibitedErrorTypes = inhibitedErrorTypes;
+        EnableParseCompletionPrompt = enableParseCompletionPrompt;
+        EnableAutoCheckUpdate = enableAutoCheckUpdate;
+        EnableAppCenter = enableAppCenter;
     }
 
     private GlobalSettings()
@@ -37,13 +34,27 @@ public sealed class GlobalSettings
         InhibitedErrorTypes = new HashSet<ErrorType>();
     }
 
+    public static GlobalSettings Load()
+    {
+        if (File.Exists(SettingsFilePath))
+        {
+            return JsonSerializer.Deserialize<GlobalSettings>(File.ReadAllText(SettingsFilePath)) ??
+                   throw new ArgumentNullException(SettingsFilePath);
+        }
+        else
+        {
+            return new GlobalSettings();
+        }
+    }
+
     public async Task SaveAsync()
     {
         if (!Directory.Exists(SettingsFolderPath))
         {
              _ = Directory.CreateDirectory(SettingsFolderPath);
         }
-        await File.WriteAllTextAsync(SettingsFilePath, JsonConvert.SerializeObject(this, Formatting.Indented), 
+        var options = new JsonSerializerOptions { WriteIndented = true };
+        await File.WriteAllTextAsync(SettingsFilePath, JsonSerializer.Serialize(this, options), 
             Encoding.UTF8);
     }
 }
