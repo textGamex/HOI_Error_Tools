@@ -27,7 +27,7 @@ public partial class MainWindow : Window
             Dispatcher.InvokeAsync(() =>
             {
                 StartButton.Content = "完成";
-                this.LoadingCircle.IsIndeterminate = false;
+                LoadingCircle.IsIndeterminate = false;
 
                 var win = App.Current.Services.GetRequiredService<ErrorMessageWindowView>();
                 win.Show();

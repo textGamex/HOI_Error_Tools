@@ -15,18 +15,7 @@ namespace HOI_Error_Tools.Logic.Analyzers.State;
 
 public sealed partial class StateFileAnalyzer : AnalyzerBase
 {
-    /// <summary>
-    /// 在文件中注册的省份ID
-    /// </summary>
-    private readonly IReadOnlySet<uint> _registeredProvinces;
-
-    /// <summary>
-    /// Key 为 建筑名称
-    /// </summary>
-    private readonly IReadOnlyDictionary<string, BuildingInfo> _registeredBuildings;
-    private readonly IReadOnlySet<string> _resourcesTypeSet;
-    private readonly IReadOnlySet<string> _registeredStateCategories;
-    private readonly IReadOnlySet<string> _registeredCountriesTag;
+    private readonly GameResources _resources;
 
     private static readonly ConcurrentDictionary<uint, ParameterFileInfo> ExistingIds = new();
     /// <summary>
@@ -37,11 +26,7 @@ public sealed partial class StateFileAnalyzer : AnalyzerBase
     
     public StateFileAnalyzer(string filePath, GameResources resources) : base(filePath)
     {
-        _registeredProvinces = resources.RegisteredProvinceSet;
-        _registeredBuildings = resources.BuildingInfoMap;
-        _resourcesTypeSet = resources.ResourcesType;
-        _registeredStateCategories = resources.RegisteredStateCategories;
-        _registeredCountriesTag = resources.RegisteredCountriesTag;
+        _resources = resources;
     }
 
     public override IEnumerable<ErrorMessage> GetErrorMessages()
@@ -143,7 +128,7 @@ public sealed partial class StateFileAnalyzer : AnalyzerBase
                 ErrorCode.CountryTagFormatIsInvalid, FilePath, position, $"Country Tag '{countryTag}' 格式错误"));
         }
         
-        if (!_registeredCountriesTag.Contains(countryTag))
+        if (!_resources.RegisteredCountriesTag.Contains(countryTag))
         {
             ErrorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                 ErrorCode.CountryTagNotExists,
@@ -262,7 +247,7 @@ public sealed partial class StateFileAnalyzer : AnalyzerBase
 
     private void CheckProvinceIsExisting(uint provinceId, Position position)
     {
-        if (!_registeredProvinces.Contains(provinceId))
+        if (!_resources.RegisteredProvinces.Contains(provinceId))
         {
             ErrorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                 ErrorCode.ProvinceNotExistsInDefinitionCsvFile,
@@ -349,7 +334,7 @@ public sealed partial class StateFileAnalyzer : AnalyzerBase
         foreach (var stateCategoryLeaf in model.StateCategories)
         {
             var type = stateCategoryLeaf.ValueText;
-            if (!_registeredStateCategories.Contains(type))
+            if (!_resources.RegisteredStateCategories.Contains(type))
             {
                 ErrorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                     ErrorCode.StateCategoryNotExists,
@@ -408,7 +393,7 @@ public sealed partial class StateFileAnalyzer : AnalyzerBase
     {
         foreach (var (provinceId, position) in provinces)
         {
-            if (!_registeredProvinces.Contains(provinceId))
+            if (!_resources.RegisteredProvinces.Contains(provinceId))
             {
                 ErrorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                     ErrorCode.ProvinceNotExistsInDefinitionCsvFile,
@@ -483,7 +468,7 @@ public sealed partial class StateFileAnalyzer : AnalyzerBase
             }
 
             // 建筑类型和建筑等级是否为整数可以一起判断
-            if (!_registeredBuildings.TryGetValue(buildingType, out var buildingInfo))
+            if (!_resources.BuildingInfoMap.TryGetValue(buildingType, out var buildingInfo))
             {
                 errorMessages.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                     ErrorCode.InvalidValue, FilePath, building.Position, $"建筑类型 '{buildingType}' 不存在"));
@@ -581,7 +566,7 @@ public sealed partial class StateFileAnalyzer : AnalyzerBase
 
     private void CheckResourceIsExisting(string  resourceType, Position position)
     {
-        if (!_resourcesTypeSet.Contains(resourceType))
+        if (!_resources.ResourcesType.Contains(resourceType))
         {
             ErrorList.Add(ErrorMessageFactory.CreateSingleFileErrorWithPosition(
                 ErrorCode.InvalidValue, FilePath, position, $"战略资源类型 '{resourceType}' 不存在"));

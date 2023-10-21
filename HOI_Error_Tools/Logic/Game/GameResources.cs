@@ -23,8 +23,11 @@ namespace HOI_Error_Tools.Logic.Game;
 public class GameResources
 {
     public static IReadOnlyCollection<ErrorMessage> ErrorMessages => ErrorMessageCache;
-    public IReadOnlySet<uint> RegisteredProvinceSet => _registeredProvinces;
-    public IReadOnlyDictionary<string, BuildingInfo> BuildingInfoMap => _buildingInfos;
+
+    /// <summary>
+    /// Key 为 建筑名称
+    /// </summary>
+    public IReadOnlyDictionary<string, BuildingInfo> BuildingInfoMap { get; set; }
     public IReadOnlySet<string> ResourcesType { get; private set; }
     public IReadOnlySet<string> RegisteredStateCategories { get; private set; }
     public IReadOnlySet<string> RegisteredCountriesTag { get; private set; }
@@ -34,15 +37,18 @@ public class GameResources
     public IReadOnlySet<string> RegisteredTechnologiesSet { get; private set; }
     public IReadOnlySet<string> RegisteredAutonomousState { get; private set; }
     public IReadOnlySet<string> RegisteredCharacters { get; private set; }
+
+    /// <summary>
+    /// 在文件中注册的省份ID
+    /// </summary>
+    public IReadOnlySet<uint> RegisteredProvinces { get; private set; }
+
     /// <summary>
     /// 文件名, 不包含文件后缀
     /// </summary>
     public IReadOnlySet<string> RegisteredOobFileNames { get; private set; }
 
-    private ImmutableDictionary<string, BuildingInfo> _buildingInfos;
-    private ImmutableHashSet<uint> _registeredProvinces;
     private readonly GameResourcesPath _gameResourcesPath;
-
     private static readonly ConcurrentBag<ErrorMessage> ErrorMessageCache = new();
     private static readonly ILogger Log = App.Current.Services.GetRequiredService<ILogger>();
 
@@ -56,8 +62,8 @@ public class GameResources
         _gameResourcesPath = paths;
         var tasks = new[]
         {
-            Task.Run(() => _registeredProvinces = GetRegisteredProvinceSet()),
-            Task.Run(() => _buildingInfos = GetRegisteredBuildings()),
+            Task.Run(() => RegisteredProvinces = GetRegisteredProvinceSet()),
+            Task.Run(() => BuildingInfoMap = GetRegisteredBuildings()),
             Task.Run(() => ResourcesType = GetResourcesType()),
             Task.Run(() => RegisteredStateCategories = GetRegisteredStateCategories()),
             Task.Run(() => RegisteredCountriesTag = GetCountriesTag()),
@@ -66,11 +72,11 @@ public class GameResources
             Task.Run(() => RegisteredAutonomousState = GetRegisteredAutonomousState()),
             Task.Run(() => RegisteredCharacters = GetRegisteredCharacters()),
             Task.Run(() => RegisteredOobFileNames = GetExistOobFiles()),
-            Task.Run((() =>
+            Task.Run(() =>
             {
                 var registeredIdeaTag = GetRegisteredIdeaTags();
                 RegisteredIdeas = GetRegisteredIdeas(registeredIdeaTag.ToList());
-            })), 
+            }), 
         };
         
         //RegisteredEquipmentSet = GetRegisteredEquipment();
