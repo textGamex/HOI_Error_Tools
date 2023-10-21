@@ -31,15 +31,11 @@ public sealed class GameResourcesPath
     public IReadOnlyList<string> AutonomousStateFilesPath { get; }
     public IReadOnlyList<string> CharactersFilesPath { get; }
     public IReadOnlyList<string> OobFilesPath { get; }
-    public IReadOnlyList<string> BuildingsFilePathList => _buildingsFilePathList;
-    public IReadOnlyList<string> ResourcesTypeFilePathList => _resourcesTypeFilePathList;
-    public IReadOnlyList<string> StatesFilePathList => _statesFilePathList;
-
+    public IReadOnlyList<string> BuildingsFilePathList { get; }
+    public IReadOnlyList<string> ResourcesTypeFilePathList { get; }
+    public IReadOnlyList<string> StatesFilePathList { get; }
     public int FileSum { get; }
 
-    private readonly ImmutableList<string> _statesFilePathList;
-    private readonly ImmutableList<string> _buildingsFilePathList;
-    private readonly ImmutableList<string> _resourcesTypeFilePathList;
     private readonly Descriptor _descriptor;
     private static readonly ILogger Log = App.Current.Services.GetRequiredService<ILogger>();
 
@@ -84,16 +80,11 @@ public sealed class GameResourcesPath
         AutonomousStateFilesPath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "autonomous_states")).ToList();
         CharactersFilesPath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.Characters)).ToList();
         OobFilesPath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(ScriptKeyWords.History, "units")).ToList();
-
-        CountriesTagFilePath = ImmutableList.CreateRange(GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "country_tags")));
-        IdeologiesFilePath = ImmutableList.CreateRange(GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.Ideologies)));
-
-        _buildingsFilePathList = ImmutableList.CreateRange(
-            GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.Buildings)));
-        _statesFilePathList = ImmutableList.CreateRange(
-            GetAllFilePriorModByRelativePathForFolder(Path.Combine(ScriptKeyWords.History, Key.States)));
-        _resourcesTypeFilePathList = ImmutableList.CreateRange(
-            GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "resources")));
+        CountriesTagFilePath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "country_tags")).ToList();
+        IdeologiesFilePath = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.Ideologies)).ToList();
+        BuildingsFilePathList = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, ScriptKeyWords.Buildings)).ToList();
+        StatesFilePathList = GetAllFilePriorModByRelativePathForFolder(Path.Combine(ScriptKeyWords.History, Key.States)).ToList();
+        ResourcesTypeFilePathList = GetAllFilePriorModByRelativePathForFolder(Path.Combine(Key.Common, "resources")).ToList();
 
         FileSum = GetFileSum();
     }

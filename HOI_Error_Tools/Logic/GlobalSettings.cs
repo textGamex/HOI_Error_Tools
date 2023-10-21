@@ -47,14 +47,14 @@ public sealed class GlobalSettings
         }
     }
 
-    public async Task SaveAsync()
+    public Task SaveAsync()
     {
         if (!Directory.Exists(SettingsFolderPath))
         {
              _ = Directory.CreateDirectory(SettingsFolderPath);
         }
         var options = new JsonSerializerOptions { WriteIndented = true };
-        await File.WriteAllTextAsync(SettingsFilePath, JsonSerializer.Serialize(this, options), 
+        return File.WriteAllTextAsync(SettingsFilePath, JsonSerializer.Serialize(this, options), 
             Encoding.UTF8);
     }
 }

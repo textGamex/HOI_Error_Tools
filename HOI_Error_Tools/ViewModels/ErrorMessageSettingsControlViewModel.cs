@@ -3,11 +3,9 @@ using CommunityToolkit.Mvvm.Input;
 using EnumsNET;
 using HOI_Error_Tools.Logic.Analyzers.Error;
 using HOI_Error_Tools.Logic;
-using Microsoft.Toolkit.Uwp.Notifications;
 using NLog;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using HOI_Error_Tools.Logic.Util;
@@ -76,7 +74,7 @@ public partial class ErrorMessageSettingsControlViewModel : ObservableObject
             return;
         }
         ProcessChangedErrorCodes();
-        Task.Run(async () => await _settings.SaveAsync());
+        Task.Run(() => _settings.SaveAsync());
 
         ToastService.Push("设置已保存");
     }
