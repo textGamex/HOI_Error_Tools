@@ -1,6 +1,7 @@
 ﻿using Jot.Storage;
 using Jot;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
@@ -79,11 +80,26 @@ public partial class App : Application
     private void App_OnStartup(object sender, StartupEventArgs e)
     {
         SetAppCenter();
+        OnFirstStarting(() => Analytics.TrackEvent("Version", new Dictionary<string, string>
+        {
+            {"Version", AppVersion}
+        }));
+        
         AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
         Application.Current.DispatcherUnhandledException += OnDispatcherUnhandledException;
         TaskScheduler.UnobservedTaskException += TaskSchedulerOnUnobservedTaskException;
         MainWindow = Services.GetRequiredService<MainWindow>();
         MainWindow.Show();
+    }
+
+    private static void OnFirstStarting(Action action)
+    {
+        var filePath = Path.Combine(Environment.CurrentDirectory, "mark");
+        if (!File.Exists(filePath))
+        {
+            action();
+            File.Create(filePath).Close();
+        }
     }
 
     private static void TaskSchedulerOnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)

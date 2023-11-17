@@ -215,6 +215,16 @@ public partial class MainWindowModel : ObservableObject
             errorList.AddRange(error);
         }
         errorList.AddRange(GameResources.ErrorMessages);
+
+        var mixingErrorCount = errorList.Count(i => i.Type is ErrorType.Mixing);
+        var modErrorCount = errorList.Count(i => i.Type is ErrorType.Modification);
+        _log.Info("Mod 错误数量: {ModErrorCount}", modErrorCount + mixingErrorCount);
+        Analytics.TrackEvent("Mod 错误数量", new Dictionary<string, string>(2)
+        {
+            {"Mod 错误", modErrorCount.ToString(CultureInfo.InvariantCulture)},
+            {"混合 错误", mixingErrorCount.ToString(CultureInfo.InvariantCulture)}
+        });
+
         _errorMessageService.SetErrorMessages(errorList);
     }
 
