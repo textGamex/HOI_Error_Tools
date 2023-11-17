@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -57,7 +57,9 @@ public class GameResources
     {
     }
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     public GameResources(GameResourcesPath paths)
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     {
         _gameResourcesPath = paths;
         var tasks = new[]
@@ -85,7 +87,7 @@ public class GameResources
 
     private IReadOnlySet<string> GetExistOobFiles()
     {
-        var setBuild = ImmutableHashSet.CreateBuilder<string>();
+        var setBuild = new HashSet<string>(256);
 
         foreach (var path in _gameResourcesPath.OobFilesPath)
         {
@@ -93,7 +95,7 @@ public class GameResources
             setBuild.Add(fileName);
         }
 
-        return setBuild.ToImmutable();
+        return setBuild.ToFrozenSet();
     }
 
     private IReadOnlySet<string> GetRegisteredCharacters()
@@ -103,7 +105,7 @@ public class GameResources
 
     private IReadOnlySet<string> GetRegisteredAutonomousState()
     {
-        var set = ImmutableHashSet.CreateBuilder<string>();
+        var set = new HashSet<string>(16);
 
         foreach (var path in _gameResourcesPath.AutonomousStateFilesPath)
         {
@@ -135,7 +137,7 @@ public class GameResources
             }
         }
 
-        return set.ToImmutable();
+        return set.ToFrozenSet();
     }
 
     private IReadOnlySet<string> GetRegisteredTechnologies()
@@ -183,7 +185,7 @@ public class GameResources
                 }
             }
         }
-        return dictionary.Keys.ToImmutableHashSet();
+        return dictionary.Keys.ToFrozenSet();
     }
 
     private IEnumerable<string> GetRegisteredIdeaTags()
@@ -246,7 +248,7 @@ public class GameResources
             MergeMap(map, subordinateMap);
         }
 
-        return map.Select(item => item.Key).ToImmutableHashSet();
+        return map.Select(item => item.Key).ToFrozenSet();
     }
 
     private static IReadOnlyDictionary<string, ParameterFileInfo> TryGetIdeas(Node rootNode, string filePath,
@@ -344,7 +346,7 @@ public class GameResources
             }
         }
 
-        return set.Keys.ToImmutableHashSet();
+        return set.Keys.ToFrozenSet();
     }
 
 
@@ -352,7 +354,7 @@ public class GameResources
     private IReadOnlySet<string> GetCountriesTag()
     {
         //TODO: 不能跨文件识别重复的国家标签
-        var builder = ImmutableHashSet.CreateBuilder<string>();
+        var totalCountriesTag = new HashSet<string>(256);
         foreach (var path in _gameResourcesPath.CountriesTagFilePath)
         {
             var result = ParseFile(path);
@@ -361,15 +363,15 @@ public class GameResources
                 continue;
             }
 
-            builder.UnionWith(GetCountriesTagFromFile(path, result));
+            totalCountriesTag.UnionWith(GetCountriesTagFromFile(path, result));
         }
 
-        return builder.ToImmutable();
+        return totalCountriesTag.ToFrozenSet();
     }
 
     private static IReadOnlySet<string> GetCountriesTagFromFile(string filePath, Node result)
     {
-        var separateBuilder = ImmutableHashSet.CreateBuilder<string>();
+        var separateBuilder = new HashSet<string>(128);
         foreach (var leaf in result.Leaves)
         {
             if (leaf.Key.Equals("dynamic_tags", StringComparison.OrdinalIgnoreCase) &&
@@ -386,13 +388,12 @@ public class GameResources
                     filePath, new Position(leaf.Position), $"重复的国家标签 '{leaf.Key}'"));
             }
         }
-        return separateBuilder.ToImmutable();
+        return separateBuilder;
     }
 
     private IReadOnlySet<string> GetRegisteredStateCategories()
     {
-        var builder = ImmutableHashSet.CreateBuilder<string>();
-        
+        var builder = new HashSet<string>(16);
         foreach (var path in _gameResourcesPath.StateCategoriesFilePath)
         {
             var result = ParseFile(path);
@@ -413,12 +414,12 @@ public class GameResources
             }
         }
 
-        return builder.ToImmutable();
+        return builder.ToFrozenSet();
     }
 
-    private ImmutableDictionary<string, BuildingInfo> GetRegisteredBuildings()
+    private IReadOnlyDictionary<string, BuildingInfo> GetRegisteredBuildings()
     {
-        var builder = ImmutableDictionary.CreateBuilder<string, BuildingInfo>();
+        var builder = new Dictionary<string, BuildingInfo>();
         foreach (var filePath in _gameResourcesPath.BuildingsFilePathList)
         {
             var rootNode = ParseFile(filePath);
@@ -433,11 +434,14 @@ public class GameResources
                 continue;
             }
             var buildingsNode = rootNode.Child(ScriptKeyWords.Buildings).Value;
-            var map = ParseBuildingInfosToMap(filePath, buildingsNode);
-            builder.AddRange(map);
+            foreach (var buildingInfo in ParseBuildingInfosToMap(filePath, buildingsNode))
+            {
+                //TODO: 重复时记录
+                builder[buildingInfo.Key] = buildingInfo.Value;
+            }
         }
 
-        return builder.ToImmutable();
+        return builder.ToFrozenDictionary();
     }
 
     private static IDictionary<string, BuildingInfo> ParseBuildingInfosToMap(string filePath, Node buildingsNode)
@@ -500,7 +504,7 @@ public class GameResources
     /// 所有 Province 在文件 Hearts of Iron IV\map\definition.csv 中定义
     /// </remarks>
     /// <returns></returns>
-    private ImmutableHashSet<uint> GetRegisteredProvinceSet()
+    private IReadOnlySet<uint> GetRegisteredProvinceSet()
     {
         var set = new HashSet<uint>(13257);
         using var reader = new StreamReader(_gameResourcesPath.ProvincesDefinitionFilePath, Encoding.UTF8);
@@ -522,12 +526,12 @@ public class GameResources
 
         // 去除 ID 为 0 的未知省份
         set.Remove(0);
-        return ImmutableHashSet.CreateRange(set);
+        return set.ToFrozenSet();
     }
 
     private IReadOnlySet<string> GetResourcesType()
     {
-        var builder = ImmutableHashSet.CreateBuilder<string>();
+        var builder = new HashSet<string>(16);
         foreach (var path in _gameResourcesPath.ResourcesTypeFilePathList)
         {
             var rootNode = ParseFile(path);
@@ -559,7 +563,7 @@ public class GameResources
                         path, $"重复定义的资源类型: '{type}'"));
             }
         }
-        return builder.ToImmutable();
+        return builder.ToFrozenSet();
     }
 
     private static IEnumerable<string> ParseResourcesType(string filePath, Node resourcesNode)
