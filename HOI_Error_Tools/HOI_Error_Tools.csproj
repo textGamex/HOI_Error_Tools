@@ -5,7 +5,7 @@
 	<TargetFramework>net8.0-windows10.0.18362.0</TargetFramework>
 	<Nullable>enable</Nullable>
 	<UseWPF>true</UseWPF>
-	<UseWindowsForms>True</UseWindowsForms>
+	<UseWindowsForms>False</UseWindowsForms>
 	<AnalysisLevel>6.0-recommended</AnalysisLevel>
 	<EnableNETAnalyzers>true</EnableNETAnalyzers>
 	<ApplicationIcon>AppIcon.ico</ApplicationIcon>

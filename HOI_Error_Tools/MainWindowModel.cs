@@ -15,7 +15,6 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Windows.Media.Imaging;
 using AppUpdate.Services;
 using HOI_Error_Tools.Logic.Game;
@@ -25,6 +24,7 @@ using Microsoft.Extensions.DependencyInjection;
 using HOI_Error_Tools.Logic.Messages;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
+using Microsoft.Win32;
 
 namespace HOI_Error_Tools;
 
@@ -115,29 +115,29 @@ public partial class MainWindowModel : ObservableObject
     [RelayCommand]
     private void ClickSelectGameRootPathButton()
     {
-        FolderBrowserDialog dialog = new()
+        OpenFolderDialog dialog = new()
         {
-            Description = "选择游戏文件夹"
+            Title = "选择游戏文件夹"
         };
-        if (dialog.ShowDialog() != DialogResult.OK)
+        if (dialog.ShowDialog() != true)
         {
             return;
         }
-        GameRootPath = dialog.SelectedPath;
+        GameRootPath = dialog.FolderName;
     }
 
     [RelayCommand]
     private void ClickSelectModRootPathButton()
     {
-        FolderBrowserDialog dialog = new()
+        OpenFolderDialog dialog = new()
         {
-            Description = "选择Mod文件夹"
+            Title = "选择Mod文件夹"
         };
-        if (dialog.ShowDialog() != DialogResult.OK)
+        if (dialog.ShowDialog() != true)
         {
             return;
         }
-        ModRootPath = dialog.SelectedPath;
+        ModRootPath = dialog.FolderName;
     }
 
     [RelayCommand]
