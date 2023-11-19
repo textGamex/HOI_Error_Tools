@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Frozen;
+using System.Collections.Generic;
 using System.Linq;
 using CWTools.Process;
 using HOI_Error_Tools.Logic.Analyzers.Common;
@@ -25,8 +25,7 @@ public sealed partial class CountryDefineFileAnalyzer
         
         private readonly Node _rootNode;
         
-        private static readonly ImmutableHashSet<string> OwnIdeasKeywords = 
-            ImmutableHashSet.CreateRange(new []{Keywords.AddIdeas, Keywords.RemoveIdeas});
+        private static readonly FrozenSet<string> OwnIdeasKeywords = new []{Keywords.AddIdeas, Keywords.RemoveIdeas}.ToFrozenSet();
 
         public CountryDefineFileModel(Node rootNode)
         {
