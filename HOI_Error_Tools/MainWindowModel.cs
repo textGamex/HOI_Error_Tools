@@ -152,6 +152,11 @@ public partial class MainWindowModel : ObservableObject
         LoadingCircleIsRunning = true;
 
         _log.Info("开始分析, 游戏目录: {GamePath}, Mod目录: {ModPath}", GameRootPath, ModRootPath);
+        Analytics.TrackEvent("Mod信息", new Dictionary<string, string>(2)
+        {
+            {"Mod Folder name", Path.GetDirectoryName(ModRootPath) ?? "NONE"},
+            {"Mod Name", _descriptor?.Name ?? "NONE"}
+        });
         var timestamp = Stopwatch.GetTimestamp();
         await StartAnalyzersAsync();
         var elapsedTime = Stopwatch.GetElapsedTime(timestamp);
