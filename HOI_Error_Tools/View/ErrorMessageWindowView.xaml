@@ -26,14 +26,15 @@
         <StackPanel Orientation="Horizontal">
             <TextBox
                 MinWidth="150"
+                MaxHeight="55"
                 Margin="10,0,0,0"
                 materialDesign:TextFieldAssist.HasClearButton="True"
                 Text="{Binding SearchText, Mode=Default, UpdateSourceTrigger=PropertyChanged}"
                 TextWrapping="NoWrap">
                 <materialDesign:HintAssist.Hint>
                     <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="Magnify" />
-                        <TextBlock Text="搜索" />
+                        <materialDesign:PackIcon VerticalAlignment="Bottom" Kind="Magnify" />
+                        <TextBlock VerticalAlignment="Bottom" Text="搜索" />
                     </StackPanel>
                 </materialDesign:HintAssist.Hint>
             </TextBox>
@@ -42,16 +43,19 @@
                 Width="Auto"
                 Height="Auto"
                 Margin="10,0,0,0"
+                VerticalAlignment="Center"
                 FontSize="15"
                 Text="{Binding DisplayedErrorCount, Mode=Default}" />
             <TextBlock
                 Width="Auto"
                 Height="Auto"
                 Margin="10,0,0,0"
+                VerticalAlignment="Center"
                 FontSize="15"
                 Text="{Binding IgnoredErrorCount, Mode=Default}" />
             <TextBlock
                 Margin="10,0,0,0"
+                VerticalAlignment="Center"
                 FontSize="15"
                 Text="{Binding ParseDateTime, Mode=Default}" />
         </StackPanel>
